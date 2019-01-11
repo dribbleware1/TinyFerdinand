@@ -39,9 +39,9 @@ public class AssetLoader {
     public void init() throws IOException {// add the things to be loaded in here will be called in beginnig
 
         //Worlds
-        overlay = ImageIO.read(engine.getClass().getResource("/hub 2.png"));
+        overlay = ImageIO.read(engine.getClass().getResource("/Hub/hub 2.png"));
         hotBar = ImageIO.read(engine.getClass().getResource("/hotbar.png"));
-        Hub1 = ImageIO.read(engine.getClass().getResource("/hub.png"));
+        Hub1 = ImageIO.read(engine.getClass().getResource("/Hub/hub.png"));
         exit = ImageIO.read(engine.getClass().getResource("/Menu/exit.png"));
         exit2 = ImageIO.read(engine.getClass().getResource("/Menu/exit - l.png"));
 
@@ -52,7 +52,7 @@ public class AssetLoader {
         opt2 = ImageIO.read(engine.getClass().getResource("/Menu/options - l.png"));
         cont = ImageIO.read(engine.getClass().getResource("/Menu/continue.png"));
         cont2 = ImageIO.read(engine.getClass().getResource("/Menu/continue - l.png"));
-        menuBack = ImageIO.read(engine.getClass().getResource("/menu background.png"));
+        menuBack = ImageIO.read(engine.getClass().getResource("/Menu/menu background.png"));
 
         //Options menu
         deb = ImageIO.read(engine.getClass().getResource("/Menu/debug.png"));
@@ -70,11 +70,11 @@ public class AssetLoader {
         framerate2 = ImageIO.read(engine.getClass().getResource("/Menu/framerate - l.png"));
 
         //pause menu
-        pause = ImageIO.read(engine.getClass().getResource("/pause.png"));
-        exitToTitle = ImageIO.read(engine.getClass().getResource("/exittotitle.png"));
-        exitToTitle2 = ImageIO.read(engine.getClass().getResource("/exittotitle - l.png"));
+        pause = ImageIO.read(engine.getClass().getResource("/Pause/pause.png"));
+        exitToTitle = ImageIO.read(engine.getClass().getResource("/Pause/exittotitle.png"));
+        exitToTitle2 = ImageIO.read(engine.getClass().getResource("/Pause/exittotitle - l.png"));
         //Player
-        walkSheet = ImageIO.read(engine.getClass().getResource("/walkSheet.png"));
+        walkSheet = ImageIO.read(engine.getClass().getResource("/Player/walkSheet.png"));
         for (int i = 0; i < 9; i++) {
             walkUp.add(Crop(walkSheet, 0 + (width * i), 0, width, height));
         }

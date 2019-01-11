@@ -158,7 +158,7 @@ public class Menu {
             eng.left = false;
         }
         //debug off
-        if (contains(deboff) && eng.left && opty && eng.debug) {
+        if (contains(deboff) && eng.left && opty && !eng.debug) {
             eng.debug = true;
             eng.left = false;
         }
