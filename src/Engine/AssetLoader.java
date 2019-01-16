@@ -21,10 +21,13 @@ public class AssetLoader {
     public BufferedImage menuBack, title, title2, cont, cont2, opt, opt2; //Main menu
     public BufferedImage deb, on, on2, off, off2, back, back2, exit, exit2, framerate, sixty, uncapped, reset, framerate2, reset2; //Options menu
     public BufferedImage pause, exitToTitle, exitToTitle2;//Pause menu
-    public BufferedImage walkSheet;//player walk sprite sheet
+    public BufferedImage walkSheet, dropShadow;//player walk sprite sheet
     private final int width = 64, height = 64;//sprite sheet setup
     public BufferedImage decoSheet, logs;//decoration sprite sheet
     public BufferedImage terrainSheet, rocks;//decoration sprite sheet
+    
+    public BufferedImage greyBox;
+    
     //array for the walking animations
     public List<BufferedImage> walkUp = new ArrayList<>();
     public List<BufferedImage> walkLeft = new ArrayList<>();
@@ -75,6 +78,9 @@ public class AssetLoader {
         exitToTitle2 = ImageIO.read(engine.getClass().getResource("/Pause/exittotitle - l.png"));
         //Player
         walkSheet = ImageIO.read(engine.getClass().getResource("/Player/walkSheet.png"));
+        dropShadow = ImageIO.read(engine.getClass().getResource("/Player/Drop Shadow.png"));
+        
+        
         for (int i = 0; i < 9; i++) {
             walkUp.add(Crop(walkSheet, 0 + (width * i), 0, width, height));
         }
@@ -93,6 +99,9 @@ public class AssetLoader {
         
         terrainSheet = ImageIO.read(engine.getClass().getResource("/terrainSheet.png"));
         rocks = Crop(terrainSheet, (160), (1728), 32, 32);
+        
+        greyBox = ImageIO.read(engine.getClass().getResource("/grey box.png"));
+        
     }
 
     //to crop sprite sheets for animations

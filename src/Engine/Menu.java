@@ -163,7 +163,7 @@ public class Menu {
             eng.left = false;
         }
         //exit button
-        if (contains(exit) && eng.left && !opty) {
+        if (contains(exit) && eng.left && !opty && !eng.screenDelay) {
             System.exit(0);
         }
         //reset button

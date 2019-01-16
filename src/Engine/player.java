@@ -7,6 +7,8 @@ package Engine;
 
 import java.awt.Color;
 import java.awt.Graphics;
+import java.awt.MouseInfo;
+import java.awt.Point;
 import java.awt.Rectangle;
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
@@ -35,7 +37,7 @@ public class player {
     public boolean up = false, down = false, left = false, right = false, overIt = false;
     //animations
     public int ani;
-    public int aSpeed = 7; //animation speed (high is slow)
+    public int aSpeed = 5; //animation speed (high is slow)
     public int direction = 2;//1-left, 2-right, 3-up, 4- down
 
     private List<BufferedImage> Animation = new ArrayList<>();
@@ -46,6 +48,10 @@ public class player {
 
     public Rectangle map;
 
+    Graphics grape;
+
+    public boolean pass = false;
+
     public player(float xi, float yi, Input in, ESC eng, World world) {
         this.x = eng.sizew / 2 - 50;
         this.y = eng.sizeh / 2 - 50;
@@ -53,7 +59,7 @@ public class player {
         engine = eng;
         health = Integer.parseInt(engine.loadVars[0]);
         inv = new inventory(engine);
-        box = new Rectangle((int) x, (int) y, w, h);
+        box = new Rectangle((int) (x - 82.5 + 25), (int) y - h / 2, w * 3, h * 2);
 
         //collision boxes for all 4 sides
         top = new Rectangle((int) x + 10, (int) y - speed / 2, w - 20, speed / 2);
@@ -92,6 +98,8 @@ public class player {
             g.drawRect(bottom.x, bottom.y, bottom.width, bottom.height);
             g.drawRect(lside.x, lside.y, lside.width, lside.height);
             g.drawRect(rside.x, rside.y, rside.width, rside.height);
+            g.setColor(Color.PINK);
+            g.drawRect(box.x, box.y, box.width, box.height);
         }
 
     }
@@ -99,9 +107,11 @@ public class player {
     public void collect() {
         overIt = false;
         for (int i = 0; i < World.items.size(); i++) {
-            if (box.intersects(new Rectangle(World.items.get(i).x + Integer.parseInt(engine.xoff), World.items.get(i).y + Integer.parseInt(engine.yoff), World.items.get(i).width, World.items.get(i).height))) {
+            if (box.intersects(RecBuilder(World.items.get(i))) && contains(RecBuilder(World.items.get(i)))) {
                 overIt = true;
-                if (input.action) {
+                World.items.get(i).tool = true;
+
+                if (engine.left) {
                     for (int j = 0; j < inv.inven.size(); j++) {
                         if (World.items.get(i).id == inv.inven.get(j).id) {
                             inv.inven.get(j).qnty += World.items.get(i).qnty;
@@ -112,6 +122,8 @@ public class player {
                     inv.inven.add(new Item(World.items.get(i).id, World.items.get(i).qnty));
                     World.items.remove(i);
                 }
+            } else {
+                World.items.get(i).tool = false;
             }
         }
     }
@@ -199,4 +211,25 @@ public class player {
         //</editor-fold>
 
     }
+
+    public Point loc() {
+        return new Point(MouseInfo.getPointerInfo().getLocation().x - engine.frame.getX(),
+                MouseInfo.getPointerInfo().getLocation().y - engine.frame.getY() - Math.abs(engine.frame.getLocationOnScreen().y - engine.canvas.getLocationOnScreen().y));
+
+    }
+
+    public boolean contains(Rectangle click) {
+        boolean ret = false;
+        if (click.contains(new Point(MouseInfo.getPointerInfo().getLocation().x - engine.frame.getX(),
+                MouseInfo.getPointerInfo().getLocation().y - engine.frame.getY() - Math.abs(engine.frame.getLocationOnScreen().y - engine.canvas.getLocationOnScreen().y)))) {
+            ret = true;
+        }
+        return ret;
+    }
+
+    public Rectangle RecBuilder(Item item) {
+
+        return new Rectangle(item.x + Integer.parseInt(engine.xoff), item.y + Integer.parseInt(engine.yoff), item.width, item.height);
+    }
+
 }

@@ -23,15 +23,16 @@ public class Pause {
     ESC eng;
     public Font text = new Font("TimesRoman", Font.PLAIN, 120);
     public int scale = 2;
-    Rectangle Title;
+    Rectangle exit;
 
     public Pause(ESC engine) {
         eng = engine;
-        Title = new Rectangle(eng.sizew / 2 - eng.assetLdr.exitToTitle.getWidth() / 2 / scale, 1300 / scale, eng.assetLdr.exitToTitle.getWidth() / scale, eng.assetLdr.exitToTitle.getHeight() / scale);
+        exit = new Rectangle(eng.sizew / 2 - eng.assetLdr.exitToTitle.getWidth() / 2 / scale, 1300 / scale, eng.assetLdr.exitToTitle.getWidth() / scale, eng.assetLdr.exitToTitle.getHeight() / scale);
     }
 
     public void update() {
-        if (contains(Title) && eng.left) {
+        if (contains(exit) && eng.left) {
+            eng.screenDelay = true;
             try {
                 eng.saver.Save();
             } catch (FileNotFoundException | UnsupportedEncodingException ex) {
@@ -49,16 +50,16 @@ public class Pause {
         g.setColor(Color.white);
         g.setFont(text);
         g.drawString("PAUSED!", 400, 350);
-        if (contains(Title)) {
-            g.drawImage(eng.assetLdr.exitToTitle2, Title.x, Title.y, Title.width, Title.height, null);
+        if (contains(exit)) {
+            g.drawImage(eng.assetLdr.exitToTitle2, exit.x, exit.y, exit.width, exit.height, null);
         } else {
-            g.drawImage(eng.assetLdr.exitToTitle, Title.x, Title.y, Title.width, Title.height, null);
+            g.drawImage(eng.assetLdr.exitToTitle, exit.x, exit.y, exit.width, exit.height, null);
         }
         
         
         g.setColor(Color.red);
         if(eng.debug){
-            g.drawRect(Title.x, Title.y, Title.width, Title.height);
+            g.drawRect(exit.x, exit.y, exit.width, exit.height);
         }
     }
 

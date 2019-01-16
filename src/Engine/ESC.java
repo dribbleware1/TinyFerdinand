@@ -50,6 +50,7 @@ public class ESC {
     public boolean paused = false;
     public int pdelay = 0;
     Pause pauseMenu;
+    boolean screenDelay = false;
 
     //mouse
     public boolean left = false, right = false;
@@ -178,7 +179,6 @@ public class ESC {
             return;
         }
         g = bs.getDrawGraphics();
-
         //Set up font
         g.setFont(text);
         g.getFontMetrics(text);
@@ -203,6 +203,10 @@ public class ESC {
             g.setColor(Color.white);
             backDrop.render(g);
         }
+        for (int i = 0; i < world.items.size(); i++) {
+            world.items.get(i).toolTips(g, this);
+        }
+
         if (pause) {
             pauseMenu.render(g);
         }
@@ -224,6 +228,7 @@ public class ESC {
 
     //Main game loop
     public void run() {
+        int tp = 0;
         long lastTime = System.nanoTime();
         double amountOfTicks = 60.0; // Number of ticks for update and render cycle(in one second)
         double ns = 1000000000 / amountOfTicks; //Ticks per second
@@ -251,6 +256,13 @@ public class ESC {
                     right = false;
                     left = false;
                     delay = 0;
+                }
+                if (screenDelay) {
+                    tp++;
+                }
+                if (tp == 20) {
+                    screenDelay = false;
+                    tp = 0;
                 }
                 if (delaystart == true) {
                     delay++;
@@ -324,12 +336,12 @@ public class ESC {
 
         @Override
         public void mouseReleased(MouseEvent mouseEvent) {
-            if (mouseEvent.getButton() == MouseEvent.BUTTON1) {
+            if (mouseEvent.getButton() == MouseEvent.BUTTON1 && !screenDelay) {
                 if (!delaystart) {
                     left = true;
                     delaystart = true;
                 }
-            } else if (mouseEvent.getButton() == MouseEvent.BUTTON3) {
+            } else if (mouseEvent.getButton() == MouseEvent.BUTTON3 && !screenDelay) {
                 if (!delaystart) {
                     right = true;
                     delaystart = true;

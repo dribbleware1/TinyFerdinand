@@ -163,15 +163,14 @@ public class Hub {
 
         //Drawing all of the items to their world location
         for (int i = 0; i < items.size(); i++) {
-            if (items.get(i).id == 1) { //Item 1 temporarly represented by blue square
-                g.setColor(Color.blue);
-                //g.fillRect(items.get(i).x + xOff, items.get(i).y + yOff, items.get(i).width, items.get(i).height);
+            if (items.get(i).id == 0) { 
                 g.drawImage(engi.assetLdr.logs, items.get(i).x + xOff, items.get(i).y + yOff, items.get(i).width, items.get(i).height, null);
             }
-            if (items.get(i).id == 2) { //Item 2 temporarly represented by blue square
-                g.setColor(Color.red);
+            if (items.get(i).id == 1) {
                 g.drawImage(engi.assetLdr.rocks, items.get(i).x + xOff, items.get(i).y + yOff, items.get(i).width, items.get(i).height, null);
             }
+            
+            
         }
     }
 
@@ -182,10 +181,10 @@ public class Hub {
 
     public void addItems() {
         //Item set up for defaults if nothing loaded
-        items.add(new Item(item1.x, item1.y, item1.width, item1.height, 1, 3));
-        items.add(new Item(item2.x, item2.y, item2.width, item2.height, 1, 3));
-        items.add(new Item(item3.x, item3.y, item3.width, item3.height, 2, 1));
-        items.add(new Item(item4.x, item4.y, item4.width, item4.height, 2, 1));
+        items.add(new Item(item1.x, item1.y, item1.width, item1.height, 0, 3));
+        items.add(new Item(item2.x, item2.y, item2.width, item2.height, 0, 3));
+        items.add(new Item(item3.x, item3.y, item3.width, item3.height, 1, 1));
+        items.add(new Item(item4.x, item4.y, item4.width, item4.height, 1, 1));
     }
 
 }

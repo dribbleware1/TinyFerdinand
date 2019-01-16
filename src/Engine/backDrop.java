@@ -26,18 +26,18 @@ public class backDrop {
 
     public backDrop(int w, int h, ESC eng, player py) {
         this.size = new Dimension(w, h);
-        this.engi = eng; 
+        this.engi = eng;
         hotBar = engi.assetLdr.hotBar;
         mainChar = py;
     }
 
     public void render(Graphics g) {
         //Drawing the hotbar
-        g.drawImage(hotBar, hotX, engi.sizeh-120, hotBar.getWidth() * offset, hotBar.getHeight() * offset, null);
-        
+        g.drawImage(hotBar, hotX, engi.sizeh - 120, hotBar.getWidth() * offset, hotBar.getHeight() * offset, null);
+
         //Drawing the pick up prompt when overtop of an item
-        if(mainChar.overIt == true){
-            g.drawString("Press E to Pickup", pickUpY, engi.sizeh-130);
+        if (mainChar.overIt == true) {
+            g.drawString("Press Left Mouse To Pick Up", pickUpY - 120, engi.sizeh - 130);
         }
     }
 }

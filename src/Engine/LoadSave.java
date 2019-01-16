@@ -28,7 +28,7 @@ public class LoadSave {
     static List<String> inputs = new ArrayList<>();
     String[] saves;
     ESC engine;
-    boolean ItemClear = false, invenClear = false;
+    boolean ItemClear = false, invenClear = false, check = true;
     int size = 2, its = 0, ivn = 0;
 
     Path MASTERPATH = Paths.get(System.getProperty("user.home") + File.separator + "Documents" + File.separator + "Game" + File.separator + "Save");
@@ -173,7 +173,9 @@ public class LoadSave {
                             qnt = scanner.nextInt();
                             its = 0;
                             engine.world.hubRoom.items.add(new Item(x, y, 50, 50, idd, qnt));
+                            check = false;
                             engine.world.items = engine.world.hubRoom.items;
+                            System.out.println("here");
                             break;
                     }
                 } else {
@@ -183,7 +185,7 @@ public class LoadSave {
             if (!scanner.hasNext()) {
                 if (engine.mainChar.inv.inven.size() > 0) {
                     System.out.println("no new items");
-                } else {
+                } else if(check) {
                     System.out.println("adding items");
                     engine.world.hubRoom.addItems();
                 }
