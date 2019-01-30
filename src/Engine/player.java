@@ -48,8 +48,6 @@ public class player {
 
     public Rectangle map;
 
-    Graphics grape;
-
     public boolean pass = false;
 
     public player(float xi, float yi, Input in, ESC eng, World world) {
@@ -90,7 +88,9 @@ public class player {
 
     public void render(Graphics g) {
         g.setColor(Color.red);
+        g.drawImage(engine.assetLdr.dropShadow, (int) x - 5, (int) y + 65, engine.assetLdr.dropShadow.getWidth() * 2, engine.assetLdr.dropShadow.getHeight() * 2, null);
         animate(g);
+
 //Collision boxes for debug mode
         if (engine.debug) {
             g.setColor(Color.ORANGE);
@@ -101,7 +101,6 @@ public class player {
             g.setColor(Color.PINK);
             g.drawRect(box.x, box.y, box.width, box.height);
         }
-
     }
 
     public void collect() {
@@ -110,7 +109,6 @@ public class player {
             if (box.intersects(RecBuilder(World.items.get(i))) && contains(RecBuilder(World.items.get(i)))) {
                 overIt = true;
                 World.items.get(i).tool = true;
-
                 if (engine.left) {
                     for (int j = 0; j < inv.inven.size(); j++) {
                         if (World.items.get(i).id == inv.inven.get(j).id) {
@@ -126,6 +124,7 @@ public class player {
                 World.items.get(i).tool = false;
             }
         }
+
     }
 
     private void collision() {

@@ -49,7 +49,7 @@ public class AssetLoader {
         exit2 = ImageIO.read(engine.getClass().getResource("/Menu/exit - l.png"));
 
         //main menu
-        title = ImageIO.read(engine.getClass().getResource("/Menu/TITLE.png"));
+        title = ImageIO.read(engine.getClass().getResource("/Menu/tiny_ferdinand - l.png"));
         title2 = ImageIO.read(engine.getClass().getResource("/Menu/TITLE - L.png"));
         opt = ImageIO.read(engine.getClass().getResource("/Menu/options.png"));
         opt2 = ImageIO.read(engine.getClass().getResource("/Menu/options - l.png"));

@@ -52,6 +52,10 @@ public class ESC {
     Pause pauseMenu;
     boolean screenDelay = false;
 
+    //inventory
+    boolean inventory = false;
+    int invTimer = 16;
+
     //mouse
     public boolean left = false, right = false;
     int delay = 0;
@@ -63,7 +67,6 @@ public class ESC {
     private Graphics g;
     private BufferStrategy bs;
     public int sizeh = 800, sizew = 1500;
-    backDrop backDrop;
 
     public String health = "500", xoff = "100", yoff = "100", name = "Paul";
     String[] loadVars = {health, name, xoff, yoff};
@@ -134,6 +137,8 @@ public class ESC {
         //pause 
         if (input.close && !pause && pdelay == 0 && !Loc.equalsIgnoreCase("menu")) {
             pause = true;
+            inventory = false;
+            invTimer = 0;
         }
         if (input.close && pause && pdelay > 15) {
             pause = false;
@@ -146,6 +151,14 @@ public class ESC {
             } catch (FileNotFoundException | UnsupportedEncodingException ex) {
                 Logger.getLogger(ESC.class.getName()).log(Level.SEVERE, null, ex);
             }
+        }
+        if (input.action && !inventory && invTimer > 15) {
+            inventory = true;
+            invTimer = 0;
+        }
+        if (input.action && inventory && invTimer > 15) {
+            inventory = false;
+            invTimer = 0;
         }
         if (pause) {
             pauseMenu.update();
@@ -201,7 +214,6 @@ public class ESC {
             g.setFont(text2);
             g.getFontMetrics(text2);
             g.setColor(Color.white);
-            backDrop.render(g);
         }
         for (int i = 0; i < world.items.size(); i++) {
             world.items.get(i).toolTips(g, this);
@@ -277,6 +289,9 @@ public class ESC {
                         paused = false;
                     }
                 }
+                if (invTimer < 16) {
+                    invTimer++;
+                }
             }
             //uncapped area
             if (sixty == false) {
@@ -311,7 +326,6 @@ public class ESC {
         xoff = loadVars[2];
         yoff = loadVars[3];
         overlay = new Overlay(this);
-        backDrop = new backDrop(sizew, sizeh, this, mainChar);
         running = true;
         pauseMenu = new Pause(this);
         try {

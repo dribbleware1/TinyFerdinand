@@ -34,9 +34,11 @@ public class Menu {
 
     public Menu(ESC engine) {
         eng = engine;
+        //title screen
         Title = new Rectangle(eng.sizew / 2 - eng.assetLdr.title.getWidth() / 2 / scale, 200 / scale, eng.assetLdr.title.getWidth() / scale, eng.assetLdr.title.getHeight() / scale);
-        options = new Rectangle(eng.sizew / 2 - eng.assetLdr.opt.getWidth() / 2 / scale, 600 / scale, eng.assetLdr.opt.getWidth() / scale, eng.assetLdr.opt.getHeight() / scale);
-        cont = new Rectangle(eng.sizew / 2 - eng.assetLdr.cont.getWidth() / 2 / scale, 400 / scale, eng.assetLdr.cont.getWidth() / scale, eng.assetLdr.cont.getHeight() / scale);
+        options = new Rectangle(eng.sizew / 2 - eng.assetLdr.opt.getWidth() / 2 / scale, 700 / scale, eng.assetLdr.opt.getWidth() / scale, eng.assetLdr.opt.getHeight() / scale);
+        cont = new Rectangle(eng.sizew / 2 - eng.assetLdr.cont.getWidth() / 2 / scale, 500 / scale, eng.assetLdr.cont.getWidth() / scale, eng.assetLdr.cont.getHeight() / scale);
+        //options menu
         optClose = new Rectangle(110, eng.sizeh - 168, eng.assetLdr.back.getWidth() / 3, eng.assetLdr.back.getHeight() / 3);
         debon = new Rectangle(eng.sizew / 2 - eng.assetLdr.on2.getWidth() / 2 + 25, 400 / 3, eng.assetLdr.on2.getWidth() / 3, eng.assetLdr.on2.getHeight() / 3);
         deboff = new Rectangle(eng.sizew / 2 - eng.assetLdr.off.getWidth() / 2 + 75, 400 / 3, eng.assetLdr.off.getWidth() / 3, eng.assetLdr.off.getHeight() / 3);
@@ -97,6 +99,14 @@ public class Menu {
             } else {
                 g.drawImage(eng.assetLdr.framerate, framerate.x, framerate.y, framerate.width, framerate.height, null);
             }
+            
+            if(eng.sixty){
+                g.drawImage(eng.assetLdr.sixty, framerate.x + framerate.width + 15, framerate.y, eng.assetLdr.sixty.getWidth()/3, eng.assetLdr.sixty.getHeight()/3 ,null);
+            }else{
+                g.drawImage(eng.assetLdr.uncapped, framerate.x + framerate.width + 15, framerate.y, eng.assetLdr.uncapped.getWidth()/3, eng.assetLdr.uncapped.getHeight()/3 ,null);
+            }
+            
+            
             //reset
             if (contains(reset) && opty) {
                 g.drawImage(eng.assetLdr.reset2, reset.x, reset.y, reset.width, reset.height, null);

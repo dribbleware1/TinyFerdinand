@@ -44,21 +44,17 @@ public class Item {
 
     public void toolTips(Graphics g, ESC engine) {
         eng = engine;
-        if (tool) {
+        if (tool && !engine.Loc.equalsIgnoreCase("menu") && !engine.pause) {
             g.drawImage(engine.assetLdr.greyBox, loc(engine).x, loc(engine).y - 75, 100, 75, null);
-//            g.setColor(new Color(140, 140, 255));
             g.setColor(Color.white);
-
             g.drawString(NAMES[id], loc(engine).x + 5, loc(engine).y - 50);
             g.drawString(Integer.toString(qnty), loc(engine).x + 5, loc(engine).y - 25);
         }
-
     }
 
     public Point loc(ESC engine) {
         return new Point(MouseInfo.getPointerInfo().getLocation().x - engine.frame.getX(),
                 MouseInfo.getPointerInfo().getLocation().y - engine.frame.getY() - Math.abs(engine.frame.getLocationOnScreen().y - engine.canvas.getLocationOnScreen().y));
-
     }
 
     public void artBuild() {
