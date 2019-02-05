@@ -14,11 +14,12 @@ import java.util.List;
  *
  * @author DribbleWare
  */
-public class World {
-
+public class World{
     //Housekeeping
     Input input;
     ESC engine;
+
+    
     //no idea
     public int time = 10;
     //Rooms and displays
@@ -57,6 +58,7 @@ public class World {
                 menu.update();
         }
     }
+
 
     public void start() {
         System.out.println("starting the world");

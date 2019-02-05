@@ -29,7 +29,7 @@ public class player {
     ESC engine;
     inventory inv;
     World World;
-    private final Rectangle box;
+    public final Rectangle box;
     private final Rectangle top;
     private final Rectangle lside;
     private final Rectangle rside;
@@ -229,6 +229,10 @@ public class player {
     public Rectangle RecBuilder(Item item) {
 
         return new Rectangle(item.x + Integer.parseInt(engine.xoff), item.y + Integer.parseInt(engine.yoff), item.width, item.height);
+    }
+
+    public Rectangle getBox() {
+        return box;
     }
 
 }

@@ -16,16 +16,18 @@ import java.util.List;
  * @author DribbleWare
  */
 public class Hub {
-    
+
     public int temp = 12;
     ESC engi;
     private int xOff, yOff;
+    public boolean treesTemp = false;
 
     //Lists to store all objects and items
     public List<Rectangle> objects = new ArrayList<>();
     public List<Item> items = new ArrayList<>();
     public List<Tree> trees = new ArrayList<>();
-    
+    public List<Integer> treeNums = new ArrayList<>();
+
     public Rectangle Tree1, Tree2, Tree3, Tree4, Tree5, Tree6;
     public Rectangle pond1;
     public Rectangle shrub1, shrub2;
@@ -45,7 +47,7 @@ public class Hub {
     public Rectangle item2 = new Rectangle(450, 450, 50, 50);
     public Rectangle item3 = new Rectangle(275, 134, 50, 50);
     public Rectangle item4 = new Rectangle(256, 256, 50, 50);
-    
+
     public Hub(ESC eng) {
         engi = eng;
         //Tree setup/ collision declaration
@@ -74,9 +76,9 @@ public class Hub {
         Fence5 = new Rectangle(44 * engi.size, 630 * engi.size, 262 * engi.size, 4 * engi.size);
         //Big trees
         Btree1 = new Rectangle(610 * engi.size, 371 * engi.size, 66 * engi.size, 45 * engi.size);
-        trees.add(new Tree(engi, Btree3, 1));
+        trees.add(new Tree(engi, Btree1, 1));
         Btree2 = new Rectangle(40 * engi.size, 647 * engi.size, 66 * engi.size, 45 * engi.size);
-        trees.add(new Tree(engi, Btree3, 1));
+        trees.add(new Tree(engi, Btree2, 1));
         Btree3 = new Rectangle(204 * engi.size, 915 * engi.size, 66 * engi.size, 45 * engi.size);
         trees.add(new Tree(engi, Btree3, 1));
         //Tomb
@@ -173,24 +175,31 @@ public class Hub {
 
         //Drawing all of the items to their world location
         for (int i = 0; i < items.size(); i++) {
-            if (items.get(i).id == 0) {                
-                g.drawImage(engi.assetLdr.logs, items.get(i).x + xOff, items.get(i).y + yOff, items.get(i).width, items.get(i).height, null);
-            }
-            if (items.get(i).id == 1) {
-                g.drawImage(engi.assetLdr.rocks, items.get(i).x + xOff, items.get(i).y + yOff, items.get(i).width, items.get(i).height, null);
-            }            
+
+            g.drawImage(items.get(i).art[items.get(i).id], items.get(i).x + xOff, items.get(i).y + yOff, items.get(i).width, items.get(i).height, null);
+
+//            if (items.get(i).id == 0) {
+//                g.drawImage(engi.assetLdr.logs, items.get(i).x + xOff, items.get(i).y + yOff, items.get(i).width, items.get(i).height, null);
+//            }
+//            if (items.get(i).id == 1) {
+//                g.drawImage(engi.assetLdr.rocks, items.get(i).x + xOff, items.get(i).y + yOff, items.get(i).width, items.get(i).height, null);
+//            }
         }
-        
-        trees.get(0).render(g);
-        
+
+        for (int i = 0; i < trees.size(); i++) {
+            trees.get(i).render(g);
+        }
+
     }
 
     //Update series
     public void update() {
         engi.mainChar.map = new Rectangle(Integer.parseInt(engi.xoff), Integer.parseInt(engi.yoff), engi.assetLdr.Hub1.getWidth() * engi.size, engi.assetLdr.Hub1.getHeight() * engi.size);
-        trees.get(0).update();
+        for (int i = 0; i < trees.size(); i++) {
+            trees.get(i).update();
+        }
     }
-    
+
     public void addItems() {
         //Item set up for defaults if nothing loaded
         items.add(new Item(item1.x, item1.y, item1.width, item1.height, 0, 3));
@@ -198,5 +207,10 @@ public class Hub {
         items.add(new Item(item3.x, item3.y, item3.width, item3.height, 1, 1));
         items.add(new Item(item4.x, item4.y, item4.width, item4.height, 1, 1));
     }
-    
+
+    public void updateTrees() {
+        for (int i = 0; i < trees.size(); i++) {
+            trees.get(i).count = treeNums.get(i);
+        }
+    }
 }

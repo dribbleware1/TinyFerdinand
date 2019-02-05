@@ -28,9 +28,6 @@ import javax.swing.JFrame;
  */
 public class ESC {
 
-    //Thread
-    private Thread thread;
-
     //debug
     public boolean debug = false;
 
@@ -87,7 +84,6 @@ public class ESC {
     public Font text = new Font("TimesRoman", Font.PLAIN, 60);
     public Font text2 = new Font("TimesRoman", Font.PLAIN, 30);
 
-    //main method to start the thread and initialize the game
     public static void main(String[] args) {
         ESC CargoEngine = new ESC();
         assetLdr = new AssetLoader(CargoEngine);
@@ -210,6 +206,11 @@ public class ESC {
         if (!Loc.equalsIgnoreCase("menu")) {
             mainChar.render(g);
             overlay.render(g);
+            if (Loc.equalsIgnoreCase("hub")) {
+                for (int i = 0; i < world.hubRoom.trees.size(); i++) {
+                    world.hubRoom.trees.get(i).render(g);
+                }
+            }
             mainChar.inv.render(g);
             g.setFont(text2);
             g.getFontMetrics(text2);

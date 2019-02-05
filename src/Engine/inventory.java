@@ -8,7 +8,6 @@ package Engine;
 import java.awt.Color;
 import java.awt.Font;
 import java.awt.Graphics;
-import java.awt.Graphics2D;
 import java.awt.MouseInfo;
 import java.awt.Point;
 import java.awt.Rectangle;
@@ -91,10 +90,6 @@ public class inventory {
             g.setColor(new Color(10, 10, 10, 150));
             g.fillRoundRect(50, 50, eng.sizew - 100, eng.sizeh - 100, 50, 50);
 
-//            for (int i = 0; i < slots.length; i++) {
-//                g.setColor(Color.red);
-//                g.drawRoundRect(slots[i].x, slots[i].y, slots[i].width, slots[i].height, 50, 50);
-//            }
             for (int i = 0; i < inven.size(); i++) {
                 g.drawImage(itemRef.art[inven.get(i).id], slots[i].x, slots[i].y, slots[i].width, slots[i].height, null);
                 g.setColor(Color.white);
@@ -127,13 +122,12 @@ public class inventory {
                     pop = false;
                 }
             }
-
-            //Drawing the pick up prompt when overtop of an item
-            g.setColor(Color.white);
-            if (eng.mainChar.overIt == true && !eng.pause) {
-                g.drawString("Press Left Mouse To Pick Up", 555, eng.sizeh - 30);
-            }
             refresh = false;
+        }
+        //Drawing the pick up prompt when overtop of an item
+        g.setColor(Color.white);
+        if (eng.mainChar.overIt == true && !eng.pause) {
+            g.drawString("Press Left Mouse To Pick Up", 555, eng.sizeh - 30);
         }
     }
 
@@ -173,7 +167,6 @@ public class inventory {
 
     public void slotsAdd() {
         int t = 0;
-        System.out.println("yip?");
         for (int j = 0; j < slotsy; j++) {
             for (int i = 0; i < slotsx; i++) {
                 slots[t] = (new Rectangle(60 + 105 * i, 90 + 105 * j, 100, 100));

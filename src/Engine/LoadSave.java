@@ -42,13 +42,14 @@ public class LoadSave {
         String path2 = System.getProperty("user.home") + File.separator + "Documents" + File.separator + "Game" + File.separator + "Save" + File.separator + "Items";
         File customDir = new File(path);
         File itemDir = new File(path2);
-        File customDir2 = new File(path + File.separator + "/Save.zbd");
-        File itemDir2 = new File(path2 + File.separator + "/Hub.zbd");
+        File mainDir = new File(path + File.separator + "/Save.zbd");
+        File hubDir = new File(path2 + File.separator + "/Hub.zbd");
+        File hubTree = new File(path2 + File.separator + "/hubTree.zbd");
         File invenDir = new File(path + File.separator + "/Inventory.zbd");
 
 //stats saving init
-        if (customDir.exists() && customDir2.isFile()) {
-            System.out.println(customDir2 + " already exists");
+        if (customDir.exists() && mainDir.isFile()) {
+            System.out.println(mainDir + " already exists");
             try {
                 load(path, 0);
             } catch (IOException ex) {
@@ -85,8 +86,8 @@ public class LoadSave {
         }
 
 //hub items init        
-        if (itemDir.exists() && itemDir2.isFile()) {
-            System.out.println(itemDir2 + " already exists");
+        if (itemDir.exists() && hubDir.isFile()) {
+            System.out.println(hubDir + " already exists");
             try {
                 load(path2, 1);
             } catch (IOException ex) {
@@ -103,6 +104,27 @@ public class LoadSave {
         } else {
             System.out.println(itemDir + " save file added");
             engine.world.hubRoom.addItems();
+        }
+
+        //tree savings
+        if (itemDir.exists() && hubTree.isFile()) {
+            System.out.println(hubTree + " already exists");
+            try {
+                load(path2, 3);
+            } catch (IOException ex) {
+                System.out.println("Failed to load");
+            }
+        } else if (itemDir.mkdirs()) {
+            System.out.println(hubTree + " was created");
+            engine.world.hubRoom.addItems();
+            try {
+                newSave(path2, 3);
+            } catch (FileNotFoundException | UnsupportedEncodingException ex) {
+                System.out.println("file not found");
+            }
+        } else {
+            System.out.println(hubTree + " save file added");
+            //add default to tree nums, x number of times
         }
 
         Loc = path;
@@ -131,6 +153,7 @@ public class LoadSave {
         playerSave();
         inventorySave();
         itemSave();
+        treeSave();
 
         System.out.println("saved");
     }
@@ -175,7 +198,6 @@ public class LoadSave {
                             engine.world.hubRoom.items.add(new Item(x, y, 50, 50, idd, qnt));
                             check = false;
                             engine.world.items = engine.world.hubRoom.items;
-                            System.out.println("here");
                             break;
                     }
                 } else {
@@ -185,7 +207,7 @@ public class LoadSave {
             if (!scanner.hasNext()) {
                 if (engine.mainChar.inv.inven.size() > 0) {
                     System.out.println("no new items");
-                } else if(check) {
+                } else if (check) {
                     System.out.println("adding items");
                     engine.world.hubRoom.addItems();
                 }
@@ -217,6 +239,27 @@ public class LoadSave {
                 }
             }
         }
+
+        if (id == 3) { //tree load
+            int c;
+            String test;
+            Scanner scanner = new Scanner(new File(path + "/hubTree.zbd"));
+            while (scanner.hasNext()) {
+                if (scanner.hasNextLine()) {
+                    test = scanner.nextLine();
+                    if (test.equalsIgnoreCase("yes")) {
+                       engine.world.hubRoom.treesTemp = true;
+                    } else {
+                        c = Integer.parseInt(test);
+                        its++;
+                        engine.world.hubRoom.treeNums.add(c);
+                    }
+                } else {
+                    scanner.nextLine();
+                }
+            }
+            engine.world.hubRoom.updateTrees();
+        }
     }
 
     public void fill() {
@@ -230,11 +273,6 @@ public class LoadSave {
                 }
             }
         }
-        System.out.println("Loaded values");
-        for (int i = 0; i < engine.loadVars.length; i++) {
-            System.out.println(engine.loadVars[i]);
-        }
-        System.out.println("\n \n");
     }
 
     private void itemSave() throws FileNotFoundException, UnsupportedEncodingException {
@@ -254,6 +292,17 @@ public class LoadSave {
         writer.close();
     }
 
+    private void treeSave() throws FileNotFoundException, UnsupportedEncodingException {
+        PrintWriter writer = new PrintWriter(Loc2 + "/hubTree.zbd", "UTF-8");
+        if(engine.world.hubRoom.treesTemp){
+            writer.println("yes");
+        }
+        for (int i = 0; i < engine.world.hubRoom.trees.size(); i++) {
+            writer.println(Integer.toString(engine.world.hubRoom.trees.get(i).count));
+        }
+        writer.close();
+    }
+
     private void inventorySave() throws FileNotFoundException, UnsupportedEncodingException {
         PrintWriter writer = new PrintWriter(Loc + "/Inventory.zbd", "UTF-8");
         for (int i = 0; i < engine.mainChar.inv.inven.size(); i++) {
@@ -266,19 +315,16 @@ public class LoadSave {
     public void reset() {
         String path = System.getProperty("user.home") + File.separator + "Documents" + File.separator + "Game" + File.separator + "Save" + File.separator + "Player";
         String path2 = System.getProperty("user.home") + File.separator + "Documents" + File.separator + "Game" + File.separator + "Save" + File.separator + "Items";
-        File customDir = new File(path);
-        File itemDir = new File(path2);
-        File customDir2 = new File(path + File.separator + "/Save.zbd");
-        File itemDir2 = new File(path2 + File.separator + "/Hub.zbd");
+        File customDir = new File(path + File.separator + "/Save.zbd");
+        File itemDir = new File(path2 + File.separator + "/Hub.zbd");
+        File hubTree = new File(path2 + File.separator + "/hubTree.zbd");
         File invenDir = new File(path + File.separator + "/Inventory.zbd");
         System.out.println("resetting");
         try {
-            System.out.println("here");
-            Files.delete(Paths.get(customDir2.toString()));
-            System.out.println("hey");
-            Files.delete(Paths.get(itemDir2.toString()));
-            System.out.println("yup");
+            Files.delete(Paths.get(customDir.toString()));
+            Files.delete(Paths.get(itemDir.toString()));
             Files.delete(Paths.get(invenDir.toString()));
+            Files.delete(Paths.get(hubTree.toString()));
 
             System.out.println("reset successful!");
 

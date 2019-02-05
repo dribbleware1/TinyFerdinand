@@ -23,7 +23,7 @@ public class AssetLoader {
     public BufferedImage pause, exitToTitle, exitToTitle2;//Pause menu
     public BufferedImage walkSheet, dropShadow;//player walk sprite sheet
     private final int width = 64, height = 64;//sprite sheet setup
-    public BufferedImage decoSheet, logs;//decoration sprite sheet
+    public BufferedImage decoSheet, logs, emptyBucket, fullBucket;//decoration sprite sheet
     public BufferedImage terrainSheet, rocks;//decoration sprite sheet
     
     public BufferedImage greyBox;
@@ -95,7 +95,9 @@ public class AssetLoader {
         }
         //decorations
         decoSheet = ImageIO.read(engine.getClass().getResource("/decoSheet.png"));
-        logs = Crop(decoSheet, (416), (704), 32, 32);
+        logs = Crop(decoSheet, (13 * 32), (22 * 32), 32, 32);
+        emptyBucket = Crop(decoSheet, (2*32), (15*32), 32, 32);
+        fullBucket = Crop(decoSheet, (3*32), (15*32), 32, 32);
         
         terrainSheet = ImageIO.read(engine.getClass().getResource("/terrainSheet.png"));
         rocks = Crop(terrainSheet, (160), (1728), 32, 32);
