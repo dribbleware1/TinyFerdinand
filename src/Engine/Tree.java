@@ -92,7 +92,6 @@ public class Tree {
             switch (ID) {
                 case 0:
                     count = DEFAULT_COUNT_SMALL;
-                    //yup
                     break;
                 case 1:
                     count = DEFAULT_COUNT_LARGE;
