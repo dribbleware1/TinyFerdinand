@@ -24,7 +24,7 @@ public class AssetLoader {
     public BufferedImage walkSheet, dropShadow;//player walk sprite sheet
     private final int width = 64, height = 64;//sprite sheet setup
     public BufferedImage decoSheet, logs, emptyBucket, fullBucket;//decoration sprite sheet
-    public BufferedImage terrainSheet, rocks;//decoration sprite sheet
+    public BufferedImage terrainSheet, rocks, apple;//decoration sprite sheet
     
     public BufferedImage greyBox;
     
@@ -103,6 +103,8 @@ public class AssetLoader {
         rocks = Crop(terrainSheet, (160), (1728), 32, 32);
         
         greyBox = ImageIO.read(engine.getClass().getResource("/grey box.png"));
+        
+        apple = ImageIO.read(engine.getClass().getResource("/apple.png"));
         
     }
 

@@ -18,7 +18,7 @@ import java.awt.image.BufferedImage;
  */
 public class Item {
 
-    final String[] NAMES = new String[] {"Logs", "Rocks", "Bucket", "Water"};
+    final String[] NAMES = new String[] {"Logs", "Rocks", "Bucket", "Water", "Apple"};
     BufferedImage[] art = new BufferedImage[]{};
 
     int x, y, width, height, id, qnty;
@@ -58,6 +58,6 @@ public class Item {
     }
 
     public void artBuild() {
-        art = new BufferedImage[]{eng.assetLdr.logs, eng.assetLdr.rocks, eng.assetLdr.emptyBucket, eng.assetLdr.fullBucket};
+        art = new BufferedImage[]{eng.assetLdr.logs, eng.assetLdr.rocks, eng.assetLdr.emptyBucket, eng.assetLdr.fullBucket, eng.assetLdr.apple};
     }
 }

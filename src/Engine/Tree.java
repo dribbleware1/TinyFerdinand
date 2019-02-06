@@ -11,6 +11,7 @@ import java.awt.Graphics;
 import java.awt.MouseInfo;
 import java.awt.Point;
 import java.awt.Rectangle;
+import java.util.Random;
 
 /**
  *
@@ -22,13 +23,14 @@ public class Tree {
 
     public boolean temp = false;
 
-    final int MAX_TIME = 360;
+    final int MAX_TIME = 120;
     final int DEFAULT_COUNT_SMALL = 5;
     final int DEFAULT_COUNT_LARGE = 8;
     final int LONG_TIME = 120;
     int timer = 0, longtimer = 0;
     int count;
     final int ID;
+    Random rand = new Random();
     private boolean pick = true, trigger = false, longtime = false, opty = false;
     private Rectangle tree, treebox, menuBox;
     private boolean popup = false;
@@ -58,16 +60,19 @@ public class Tree {
                 for (int j = 0; j < eng.mainChar.inv.inven.size(); j++) {
                     if (eng.mainChar.inv.inven.get(j).id == 0) {
                         eng.mainChar.inv.inven.get(j).qnty += 1;
+                        randomApple();
                         timer = 0;
                         trigger = true;
                     }
                 }
                 if (!trigger) {
                     eng.mainChar.inv.inven.add(new Item(0, 1));
+                    randomApple();
                     timer = 0;
                 }
                 if (eng.mainChar.inv.inven.isEmpty()) {
                     eng.mainChar.inv.inven.add(new Item(0, 1));
+                    randomApple();
                     timer = 0;
                 }
                 count--;
@@ -80,7 +85,7 @@ public class Tree {
         } else {
             popup = false;
             if (opty == true) {
-                if(!menuBox.contains(loc(eng))){
+                if (!menuBox.contains(loc(eng))) {
                     opty = false;
                 }
             }
@@ -184,6 +189,24 @@ public class Tree {
     public Point loc(ESC engine) {
         return new Point(MouseInfo.getPointerInfo().getLocation().x - engine.frame.getX(),
                 MouseInfo.getPointerInfo().getLocation().y - engine.frame.getY() - Math.abs(engine.frame.getLocationOnScreen().y - engine.canvas.getLocationOnScreen().y));
+    }
+
+    private void randomApple() {
+        boolean apples = false;
+        
+        
+        
+        if (rand.nextInt(25) == 16) {
+            for (int j = 0; j < eng.mainChar.inv.inven.size(); j++) {
+                if (eng.mainChar.inv.inven.get(j).id == 4) {
+                    eng.mainChar.inv.inven.get(j).qnty += 1;
+                    apples = true;
+                }
+            }
+            if (!apples) {
+                eng.mainChar.inv.inven.add(new Item(4, 1));
+            }
+        }
     }
 
 }
