@@ -6,7 +6,7 @@
 package Engine.Map;
 
 import Engine.Engine.ESC;
-import Engine.Map.Tree;
+import Engine.Items.Tree;
 import Engine.Items.Item;
 import java.awt.Color;
 import java.awt.Graphics;
