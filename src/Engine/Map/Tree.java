@@ -3,8 +3,10 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package Engine;
+package Engine.Map;
 
+import Engine.Engine.ESC;
+import Engine.Items.*;
 import java.awt.Color;
 import java.awt.Font;
 import java.awt.Graphics;
@@ -28,7 +30,7 @@ public class Tree {
     final int DEFAULT_COUNT_LARGE = 8;
     final int LONG_TIME = 120;
     int timer = 0, longtimer = 0;
-    int count;
+    public int count;
     final int ID;
     Random rand = new Random();
     private boolean pick = true, trigger = false, longtime = false, opty = false;
@@ -62,7 +64,7 @@ public class Tree {
                         eng.mainChar.inv.inven.get(j).qnty += 1;
                         randomApple();
                         timer = 0;
-                        trigger = true;
+                        trigger = true; 
                     }
                 }
                 if (!trigger) {
@@ -79,7 +81,7 @@ public class Tree {
             }
             if (eng.right && count == 0) {
                 opty = true;
-                menuBox = new Rectangle(tree.x + tree.width + Integer.parseInt(eng.xoff), tree.y + Integer.parseInt(eng.yoff) - 100, 100, 150);
+                menuBox = new Rectangle(tree.x + tree.width + eng.getXOff(), tree.y + eng.getYOff() - 100, 100, 150);
             }
 
         } else {
@@ -131,25 +133,25 @@ public class Tree {
             switch (ID) {
                 case 0:
                     g.setColor(Color.red);
-                    g.fillRect(treebox.x + Integer.parseInt(eng.xoff), treebox.y - 100 + Integer.parseInt(eng.yoff), timer / (MAX_TIME / 120), 15);
+                    g.fillRect(treebox.x + eng.getXOff(), treebox.y - 100 + eng.getYOff(), timer / (MAX_TIME / 120), 15);
                     g.setColor(Color.orange);
-                    g.drawRect(treebox.x + Integer.parseInt(eng.xoff), treebox.y - 100 + Integer.parseInt(eng.yoff), 120, 15);
+                    g.drawRect(treebox.x + eng.getXOff(), treebox.y - 100 + eng.getYOff(), 120, 15);
                     g.setColor(Color.white);
-                    g.drawString(Integer.toString(count), treebox.x + Integer.parseInt(eng.xoff) + 130, treebox.y - 83 + Integer.parseInt(eng.yoff));
+                    g.drawString(Integer.toString(count), treebox.x + eng.getXOff() + 130, treebox.y - 83 + eng.getYOff());
                     break;
                 case 1:
                     g.setColor(Color.red);
-                    g.fillRect(treebox.x + Integer.parseInt(eng.xoff) + 75, treebox.y - 100 + Integer.parseInt(eng.yoff), timer / (MAX_TIME / 120), 15);
+                    g.fillRect(treebox.x +eng.getXOff() + 75, treebox.y - 100 + eng.getYOff(), timer / (MAX_TIME / 120), 15);
                     g.setColor(Color.orange);
-                    g.drawRect(treebox.x + Integer.parseInt(eng.xoff) + 75, treebox.y - 100 + Integer.parseInt(eng.yoff), 120, 15);
+                    g.drawRect(treebox.x + eng.getXOff() + 75, treebox.y - 100 + eng.getYOff(), 120, 15);
                     g.setColor(Color.white);
-                    g.drawString(Integer.toString(count), treebox.x + Integer.parseInt(eng.xoff) + 205, treebox.y - 83 + Integer.parseInt(eng.yoff));
+                    g.drawString(Integer.toString(count), treebox.x + eng.getXOff() + 205, treebox.y - 83 +eng.getYOff());
                     break;
             }
         }
         if (eng.debug) {
             g.setColor(Color.red);
-            g.drawRect(treebox.x + Integer.parseInt(eng.xoff), treebox.y + Integer.parseInt(eng.yoff), treebox.width, treebox.height);
+            g.drawRect(treebox.x + eng.getXOff(), treebox.y + eng.getYOff(), treebox.width, treebox.height);
             if (opty) {
                 g.drawRect(menuBox.x, menuBox.y, menuBox.width, menuBox.height);
             }
@@ -172,7 +174,7 @@ public class Tree {
     public boolean contains(Rectangle boxin) {
         boolean ret = false;
 
-        Rectangle click = new Rectangle(boxin.x + Integer.parseInt(eng.xoff), boxin.y + Integer.parseInt(eng.yoff), boxin.width, boxin.height);
+        Rectangle click = new Rectangle(boxin.x + eng.getXOff(), boxin.y + eng.getYOff(), boxin.width, boxin.height);
         if (click.contains(new Point(MouseInfo.getPointerInfo().getLocation().x - eng.frame.getX(),
                 MouseInfo.getPointerInfo().getLocation().y - eng.frame.getY() - Math.abs(eng.frame.getLocationOnScreen().y - eng.canvas.getLocationOnScreen().y)))) {
             ret = true;
@@ -181,9 +183,7 @@ public class Tree {
     }
 
     public Rectangle recBuild() {
-
-        return new Rectangle(treebox.x + Integer.parseInt(eng.xoff), treebox.y + Integer.parseInt(eng.yoff), treebox.width, treebox.height);
-
+        return new Rectangle(treebox.x + eng.getXOff(), treebox.y + eng.getYOff(), treebox.width, treebox.height);
     }
 
     public Point loc(ESC engine) {

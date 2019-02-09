@@ -3,7 +3,7 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package Engine;
+package Engine.Engine;
 
 import java.awt.image.BufferedImage;
 import java.io.IOException;
@@ -82,25 +82,25 @@ public class AssetLoader {
         
         
         for (int i = 0; i < 9; i++) {
-            walkUp.add(Crop(walkSheet, 0 + (width * i), 0, width, height));
+            walkUp.add(crop(walkSheet, 0 + (width * i), 0, width, height));
         }
         for (int i = 0; i < 9; i++) {
-            walkLeft.add(Crop(walkSheet, 0 + (width * i), 64, width, height));
+            walkLeft.add(crop(walkSheet, 0 + (width * i), 64, width, height));
         }
         for (int i = 0; i < 9; i++) {
-            walkDown.add(Crop(walkSheet, 0 + (width * i), 128, width, height));
+            walkDown.add(crop(walkSheet, 0 + (width * i), 128, width, height));
         }
         for (int i = 0; i < 9; i++) {
-            walkRight.add(Crop(walkSheet, 0 + (width * i), 192, width, height));
+            walkRight.add(crop(walkSheet, 0 + (width * i), 192, width, height));
         }
         //decorations
         decoSheet = ImageIO.read(engine.getClass().getResource("/decoSheet.png"));
-        logs = Crop(decoSheet, (13 * 32), (22 * 32), 32, 32);
-        emptyBucket = Crop(decoSheet, (2*32), (15*32), 32, 32);
-        fullBucket = Crop(decoSheet, (3*32), (15*32), 32, 32);
+        logs = crop(decoSheet, (13 * 32), (22 * 32), 32, 32);
+        emptyBucket = crop(decoSheet, (2*32), (15*32), 32, 32);
+        fullBucket = crop(decoSheet, (3*32), (15*32), 32, 32);
         
         terrainSheet = ImageIO.read(engine.getClass().getResource("/terrainSheet.png"));
-        rocks = Crop(terrainSheet, (160), (1728), 32, 32);
+        rocks = crop(terrainSheet, (160), (1728), 32, 32);
         
         greyBox = ImageIO.read(engine.getClass().getResource("/grey box.png"));
         
@@ -109,7 +109,7 @@ public class AssetLoader {
     }
 
     //to crop sprite sheets for animations
-    public BufferedImage Crop(BufferedImage sheet, int x, int y, int width, int height) {
+    public BufferedImage crop(BufferedImage sheet, int x, int y, int width, int height) {
         return sheet.getSubimage(x, y, width, height);
     }
 

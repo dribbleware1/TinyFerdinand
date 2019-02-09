@@ -3,8 +3,12 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package Engine;
+package Engine.Player;
 
+import Engine.Items.Item;
+import Engine.Map.World;
+import Engine.Engine.ESC;
+import Engine.Engine.Input;
 import java.awt.Color;
 import java.awt.Graphics;
 import java.awt.MouseInfo;
@@ -18,7 +22,7 @@ import java.util.List;
  *
  * @author DribbleWare
  */
-public class player {
+public class Player {
 
     //location
     float x, y;
@@ -27,7 +31,7 @@ public class player {
     public int health = 500;
     Input input;
     ESC engine;
-    inventory inv;
+    public Inventory inv;
     World World;
     public final Rectangle box;
     private final Rectangle top;
@@ -50,13 +54,13 @@ public class player {
 
     public boolean pass = false;
 
-    public player(float xi, float yi, Input in, ESC eng, World world) {
+    public Player(float xi, float yi, Input in, ESC eng, World world) {
         this.x = eng.sizew / 2 - 50;
         this.y = eng.sizeh / 2 - 50;
         input = in;
         engine = eng;
         health = Integer.parseInt(engine.loadVars[0]);
-        inv = new inventory(engine);
+        inv = new Inventory(engine);
         box = new Rectangle((int) (x - 82.5 + 25), (int) y - h / 2, w * 3, h * 2);
 
         //collision boxes for all 4 sides
@@ -134,16 +138,16 @@ public class player {
         left = false;
         right = false;
         for (int i = 0; i < World.Objects.size(); i++) { // check for collision with world objects
-            if (new Rectangle((World.Objects.get(i).x + Integer.parseInt(engine.xoff)), (World.Objects.get(i).y + Integer.parseInt(engine.yoff)), World.Objects.get(i).width, World.Objects.get(i).height).intersects(top) || !map.contains(top)) {
+            if (new Rectangle((World.Objects.get(i).x + engine.getXOff()), (World.Objects.get(i).y + engine.getYOff()), World.Objects.get(i).width, World.Objects.get(i).height).intersects(top) || !map.contains(top)) {
                 up = true;
             }
-            if (new Rectangle((World.Objects.get(i).x + Integer.parseInt(engine.xoff)), (World.Objects.get(i).y + Integer.parseInt(engine.yoff)), World.Objects.get(i).width, World.Objects.get(i).height).intersects(lside) || !map.contains(lside)) {
+            if (new Rectangle((World.Objects.get(i).x + engine.getXOff()), (World.Objects.get(i).y + engine.getYOff()), World.Objects.get(i).width, World.Objects.get(i).height).intersects(lside) || !map.contains(lside)) {
                 left = true;
             }
-            if (new Rectangle((World.Objects.get(i).x + Integer.parseInt(engine.xoff)), (World.Objects.get(i).y + Integer.parseInt(engine.yoff)), World.Objects.get(i).width, World.Objects.get(i).height).intersects(rside) || !map.contains(rside)) {
+            if (new Rectangle((World.Objects.get(i).x + engine.getXOff()), (World.Objects.get(i).y + engine.getYOff()), World.Objects.get(i).width, World.Objects.get(i).height).intersects(rside) || !map.contains(rside)) {
                 right = true;
             }
-            if (new Rectangle((World.Objects.get(i).x + Integer.parseInt(engine.xoff)), (World.Objects.get(i).y + Integer.parseInt(engine.yoff)), World.Objects.get(i).width, World.Objects.get(i).height).intersects(bottom) || !map.contains(bottom)) {
+            if (new Rectangle((World.Objects.get(i).x + engine.getXOff()), (World.Objects.get(i).y + engine.getYOff()), World.Objects.get(i).width, World.Objects.get(i).height).intersects(bottom) || !map.contains(bottom)) {
                 down = true;
             }
         }
@@ -228,7 +232,7 @@ public class player {
 
     public Rectangle RecBuilder(Item item) {
 
-        return new Rectangle(item.x + Integer.parseInt(engine.xoff), item.y + Integer.parseInt(engine.yoff), item.width, item.height);
+        return new Rectangle(item.x + engine.getXOff(), item.y + engine.getYOff(), item.width, item.height);
     }
 
     public Rectangle getBox() {

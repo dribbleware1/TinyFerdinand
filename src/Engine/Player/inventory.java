@@ -3,8 +3,10 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package Engine;
+package Engine.Player;
 
+import Engine.Engine.*;
+import Engine.Items.Item;
 import java.awt.Color;
 import java.awt.Font;
 import java.awt.Graphics;
@@ -18,7 +20,7 @@ import java.util.List;
  *
  * @author DribbleWare
  */
-public class inventory {
+public class Inventory{
 
     ESC eng;
     //Text font
@@ -48,7 +50,7 @@ public class inventory {
 
     private Rectangle dropBox;
 
-    public inventory(ESC engine) {
+    public Inventory(ESC engine) {
         eng = engine;
         itemRef.artBuild();
         slots = new Rectangle[slotsx * slotsy];

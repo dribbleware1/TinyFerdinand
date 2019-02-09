@@ -3,8 +3,12 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package Engine;
+package Engine.Engine;
 
+import Engine.Map.Overlay;
+import Engine.Map.Pause;
+import Engine.Player.Player;
+import Engine.Map.World;
 import java.awt.Canvas;
 import java.awt.Color;
 import java.awt.Dimension;
@@ -39,24 +43,24 @@ public class ESC {
     public String Loc = "menu";
 
     //Input input;
-    Input input = new Input(this);
+    public Input input = new Input(this);
 
     //menu
     public boolean menu = true;
     public boolean pause = false;
     public boolean paused = false;
     public int pdelay = 0;
-    Pause pauseMenu;
-    boolean screenDelay = false;
+    public Pause pauseMenu;
+    public boolean screenDelay = false;
 
     //inventory
-    boolean inventory = false;
-    int invTimer = 16;
+    public boolean inventory = false;
+    public int invTimer = 16;
 
     //mouse
     public boolean left = false, right = false;
-    int delay = 0;
-    boolean delaystart = false;
+    public int delay = 0;
+    public boolean delaystart = false;
 
     //frame
     public JFrame frame;
@@ -66,19 +70,19 @@ public class ESC {
     public int sizeh = 800, sizew = 1500;
 
     public String health = "500", xoff = "100", yoff = "100", name = "Paul";
-    String[] loadVars = {health, name, xoff, yoff};
+    public String[] loadVars = {health, name, xoff, yoff};
     //fps control
     public boolean sixty = true;
 
     //player
-    player mainChar;
+    public Player mainChar;
 
     //world
-    World world;
-    LoadSave saver = new LoadSave(this);
-    static AssetLoader assetLdr;
+    public World world;
+    public LoadSave saver = new LoadSave(this);
+    public static AssetLoader assetLdr;
     public int size = 4;
-    Overlay overlay;
+    public Overlay overlay;
     public Rectangle TL = new Rectangle(20, 20, 50, 50);
 
     public Font text = new Font("TimesRoman", Font.PLAIN, 60);
@@ -322,7 +326,7 @@ public class ESC {
         render();
         world = new World(input, this);
         world.start();
-        mainChar = new player(10, 10, input, this, world);
+        mainChar = new Player(10, 10, input, this, world);
         saver.init();
         xoff = loadVars[2];
         yoff = loadVars[3];
@@ -335,6 +339,14 @@ public class ESC {
             System.out.println("inital save failed");
         }
         run();
+    }
+
+    public int getXOff() {
+        return Integer.parseInt(xoff);
+    }
+
+    public int getYOff() {
+        return Integer.parseInt(yoff);
     }
 
     //Mouse listener with delay for noise reduction

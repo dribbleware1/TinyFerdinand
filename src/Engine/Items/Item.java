@@ -3,8 +3,9 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package Engine;
+package Engine.Items;
 
+import Engine.Engine.ESC;
 import java.awt.Color;
 import java.awt.Font;
 import java.awt.Graphics;
@@ -18,11 +19,11 @@ import java.awt.image.BufferedImage;
  */
 public class Item {
 
-    final String[] NAMES = new String[] {"Logs", "Rocks", "Bucket", "Water", "Apple"};
-    BufferedImage[] art = new BufferedImage[]{};
+    public final String[] NAMES = new String[] {"Logs", "Rocks", "Bucket", "Water", "Apple"};
+    public BufferedImage[] art = new BufferedImage[]{};
 
-    int x, y, width, height, id, qnty;
-    boolean tool = false;
+    public int x, y, width, height, id, qnty;
+    public boolean tool = false;
     public Font text = new Font("TimesRoman", Font.PLAIN, 25);
 
     ESC eng;

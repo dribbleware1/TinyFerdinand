@@ -3,8 +3,10 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package Engine;
+package Engine.Engine;
 
+import Engine.Items.Item;
+import Engine.Engine.ESC;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;

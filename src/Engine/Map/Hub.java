@@ -3,8 +3,11 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package Engine;
+package Engine.Map;
 
+import Engine.Engine.ESC;
+import Engine.Map.Tree;
+import Engine.Items.Item;
 import java.awt.Color;
 import java.awt.Graphics;
 import java.awt.Rectangle;
@@ -177,13 +180,7 @@ public class Hub {
         for (int i = 0; i < items.size(); i++) {
 
             g.drawImage(items.get(i).art[items.get(i).id], items.get(i).x + xOff, items.get(i).y + yOff, items.get(i).width, items.get(i).height, null);
-
-//            if (items.get(i).id == 0) {
-//                g.drawImage(engi.assetLdr.logs, items.get(i).x + xOff, items.get(i).y + yOff, items.get(i).width, items.get(i).height, null);
-//            }
-//            if (items.get(i).id == 1) {
-//                g.drawImage(engi.assetLdr.rocks, items.get(i).x + xOff, items.get(i).y + yOff, items.get(i).width, items.get(i).height, null);
-//            }
+            
         }
 
         for (int i = 0; i < trees.size(); i++) {

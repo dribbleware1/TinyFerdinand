@@ -3,8 +3,11 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package Engine;
+package Engine.Map;
 
+import Engine.Engine.ESC;
+import Engine.Engine.Input;
+import Engine.Items.Item;
 import java.awt.Graphics;
 import java.awt.Rectangle;
 import java.util.ArrayList;
@@ -23,8 +26,8 @@ public class World{
     //no idea
     public int time = 10;
     //Rooms and displays
-    Hub hubRoom;
-    Menu menu;
+    public Hub hubRoom;
+    public Menu menu;
     //objects and items currently active
     public List<Rectangle> Objects = new ArrayList<>();
     public List<Item> items = new ArrayList<>();
