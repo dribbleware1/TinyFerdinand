@@ -5,8 +5,11 @@
  */
 package Engine.Engine;
 
+import Engine.Items.CampFire;
 import Engine.Items.Item;
-import Engine.Engine.ESC;
+import Engine.Items.Tree;
+import Engine.Items.WorkBench;
+import Engine.Map.WorldObjects;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -59,11 +62,6 @@ public class LoadSave {
             }
         } else if (customDir.mkdirs()) {
             System.out.println(customDir + " was created");
-            try {
-                newSave(path, 0);
-            } catch (FileNotFoundException | UnsupportedEncodingException ex) {
-                System.out.println("file not found");
-            }
         } else {
             System.out.println(customDir + " save file added");
         }
@@ -78,11 +76,6 @@ public class LoadSave {
             }
         } else if (customDir.mkdirs()) {
             System.out.println(customDir + " was created");
-            try {
-                newSave(path, 2);
-            } catch (FileNotFoundException | UnsupportedEncodingException ex) {
-                System.out.println("file not found");
-            }
         } else {
             System.out.println(invenDir + " save file added");
         }
@@ -98,11 +91,6 @@ public class LoadSave {
         } else if (itemDir.mkdirs()) {
             System.out.println(itemDir + " was created");
             engine.world.hubRoom.addItems();
-            try {
-                newSave(path2, 1);
-            } catch (FileNotFoundException | UnsupportedEncodingException ex) {
-                System.out.println("file not found");
-            }
         } else {
             System.out.println(itemDir + " save file added");
             engine.world.hubRoom.addItems();
@@ -119,34 +107,11 @@ public class LoadSave {
         } else if (itemDir.mkdirs()) {
             System.out.println(hubTree + " was created");
             engine.world.hubRoom.addItems();
-            try {
-                newSave(path2, 3);
-            } catch (FileNotFoundException | UnsupportedEncodingException ex) {
-                System.out.println("file not found");
-            }
         } else {
             System.out.println(hubTree + " save file added");
-            //add default to tree nums, x number of times
         }
-
         Loc = path;
         Loc2 = path2;
-
-    }
-
-    public void newSave(String path, int id) throws FileNotFoundException, UnsupportedEncodingException {
-        if (id == 0) {
-            PrintWriter writer = new PrintWriter(path + "/Save.zbd", "UTF-8");
-            writer.close();
-        }
-        if (id == 1) {
-            PrintWriter writer = new PrintWriter(path + "/Hub.zbd", "UTF-8");
-            writer.close();
-        }
-        if (id == 2) {
-            PrintWriter writer = new PrintWriter(path + "/Inventory.zbd", "UTF-8");
-            writer.close();
-        }
 
     }
 
@@ -155,7 +120,7 @@ public class LoadSave {
         playerSave();
         inventorySave();
         itemSave();
-        treeSave();
+        objectSave();
 
         System.out.println("saved");
     }
@@ -242,25 +207,78 @@ public class LoadSave {
             }
         }
 
-        if (id == 3) { //tree load
-            int c;
-            String test;
+        if (id == 3) { //objects load
+            int treeCount = 0, fireCount = 0, benchCount = 0;
+            int tX = 0, tY = 0, tID = 0, tC = 0, tic = 0; // trees
+            int fX = 0, fY = 0; //fires
+            int bX = 0, bY = 0; //workbenches
+            String section = "BLANK", hold;
             Scanner scanner = new Scanner(new File(path + "/hubTree.zbd"));
             while (scanner.hasNext()) {
                 if (scanner.hasNextLine()) {
-                    test = scanner.nextLine();
-                    if (test.equalsIgnoreCase("yes")) {
-                       engine.world.hubRoom.treesTemp = true;
-                    } else {
-                        c = Integer.parseInt(test);
-                        its++;
-                        engine.world.hubRoom.treeNums.add(c);
+
+                    hold = scanner.nextLine();
+                    if (hold.equalsIgnoreCase("TREES")) {
+                        section = "TREES";
+                        hold = scanner.nextLine();
                     }
+                    if (hold.equalsIgnoreCase("FIRES")) {
+                        section = "FIRES";
+                        hold = scanner.nextLine();
+                    }
+                    if (hold.equalsIgnoreCase("BENCHES")) {
+                        section = "BENCHES";
+                        hold = scanner.nextLine();
+                    }
+
+                    String temp[] = hold.split("\\s+");
+
+//<editor-fold defaultstate="collapsed" desc="TREES">
+                    if (section.equalsIgnoreCase("TREES")) {
+                        tX = Integer.parseInt(temp[0]);
+                        tY = Integer.parseInt(temp[1]);
+                        tID = Integer.parseInt(temp[2]);
+                        tC = Integer.parseInt(temp[3]);
+
+                        Tree tmp = new Tree(engine, tX, tY, tID);
+                        tmp.count = tC;
+                        engine.world.hubRoom.obbys.add(tmp);
+                        engine.world.hubRoom.updateTrees();
+                        treeCount++;
+                    }
+//</editor-fold>
+
+//<editor-fold defaultstate="collapsed" desc="FIRES">
+                    if (section.equalsIgnoreCase("FIRES")) {
+                        fX = Integer.parseInt(temp[0]);
+                        fY = Integer.parseInt(temp[1]);
+                        CampFire placeHolder = new CampFire(fX, fY, engine);
+                        engine.world.hubRoom.obbys.add(placeHolder);
+                        engine.world.updatelist();
+                        placeHolder.dropped = true;
+                        fireCount++;
+                    }
+//</editor-fold>
+
+//<editor-fold defaultstate="collapsed" desc="BENCHES">
+                    if (section.equalsIgnoreCase("BENCHES")) {
+                        bX = Integer.parseInt(temp[0]);
+                        bY = Integer.parseInt(temp[1]);
+                        engine.world.hubRoom.obbys.add(new WorkBench(bX, bY, engine, engine.world.hubRoom));
+                        benchCount++;
+                    }
+//</editor-fold>
+
                 } else {
                     scanner.nextLine();
                 }
             }
-            engine.world.hubRoom.updateTrees();
+            System.out.println("Loaded " + treeCount + " trees");
+            System.out.println("Loaded " + fireCount + " fires");
+            System.out.println("Loaded " + benchCount + " benches");
+
+            engine.world.hubRoom.stuff();
+
         }
     }
 
@@ -277,7 +295,7 @@ public class LoadSave {
         }
     }
 
-    private void itemSave() throws FileNotFoundException, UnsupportedEncodingException {
+    public void itemSave() throws FileNotFoundException, UnsupportedEncodingException {
         PrintWriter writer = new PrintWriter(Loc2 + "/Hub.zbd", "UTF-8");
         for (int i = 0; i < engine.world.items.size(); i++) {
             writer.println(engine.world.items.get(i).x + " " + engine.world.items.get(i).y + " " + engine.world.items.get(i).id + " " + engine.world.items.get(i).qnty);
@@ -294,14 +312,60 @@ public class LoadSave {
         writer.close();
     }
 
-    private void treeSave() throws FileNotFoundException, UnsupportedEncodingException {
+    private void objectSave() throws FileNotFoundException, UnsupportedEncodingException {
         PrintWriter writer = new PrintWriter(Loc2 + "/hubTree.zbd", "UTF-8");
-        if(engine.world.hubRoom.treesTemp){
-            writer.println("yes");
+
+        List<WorldObjects> obbys = engine.world.hubRoom.obbys;
+
+        boolean trees = false, fires = false, benches = false;
+        for (int i = 0; i < obbys.size(); i++) {
+            if (obbys.get(i) instanceof Tree) {
+                trees = true;
+            }
+            if (obbys.get(i) instanceof WorkBench) {
+                benches = true;
+            }
+            if (obbys.get(i) instanceof CampFire) {
+                fires = true;
+            }
         }
-        for (int i = 0; i < engine.world.hubRoom.trees.size(); i++) {
-            writer.println(Integer.toString(engine.world.hubRoom.trees.get(i).count));
+
+        for (int j = 0; j < 3; j++) {
+            boolean first = true;
+            for (int i = 0; i < engine.world.hubRoom.obbys.size(); i++) {
+                switch (j) {
+                    case 0:
+                        if (first && trees) {
+                            writer.println("TREES");
+                            first = false;
+                        }
+                        if (obbys.get(i) instanceof Tree) {
+                            writer.println(obbys.get(i).x + " " + obbys.get(i).y + " " + obbys.get(i).ID + " " + obbys.get(i).count);
+                        }
+                        break;
+                    case 1:
+                        if (first && fires) {
+                            writer.println("FIRES");
+                            first = false;
+                        }
+                        if (obbys.get(i) instanceof CampFire) {
+                            writer.println(obbys.get(i).x + " " + obbys.get(i).y);
+                        }
+                        break;
+                    case 2:
+                        if (first && benches) {
+                            writer.println("BENCHES");
+                            first = false;
+                        }
+                        if (obbys.get(i) instanceof WorkBench) {
+                            writer.println(obbys.get(i).x + " " + obbys.get(i).y);
+                        }
+                        break;
+
+                }
+            }
         }
+
         writer.close();
     }
 

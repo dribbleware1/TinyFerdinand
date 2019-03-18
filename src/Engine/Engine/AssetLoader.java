@@ -17,6 +17,7 @@ import javax.imageio.ImageIO;
  */
 public class AssetLoader {
 
+    //<editor-fold defaultstate="collapsed" desc="Declarations">
     public BufferedImage hotBar, Hub1, overlay; //Worlds
     public BufferedImage menuBack, title, title2, cont, cont2, opt, opt2; //Main menu
     public BufferedImage deb, on, on2, off, off2, back, back2, exit, exit2, framerate, sixty, uncapped, reset, framerate2, reset2; //Options menu
@@ -24,27 +25,38 @@ public class AssetLoader {
     public BufferedImage walkSheet, dropShadow;//player walk sprite sheet
     private final int width = 64, height = 64;//sprite sheet setup
     public BufferedImage decoSheet, logs, emptyBucket, fullBucket;//decoration sprite sheet
-    public BufferedImage terrainSheet, rocks, apple;//decoration sprite sheet
-    
+    public BufferedImage terrainSheet, rocks, apple, workBench;//decoration sprite sheet
+    public BufferedImage smallTree, bigTree;
+
+    public BufferedImage box;
+
     public BufferedImage greyBox;
-    
+
     //array for the walking animations
     public List<BufferedImage> walkUp = new ArrayList<>();
     public List<BufferedImage> walkLeft = new ArrayList<>();
     public List<BufferedImage> walkDown = new ArrayList<>();
     public List<BufferedImage> walkRight = new ArrayList<>();
-    ESC engine;
+    public List<BufferedImage> campFire = new ArrayList<>();
 
+    ESC engine;
+    //</editor-fold>
+
+    //<editor-fold defaultstate="collapsed" desc="Constructor">
     public AssetLoader(ESC eng) {
         engine = eng;
     }
+    //</editor-fold>
 
+    //<editor-fold defaultstate="collapsed" desc="Init">
     public void init() throws IOException {// add the things to be loaded in here will be called in beginnig
+
+        box = ImageIO.read(engine.getClass().getResource("/box.png"));
 
         //Worlds
         overlay = ImageIO.read(engine.getClass().getResource("/Hub/hub 2.png"));
         hotBar = ImageIO.read(engine.getClass().getResource("/hotbar.png"));
-        Hub1 = ImageIO.read(engine.getClass().getResource("/Hub/hub.png"));
+        Hub1 = ImageIO.read(engine.getClass().getResource("/Hub/hub - 2.png"));
         exit = ImageIO.read(engine.getClass().getResource("/Menu/exit.png"));
         exit2 = ImageIO.read(engine.getClass().getResource("/Menu/exit - l.png"));
 
@@ -79,8 +91,12 @@ public class AssetLoader {
         //Player
         walkSheet = ImageIO.read(engine.getClass().getResource("/Player/walkSheet.png"));
         dropShadow = ImageIO.read(engine.getClass().getResource("/Player/Drop Shadow.png"));
-        
-        
+        //trees
+        smallTree = crop(ImageIO.read(engine.getClass().getResource("/Hub/Tree Atlas.png")), 0, 0, 32 * 2, 32 * 2);
+        bigTree = crop(ImageIO.read(engine.getClass().getResource("/Hub/Tree Atlas.png")), 64, 0, 32 * 4, 32 * 6);
+
+        workBench = ImageIO.read(engine.getClass().getResource("/Workbench.png"));
+
         for (int i = 0; i < 9; i++) {
             walkUp.add(crop(walkSheet, 0 + (width * i), 0, width, height));
         }
@@ -96,21 +112,29 @@ public class AssetLoader {
         //decorations
         decoSheet = ImageIO.read(engine.getClass().getResource("/decoSheet.png"));
         logs = crop(decoSheet, (13 * 32), (22 * 32), 32, 32);
-        emptyBucket = crop(decoSheet, (2*32), (15*32), 32, 32);
-        fullBucket = crop(decoSheet, (3*32), (15*32), 32, 32);
-        
+        emptyBucket = crop(decoSheet, (2 * 32), (15 * 32), 32, 32);
+        fullBucket = crop(decoSheet, (3 * 32), (15 * 32), 32, 32);
+
         terrainSheet = ImageIO.read(engine.getClass().getResource("/terrainSheet.png"));
         rocks = crop(terrainSheet, (160), (1728), 32, 32);
-        
+
         greyBox = ImageIO.read(engine.getClass().getResource("/grey box.png"));
-        
+
         apple = ImageIO.read(engine.getClass().getResource("/apple.png"));
-        
+
+        for (int i = 0; i < 5; i++) {
+            campFire.add(crop(decoSheet, (8 + i) * 32, 47 * 32, 32, 64));
+        }
+        campFire.add(crop(decoSheet, 320, 49 * 32, 32, 32));
+
     }
+//</editor-fold>
 
     //to crop sprite sheets for animations
+    //<editor-fold defaultstate="collapsed" desc="Crop BufferedImage shee int x int y int width int height">
     public BufferedImage crop(BufferedImage sheet, int x, int y, int width, int height) {
         return sheet.getSubimage(x, y, width, height);
     }
+    //</editor-fold>
 
 }

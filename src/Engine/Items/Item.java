@@ -11,6 +11,7 @@ import java.awt.Font;
 import java.awt.Graphics;
 import java.awt.MouseInfo;
 import java.awt.Point;
+import java.awt.Rectangle;
 import java.awt.image.BufferedImage;
 
 /**
@@ -21,11 +22,13 @@ public class Item {
 
     public final String[] NAMES = new String[] {"Logs", "Rocks", "Bucket", "Water", "Apple"};
     public BufferedImage[] art = new BufferedImage[]{};
-
+    
     public int x, y, width, height, id, qnty;
     public boolean tool = false;
     public Font text = new Font("TimesRoman", Font.PLAIN, 25);
 
+    public Rectangle conBox;
+    
     ESC eng;
 
     public Item(int xi, int yi, int widthi, int heighti, int idi, int q) {
@@ -36,6 +39,7 @@ public class Item {
         id = idi;
         qnty = q;
         artBuild();
+        conBox = new Rectangle(x - 10, y - 10, width + 20, height + 20);
     }
 
     public Item(int idi, int q) {
@@ -45,6 +49,7 @@ public class Item {
 
     public void toolTips(Graphics g, ESC engine) {
         eng = engine;
+        g.setColor(Color.red);
         if (tool && !engine.Loc.equalsIgnoreCase("menu") && !engine.pause) {
             g.drawImage(engine.assetLdr.greyBox, loc(engine).x, loc(engine).y - 75, 100, 75, null);
             g.setColor(Color.white);

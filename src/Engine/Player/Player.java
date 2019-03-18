@@ -24,16 +24,17 @@ import java.util.List;
  */
 public class Player {
 
+    //<editor-fold defaultstate="collapsed" desc="Declarations">
     //location
-    float x, y;
+    public float x, y;
     public int speed = 5;
     public int w = 55, h = 96;
     public int health = 500;
     Input input;
     ESC engine;
-    public Inventory inv;
+    public inventory inv;
     World World;
-    public final Rectangle box;
+    public final Rectangle box, box2;
     private final Rectangle top;
     private final Rectangle lside;
     private final Rectangle rside;
@@ -50,24 +51,29 @@ public class Player {
     private List<BufferedImage> walkUp;
     private List<BufferedImage> walkDown;
 
-    public Rectangle map;
+    public Rectangle map, collbox;
 
     public boolean pass = false;
+//</editor-fold>    
 
+    //<editor-fold defaultstate="collapsed" desc="Initializer">
     public Player(float xi, float yi, Input in, ESC eng, World world) {
         this.x = eng.sizew / 2 - 50;
         this.y = eng.sizeh / 2 - 50;
         input = in;
         engine = eng;
         health = Integer.parseInt(engine.loadVars[0]);
-        inv = new Inventory(engine);
+        inv = new inventory(engine);
         box = new Rectangle((int) (x - 82.5 + 25), (int) y - h / 2, w * 3, h * 2);
+        box2 = new Rectangle(box.x - 75, box.y - 75, box.width + 140, box.height + 140);
 
         //collision boxes for all 4 sides
         top = new Rectangle((int) x + 10, (int) y - speed / 2, w - 20, speed / 2);
         lside = new Rectangle((int) x - speed / 2, (int) y + 10, speed / 2, h - 20);
         rside = new Rectangle((int) x + w, (int) y + 10, speed / 2, h - 20);
         bottom = new Rectangle((int) x + 10, (int) y + h, w - 20, speed / 2);
+
+        collbox = new Rectangle((int) x, (int) y, w, h);
 
         World = world;
 
@@ -76,8 +82,13 @@ public class Player {
         walkUp = engine.assetLdr.walkUp;
         walkDown = engine.assetLdr.walkDown;
         Animation = walkRight;
-    }
 
+        collision();
+        unstick();
+    }
+//</editor-fold>
+
+    //<editor-fold defaultstate="collapsed" desc="Update">
     public void update() {
         input.update();
         inv.update();
@@ -89,12 +100,14 @@ public class Player {
             ani++;
         }
     }
+    //</editor-fold>
 
+    //<editor-fold defaultstate="collapsed" desc="render Graphics g">
     public void render(Graphics g) {
         g.setColor(Color.red);
         g.drawImage(engine.assetLdr.dropShadow, (int) x - 5, (int) y + 65, engine.assetLdr.dropShadow.getWidth() * 2, engine.assetLdr.dropShadow.getHeight() * 2, null);
         animate(g);
-
+        //g.drawRect(collbox.x, collbox.y, collbox.width, collbox.height);
 //Collision boxes for debug mode
         if (engine.debug) {
             g.setColor(Color.ORANGE);
@@ -104,9 +117,12 @@ public class Player {
             g.drawRect(rside.x, rside.y, rside.width, rside.height);
             g.setColor(Color.PINK);
             g.drawRect(box.x, box.y, box.width, box.height);
+            g.drawRect(collbox.x, collbox.y, collbox.width, collbox.height);
         }
     }
+    //</editor-fold>
 
+    //<editor-fold defaultstate="collapsed" desc="collect">
     public void collect() {
         overIt = false;
         for (int i = 0; i < World.items.size(); i++) {
@@ -130,7 +146,9 @@ public class Player {
         }
 
     }
+//</editor-fold>
 
+    //<editor-fold defaultstate="collapsed" desc="Collision">
     private void collision() {
         //booleans to define if there is a collision on that side
         up = false;
@@ -151,9 +169,13 @@ public class Player {
                 down = true;
             }
         }
-
+        if (left && right && up && down) {
+            engine.xoff = Integer.toString(Integer.parseInt(engine.xoff) + 10);
+        }
     }
+    //</editor-fold>
 
+    //<editor-fold defaultstate="collapsed" desc="animate Graphics g">
     public void animate(Graphics g) {
         //<editor-fold defaultstate="collapsed" desc="animation for player movements">\
         if (!engine.pause) {
@@ -212,15 +234,18 @@ public class Player {
             g.drawImage(Animation.get(0), (int) x - 36, (int) y - 30, 128, 128, null);
         }
         //</editor-fold>
-
     }
+    //</editor-fold>
 
+    //<editor-fold defaultstate="collapsed" desc="loc">
     public Point loc() {
         return new Point(MouseInfo.getPointerInfo().getLocation().x - engine.frame.getX(),
                 MouseInfo.getPointerInfo().getLocation().y - engine.frame.getY() - Math.abs(engine.frame.getLocationOnScreen().y - engine.canvas.getLocationOnScreen().y));
 
     }
+    //</editor-fold>
 
+    //<editor-fold defaultstate="collapsed" desc="contains Rectangle click">
     public boolean contains(Rectangle click) {
         boolean ret = false;
         if (click.contains(new Point(MouseInfo.getPointerInfo().getLocation().x - engine.frame.getX(),
@@ -229,14 +254,25 @@ public class Player {
         }
         return ret;
     }
+    //</editor-fold>
 
+    //<editor-fold defaultstate="collapsed" desc="RecBuilder Item item">
     public Rectangle RecBuilder(Item item) {
 
         return new Rectangle(item.x + engine.getXOff(), item.y + engine.getYOff(), item.width, item.height);
     }
+    //</editor-fold>
 
+    //<editor-fold defaultstate="collapsed" desc="Unstick">
+    public void unstick() {
+
+    }
+    //</editor-fold>
+
+    //<editor-fold defaultstate="collapsed" desc="Getters and setters">
     public Rectangle getBox() {
         return box;
     }
+    //</editor-fold>
 
 }

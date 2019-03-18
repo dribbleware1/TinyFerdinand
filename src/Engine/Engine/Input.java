@@ -10,12 +10,12 @@ import java.awt.event.KeyListener;
  */
 /**
  *
- * @author Graeme Judge
+ * @author DribbleWare
  */
 public class Input implements KeyListener {
 
     private boolean[] button;
-    public boolean up, down, left, right, reset, start, close, pause, action;
+    public boolean up, down, left, right, reset, start, close, pause, action, set;
     ESC engine;
 
     public Input(ESC cargoEngine) {
@@ -32,6 +32,7 @@ public class Input implements KeyListener {
         start = button[KeyEvent.VK_SPACE];
         close = button[KeyEvent.VK_ESCAPE];
         action = button[KeyEvent.VK_E];
+        set = button[KeyEvent.VK_UP];
     }
 
     @Override

@@ -32,9 +32,9 @@ import javax.swing.JFrame;
  */
 public class ESC {
 
+    //<editor-fold defaultstate="collapsed" desc="Declarations">
     //debug
     public boolean debug = false;
-
     //stats
     int fps, ticks;
     public boolean running = false;
@@ -68,6 +68,7 @@ public class ESC {
     private Graphics g;
     private BufferStrategy bs;
     public int sizeh = 800, sizew = 1500;
+    public Rectangle screenbox = new Rectangle(0, 0, sizew, sizeh);
 
     public String health = "500", xoff = "100", yoff = "100", name = "Paul";
     public String[] loadVars = {health, name, xoff, yoff};
@@ -87,14 +88,18 @@ public class ESC {
 
     public Font text = new Font("TimesRoman", Font.PLAIN, 60);
     public Font text2 = new Font("TimesRoman", Font.PLAIN, 30);
+    //</editor-fold>
 
+    //<editor-fold defaultstate="collapsed" desc="Main">
     public static void main(String[] args) {
-        ESC CargoEngine = new ESC();
-        assetLdr = new AssetLoader(CargoEngine);
-        CargoEngine.createDisplay();
-        CargoEngine.start();
+        ESC MainEngine = new ESC();
+        assetLdr = new AssetLoader(MainEngine);
+        MainEngine.createDisplay();
+        MainEngine.start();
     }
+    //</editor-fold>
 
+    //<editor-fold defaultstate="collapsed" desc="CreateDisplay">
     private void createDisplay() {
         //Name the game window
         frame = new JFrame("GameTime");
@@ -116,8 +121,10 @@ public class ESC {
         canvas.addMouseListener(new CustomListener());
         frame.pack();
     }
+    //</editor-fold>
 
     //Restart the game with the same save file
+    //<editor-fold defaultstate="collapsed" desc="Restart">
     public void restart() {
         this.frame.dispose();
         ESC CargoEngine = new ESC();
@@ -125,8 +132,9 @@ public class ESC {
         CargoEngine.createDisplay();
         CargoEngine.start();
     }
+    //</editor-fold>
 
-    //Update controlls
+    //<editor-fold defaultstate="collapsed" desc="Update">
     public void update() {
         //Movement checks
         move();
@@ -164,31 +172,14 @@ public class ESC {
             pauseMenu.update();
         }
     }
+    //</editor-fold>
 
-    //Movement controls
-    private void move() {
-        if (!"menu".equals(Loc) && !pause) {
-            if (input.up && !mainChar.up) { //Moving up
-                yoff = Integer.toString((Integer.parseInt(yoff)) + mainChar.speed);
-            }
-            if (input.down && !mainChar.down) { //Moving down
-                yoff = Integer.toString((Integer.parseInt(yoff)) - mainChar.speed);
-            }
-            if ((input.left && !mainChar.left)) { //Moving left
-                xoff = Integer.toString((Integer.parseInt(xoff)) + mainChar.speed);
-            }
-            if (input.right && !mainChar.right) { //Moving right
-                xoff = Integer.toString((Integer.parseInt(xoff)) - mainChar.speed);
-            }
-        }
-    }
-
-    //Render to control whats seen
+    //<editor-fold defaultstate="collapsed" desc="Render Graphics g">
     public void render() {
         //Canvas setup with buffer strategy
         bs = canvas.getBufferStrategy();
         if (bs == null) {
-            canvas.createBufferStrategy(3);
+            canvas.createBufferStrategy(4);
             return;
         }
         g = bs.getDrawGraphics();
@@ -210,12 +201,13 @@ public class ESC {
         if (!Loc.equalsIgnoreCase("menu")) {
             mainChar.render(g);
             overlay.render(g);
-            if (Loc.equalsIgnoreCase("hub")) {
-                for (int i = 0; i < world.hubRoom.trees.size(); i++) {
-                    world.hubRoom.trees.get(i).render(g);
-                }
-            }
+
+            world.priorityRrender(g);
+
+            overlay.priorityRender(g);
+
             mainChar.inv.render(g);
+
             g.setFont(text2);
             g.getFontMetrics(text2);
             g.setColor(Color.white);
@@ -227,7 +219,6 @@ public class ESC {
         if (pause) {
             pauseMenu.render(g);
         }
-
         //Controls fps and update readout if debug mode is on
         g.setFont(text);
         g.getFontMetrics(text);
@@ -239,11 +230,32 @@ public class ESC {
         }
 
         //end draw
-        bs.show();
         g.dispose();
-    }
+        bs.show();
 
-    //Main game loop
+    }
+    //</editor-fold>
+
+    //<editor-fold defaultstate="collapsed" desc="Move">
+    private void move() {
+        if (!"menu".equals(Loc) && !pause) {
+            if (input.up && !mainChar.up) { //Moving up
+                yoff = Integer.toString((Integer.parseInt(yoff)) + mainChar.speed);
+            }
+            if (input.down && !mainChar.down) { //Moving down
+                yoff = Integer.toString((Integer.parseInt(yoff)) - mainChar.speed);
+            }
+            if ((input.left && !mainChar.left)) { //Moving left
+                xoff = Integer.toString((Integer.parseInt(xoff)) + mainChar.speed);
+            }
+            if (input.right && !mainChar.right) { //Moving right
+                xoff = Integer.toString((Integer.parseInt(xoff)) - mainChar.speed);
+            }
+        }
+    }
+    //</editor-fold>
+
+    //<editor-fold defaultstate="collapsed" desc="Run">
     public void run() {
         int tp = 0;
         long lastTime = System.nanoTime();
@@ -259,7 +271,6 @@ public class ESC {
             lastTime = now;
             while (delta >= 1) {
                 input.update();
-
                 //If fps locked to 60
                 if (sixty == true) {
                     render();
@@ -313,10 +324,10 @@ public class ESC {
                 updates = 0;
             }
         }
-
     }
+    //</editor-fold>
 
-    //Start worlds and player
+    //<editor-fold defaultstate="collapsed" desc="Start">
     public void start() {
         try {
             assetLdr.init();
@@ -340,7 +351,9 @@ public class ESC {
         }
         run();
     }
+    //</editor-fold>
 
+    //<editor-fold defaultstate="collapsed" desc="Getters and Setters">
     public int getXOff() {
         return Integer.parseInt(xoff);
     }
@@ -349,7 +362,25 @@ public class ESC {
         return Integer.parseInt(yoff);
     }
 
+    public void setXOff(int in) {
+        xoff += Integer.toString(in);
+    }
+
+    public void setYOff(int in) {
+        yoff += Integer.toString(in);
+    }
+
+    public int getFrameX() {
+        return frame.getX();
+    }
+
+    public int getFrameY() {
+        return frame.getY();
+    }
+
+    //</editor-fold>
     //Mouse listener with delay for noise reduction
+    //<editor-fold defaultstate="collapsed" desc="Mouse listener">
     public class CustomListener implements MouseListener {
 
         @Override
@@ -358,11 +389,6 @@ public class ESC {
 
         @Override
         public void mousePressed(MouseEvent mouseEvent) {
-
-        }
-
-        @Override
-        public void mouseReleased(MouseEvent mouseEvent) {
             if (mouseEvent.getButton() == MouseEvent.BUTTON1 && !screenDelay) {
                 if (!delaystart) {
                     left = true;
@@ -377,6 +403,10 @@ public class ESC {
         }
 
         @Override
+        public void mouseReleased(MouseEvent mouseEvent) {
+        }
+
+        @Override
         public void mouseEntered(MouseEvent mouseEvent) {
         }
 
@@ -384,5 +414,6 @@ public class ESC {
         public void mouseExited(MouseEvent mouseEvent) {
         }
     }
+    //</editor-fold>
 
 }

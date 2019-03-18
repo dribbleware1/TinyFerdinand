@@ -17,12 +17,12 @@ import java.util.List;
  *
  * @author DribbleWare
  */
-public class World{
+public class World {
+
     //Housekeeping
     Input input;
     ESC engine;
 
-    
     //no idea
     public int time = 10;
     //Rooms and displays
@@ -48,6 +48,16 @@ public class World{
         }
     }
 
+    public void priorityRrender(Graphics g) {
+        switch (engine.Loc) {
+            case "hub":
+                hubRoom.priorityRender(g);
+                break;
+            case "menu":
+                break;
+        }
+    }
+
     public void update() {
         switch (engine.Loc) {
             case "hub":
@@ -62,7 +72,6 @@ public class World{
         }
     }
 
-
     public void start() {
         System.out.println("starting the world");
         hubRoom = new Hub(engine);
@@ -73,6 +82,7 @@ public class World{
     public void updatelist() {
         switch (engine.Loc) {
             case "hub":
+                hubRoom.updateList();
                 Objects = hubRoom.objects;
                 items = hubRoom.items;
                 break;

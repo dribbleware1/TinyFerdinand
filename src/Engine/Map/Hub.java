@@ -6,11 +6,17 @@
 package Engine.Map;
 
 import Engine.Engine.ESC;
+import Engine.Items.CampFire;
 import Engine.Items.Tree;
 import Engine.Items.Item;
+import Engine.Items.WorkBench;
 import java.awt.Color;
 import java.awt.Graphics;
+import java.awt.MouseInfo;
+import java.awt.Point;
 import java.awt.Rectangle;
+import java.io.FileNotFoundException;
+import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -20,16 +26,24 @@ import java.util.List;
  */
 public class Hub {
 
+    //<editor-fold defaultstate="collapsed" desc="Declarations">
     public int temp = 12;
     ESC engi;
     private int xOff, yOff;
     public boolean treesTemp = false;
+    public boolean water = false;
+    public int conTimer = 0;
+    public boolean firstTree = true;
 
     //Lists to store all objects and items
     public List<Rectangle> objects = new ArrayList<>();
     public List<Item> items = new ArrayList<>();
     public List<Tree> trees = new ArrayList<>();
+    public List<Rectangle> ponds = new ArrayList<>();
     public List<Integer> treeNums = new ArrayList<>();
+    public List<CampFire> fires = new ArrayList<>();
+    public List<WorkBench> benches = new ArrayList<>();
+    public List<WorldObjects> obbys = new ArrayList<>();
 
     public Rectangle Tree1, Tree2, Tree3, Tree4, Tree5, Tree6;
     public Rectangle pond1;
@@ -50,24 +64,18 @@ public class Hub {
     public Rectangle item2 = new Rectangle(450, 450, 50, 50);
     public Rectangle item3 = new Rectangle(275, 134, 50, 50);
     public Rectangle item4 = new Rectangle(256, 256, 50, 50);
+//</editor-fold>
 
+    //gotta fix this wayyyyy too much work
+    //<editor-fold defaultstate="collapsed" desc="Constructor">
     public Hub(ESC eng) {
         engi = eng;
-        //Tree setup/ collision declaration
-        Tree1 = new Rectangle(89 * engi.size, 92 * engi.size, 15 * engi.size, 10 * engi.size);
-        trees.add(new Tree(engi, Tree1, 0));
-        Tree2 = new Rectangle(185 * engi.size, 54 * engi.size, 15 * engi.size, 10 * engi.size);
-        trees.add(new Tree(engi, Tree2, 0));
-        Tree3 = new Rectangle(217 * engi.size, 41 * engi.size, 15 * engi.size, 10 * engi.size);
-        trees.add(new Tree(engi, Tree3, 0));
-        Tree4 = new Rectangle(252 * engi.size, 56 * engi.size, 15 * engi.size, 10 * engi.size);
-        trees.add(new Tree(engi, Tree4, 0));
-        Tree5 = new Rectangle(289 * engi.size, 56 * engi.size, 15 * engi.size, 10 * engi.size);
-        trees.add(new Tree(engi, Tree5, 0));
-        Tree6 = new Rectangle(321 * engi.size, 43 * engi.size, 15 * engi.size, 10 * engi.size);
-        trees.add(new Tree(engi, Tree6, 0));
+        //fires.add(new CampFire(450, 450, eng));
+        //benches.add(new WorkBench(engi, this));
+
         //Ponds
         pond1 = new Rectangle(273 * engi.size, 140 * engi.size, 62 * engi.size, 68 * engi.size);
+        ponds.add(pond1);
         //Shrubs
         shrub1 = new Rectangle(457 * engi.size, 214 * engi.size, 10 * engi.size, 10 * engi.size);
         shrub2 = new Rectangle(489 * engi.size, 278 * engi.size, 10 * engi.size, 10 * engi.size);
@@ -78,12 +86,6 @@ public class Hub {
         Fence4 = new Rectangle(300 * engi.size, 561 * engi.size, 7 * engi.size, 73 * engi.size);
         Fence5 = new Rectangle(44 * engi.size, 630 * engi.size, 262 * engi.size, 4 * engi.size);
         //Big trees
-        Btree1 = new Rectangle(610 * engi.size, 371 * engi.size, 66 * engi.size, 45 * engi.size);
-        trees.add(new Tree(engi, Btree1, 1));
-        Btree2 = new Rectangle(40 * engi.size, 647 * engi.size, 66 * engi.size, 45 * engi.size);
-        trees.add(new Tree(engi, Btree2, 1));
-        Btree3 = new Rectangle(204 * engi.size, 915 * engi.size, 66 * engi.size, 45 * engi.size);
-        trees.add(new Tree(engi, Btree3, 1));
         //Tomb
         Tomb = new Rectangle(144 * engi.size, 410 * engi.size, 62 * engi.size, 70 * engi.size);
         //Haybales
@@ -102,26 +104,38 @@ public class Hub {
         Pitchfork = new Rectangle(833 * engi.size, 390 * engi.size, 30 * engi.size, 26 * engi.size);
         //Pon2
         Pond2_1 = new Rectangle(942 * engi.size, 555 * engi.size, 134 * engi.size, 60 * engi.size);
+        ponds.add(Pond2_1);
         Pond2_2 = new Rectangle(912 * engi.size, 615 * engi.size, 194 * engi.size, 164 * engi.size);
+        ponds.add(Pond2_2);
         Pond2_3 = new Rectangle(1076 * engi.size, 583 * engi.size, 30 * engi.size, 32 * engi.size);
+        ponds.add(Pond2_3);
         Pond2_4 = new Rectangle(912 * engi.size, 779 * engi.size, 165 * engi.size, 32 * engi.size);
+        ponds.add(Pond2_4);
         Pond2_5 = new Rectangle(1077 * engi.size, 779 * engi.size, 25 * engi.size, 11 * engi.size);
+        ponds.add(Pond2_5);
         Pond2_6 = new Rectangle(925 * engi.size, 811 * engi.size, 135 * engi.size, 12 * engi.size);
+        ponds.add(Pond2_6);
         Pond2_7 = new Rectangle(943 * engi.size, 823 * engi.size, 100 * engi.size, 25 * engi.size);
+        ponds.add(Pond2_7);
         Pond2_8 = new Rectangle(975 * engi.size, 848 * engi.size, 68 * engi.size, 25 * engi.size);
+        ponds.add(Pond2_8);
         Pond2_9 = new Rectangle(965 * engi.size, 848 * engi.size, 10 * engi.size, 5 * engi.size);
+        ponds.add(Pond2_9);
         Pond2_10 = new Rectangle(975 * engi.size, 873 * engi.size, 60 * engi.size, 10 * engi.size);
+        ponds.add(Pond2_10);
         Pond2_11 = new Rectangle(975 * engi.size, 883 * engi.size, 35 * engi.size, 95 * engi.size);
+        ponds.add(Pond2_11);
         Pond2_12 = new Rectangle(1010 * engi.size, 938 * engi.size, 110 * engi.size, 40 * engi.size);
+        ponds.add(Pond2_12);
+
+        for (int i = 0; i < fires.size(); i++) {
+            objects.add(fires.get(i).collisBox());
+        }
 
         //Adding objects for collision map
         //<editor-fold defaultstate="collapsed" desc="Adding everything to the object list">
-        objects.add(Tree1);
-        objects.add(Tree2);
-        objects.add(Tree3);
-        objects.add(Tree4);
-        objects.add(Tree5);
-        objects.add(Tree6);
+        //objects.add(trees.get(0).getBox());
+        //objects.add(trees.get(1).tree);
         objects.add(pond1);
         objects.add(shrub1);
         objects.add(shrub2);
@@ -130,9 +144,6 @@ public class Hub {
         objects.add(Fence3);
         objects.add(Fence4);
         objects.add(Fence5);
-        objects.add(Btree1);
-        objects.add(Btree2);
-        objects.add(Btree3);
         objects.add(Tomb);
         objects.add(Haybales);
         objects.add(House1);
@@ -157,46 +168,113 @@ public class Hub {
         objects.add(Pond2_11);
         objects.add(Pond2_12);
         //</editor-fold>
-    }
 
-    //Drawing everything to screen
+        updateTrees();
+    }
+    //</editor-fold>
+
+    //<editor-fold defaultstate="collapsed" desc="Stuff">
+    //reorganizes, adds and sorts the objects to the obbys list to create the render order
+    public void stuff() {
+
+        for (int i = 0; i < fires.size(); i++) {
+            obbys.add(fires.get(i));
+        }
+        for (int i = 0; i < benches.size(); i++) {
+            obbys.add(benches.get(i));
+        }
+        for (int i = 0; i < trees.size(); i++) {
+            obbys.add(trees.get(i));
+        }
+
+        boolean order = true;
+        WorldObjects holder;
+        if (obbys.size() >= 2) {
+            while (order) {
+                for (int j = 0; j < obbys.size(); j++) {
+                    for (int i = 1; i < obbys.size(); i++) {
+                        if (obbys.get(i).size.y < obbys.get(i - 1).size.y) {
+                            holder = obbys.get(i);
+                            obbys.set(i, obbys.get(i - 1));
+                            obbys.set((i - 1), holder);
+                            continue;
+                        }
+                    }
+                }
+                order = false;
+            }
+        }
+    }
+//</editor-fold>
+
+    //<editor-fold defaultstate="collapsed" desc="Render Graphics g">
     public void render(Graphics g) {
         //update for the x and y offset for drawing
-        xOff = Integer.parseInt(engi.xoff);
-        yOff = Integer.parseInt(engi.yoff);
+        xOff = engi.getXOff();
+        yOff = engi.getYOff();
 
         //Draw hub
         g.drawImage(engi.assetLdr.Hub1, xOff, yOff, engi.assetLdr.Hub1.getWidth() * engi.size, engi.assetLdr.Hub1.getHeight() * engi.size, null);
         g.setColor(Color.red);
 
-        //Outline for collision boxes if debug mode is on
+        //Outline for collision box es if debug mode is on
         if (engi.debug == true) {
             for (int i = 0; i < objects.size(); i++) {
                 g.drawRect(objects.get(i).x + xOff, objects.get(i).y + yOff, objects.get(i).width, objects.get(i).height);
             }
+            for (int i = 0; i < items.size(); i++) {
+                g.drawRect(items.get(i).x + xOff, items.get(i).y + yOff, items.get(i).width, items.get(i).height);
+                //g.drawRect(items.get(i).conBox.x + xOff, items.get(i).conBox.y + yOff, items.get(i).conBox.width, items.get(i).conBox.height);
+            }
+
+            for (int i = 0; i < obbys.size(); i++) {
+                if (obbys.get(i).size != null) {
+                    g.drawRect(obbys.get(i).size.x + engi.getXOff(), obbys.get(i).size.y + engi.getYOff(), obbys.get(i).size.width, obbys.get(i).size.height);
+                }
+            }
+
         }
 
         //Drawing all of the items to their world location
         for (int i = 0; i < items.size(); i++) {
-
             g.drawImage(items.get(i).art[items.get(i).id], items.get(i).x + xOff, items.get(i).y + yOff, items.get(i).width, items.get(i).height, null);
-            
         }
 
-        for (int i = 0; i < trees.size(); i++) {
-            trees.get(i).render(g);
+        for (int i = 0; i < obbys.size(); i++) {
+            obbys.get(i).render(g);
         }
-
     }
+    //</editor-fold>
 
-    //Update series
+    //<editor-fold defaultstate="collapsed" desc="Priority Render - renders before the player">
+    public void priorityRender(Graphics g) {
+        for (int i = 0; i < obbys.size(); i++) {
+            obbys.get(i).priorityRender(g);
+        }
+        for (int i = 0; i < obbys.size(); i++) {
+            obbys.get(i).popUpRender(g);
+        }
+    }
+    //</editor-fold>
+
+    //<editor-fold defaultstate="collapsed" desc="Update">
     public void update() {
         engi.mainChar.map = new Rectangle(Integer.parseInt(engi.xoff), Integer.parseInt(engi.yoff), engi.assetLdr.Hub1.getWidth() * engi.size, engi.assetLdr.Hub1.getHeight() * engi.size);
-        for (int i = 0; i < trees.size(); i++) {
-            trees.get(i).update();
+        conTimer++;
+        if (conTimer >= 6) {
+            condense();
+            conTimer = 0;
         }
-    }
 
+        for (int i = 0; i < obbys.size(); i++) {
+            obbys.get(i).update();
+        }
+
+        waterCheck();
+    }
+    //</editor-fold>
+
+    //<editor-fold defaultstate="collapsed" desc="addItems">
     public void addItems() {
         //Item set up for defaults if nothing loaded
         items.add(new Item(item1.x, item1.y, item1.width, item1.height, 0, 3));
@@ -204,10 +282,156 @@ public class Hub {
         items.add(new Item(item3.x, item3.y, item3.width, item3.height, 1, 1));
         items.add(new Item(item4.x, item4.y, item4.width, item4.height, 1, 1));
     }
+    //</editor-fold>
 
+    //<editor-fold defaultstate="collapsed" desc="Update trees">
     public void updateTrees() {
+        boolean order = true;
+        Tree holder;
+        if (firstTree) {
+            while (order) {
+                for (int j = 0; j < trees.size(); j++) {
+                    for (int i = 1; i < trees.size(); i++) {
+                        if (trees.get(i).y < trees.get(i - 1).y || trees.get(i).tree.y < trees.get(i - 1).tree.y) {
+                            holder = trees.get(i);
+                            trees.set(i, trees.get(i - 1));
+                            trees.set((i - 1), holder);
+                            System.out.println("moved");
+                            continue;
+                        }
+                    }
+                }
+                order = false;
+            }
+        }
+
         for (int i = 0; i < trees.size(); i++) {
-            trees.get(i).count = treeNums.get(i);
+            objects.add(trees.get(i).tree);
         }
     }
+//    </editor-fold>
+
+    //<editor-fold defaultstate="collapsed" desc="Water Check">
+    public void waterCheck() {
+        for (int i = 0; i < ponds.size(); i++) {
+            if (contains(ponds.get(i))) {
+                water = true;
+                return;
+            } else {
+                water = false;
+                return;
+            }
+        }
+    }
+    //</editor-fold>
+
+    //<editor-fold defaultstate="collapsed" desc="Contains Rectangle boxIn">
+    public boolean contains(Rectangle boxin) {
+        boolean ret = false;
+
+        Rectangle click = new Rectangle(boxin.x + engi.getXOff(), boxin.y + engi.getYOff(), boxin.width, boxin.height);
+        if (click.contains(new Point(MouseInfo.getPointerInfo().getLocation().x - engi.frame.getX(),
+                MouseInfo.getPointerInfo().getLocation().y - engi.frame.getY() - Math.abs(engi.frame.getLocationOnScreen().y - engi.canvas.getLocationOnScreen().y)))) {
+            ret = true;
+        }
+        return ret;
+
+    }
+    //</editor-fold>
+
+    //<editor-fold defaultstate="collapsed" desc="condense">
+    private void condense() {
+        int condensed = 0;
+        boolean con = true;
+        while (con) {
+            for (int i = 0; i < items.size(); i++) {
+                for (int j = 0; j < items.size(); j++) {
+                    if (i != j) {
+                        if (recBuild(items.get(i).conBox, false).intersects(recBuild(items.get(j).conBox, false))) {
+                            if (items.get(i).id == items.get(j).id) {
+                                condensed++;
+                                items.get(i).qnty += items.get(j).qnty;
+                                items.remove(j);
+                                break;
+                            }
+                        }
+                    }
+                }
+            }
+            con = false;
+        }
+        if (condensed > 30) {
+            try {
+                engi.saver.itemSave();
+                System.out.println("items saved after condensation");
+                System.out.println(condensed);
+            } catch (FileNotFoundException | UnsupportedEncodingException ex) {
+                System.out.println("Saving Failed");
+            }
+        }
+    }
+//</editor-fold>
+
+    //<editor-fold defaultstate="collapsed" desc="RecBuild Rectangle boxIn boolean addOff">
+    public Rectangle recBuild(Rectangle in, boolean addOff) {
+        Rectangle ret;
+        if (addOff) {
+            ret = new Rectangle(in.x + engi.getXOff(), in.y + engi.getYOff(), in.width, in.height);
+        } else {
+            ret = new Rectangle(in.x, in.y, in.width, in.height);
+        }
+        return ret;
+    }
+    //</editor-fold>
+
+    //<editor-fold defaultstate="collapsed" desc="updateList">
+    public void updateList() {
+        objects.clear();
+
+        for (int i = 0; i < obbys.size(); i++) {
+            objects.add(obbys.get(i).collis);
+        }
+
+        updateTrees();
+
+        objects.add(pond1);
+        objects.add(shrub1);
+        objects.add(shrub2);
+        objects.add(Fence1);
+        objects.add(Fence2);
+        objects.add(Fence3);
+        objects.add(Fence4);
+        objects.add(Fence5);
+        objects.add(Tomb);
+        objects.add(Haybales);
+        objects.add(House1);
+        objects.add(House2);
+        objects.add(House3);
+        objects.add(House4);
+        objects.add(House5);
+        objects.add(Wheelbarrow1);
+        objects.add(Wheelbarrow2);
+        objects.add(Wheelbarrow3);
+        objects.add(Pitchfork);
+        objects.add(Pond2_1);
+        objects.add(Pond2_2);
+        objects.add(Pond2_3);
+        objects.add(Pond2_4);
+        objects.add(Pond2_5);
+        objects.add(Pond2_6);
+        objects.add(Pond2_7);
+        objects.add(Pond2_8);
+        objects.add(Pond2_9);
+        objects.add(Pond2_10);
+        objects.add(Pond2_11);
+        objects.add(Pond2_12);
+    }
+
+//</editor-fold>
+    
+    //<editor-fold defaultstate="collapsed" desc="getWater">
+    public boolean getWater() {
+        return water;
+    }
+    //</editor-fold>
 }
