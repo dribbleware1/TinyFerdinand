@@ -5,39 +5,49 @@
  */
 package Engine.Engine;
 
+//<editor-fold defaultstate="collapsed" desc="Imports">
+import Engine.Items.CampFire;
 import Engine.Map.Overlay;
 import Engine.Map.Pause;
 import Engine.Player.Player;
 import Engine.Map.World;
+import Engine.Map.WorldObjects;
 import java.awt.Canvas;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.Graphics;
+import java.awt.Graphics2D;
 import java.awt.Rectangle;
 import java.awt.Toolkit;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
+import java.awt.event.MouseWheelEvent;
+import java.awt.event.MouseWheelListener;
+import java.awt.geom.Area;
 import java.awt.image.BufferStrategy;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
+import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.JFrame;
+//</editor-fold>
 
 /**
- *
  * @author DribbeWare
  */
-public class ESC {
+public class ESC implements Runnable {
 
     //<editor-fold defaultstate="collapsed" desc="Declarations">
     //debug
     public boolean debug = false;
     //stats
-    int fps, ticks;
+    int fps, ticks, fireSize = 1;
     public boolean running = false;
+    boolean fire;
+    int tp = 0;
 
     //Input input;
     public String Loc = "menu";
@@ -59,8 +69,14 @@ public class ESC {
 
     //mouse
     public boolean left = false, right = false;
+
+    public int notches = 0;
+    public int scrollSens = 10;
+    public boolean upNotching = true, downNotching = true;
+
     public int delay = 0;
     public boolean delaystart = false;
+    int mouseDelay = 5;
 
     //frame
     public JFrame frame;
@@ -86,22 +102,35 @@ public class ESC {
     public Overlay overlay;
     public Rectangle TL = new Rectangle(20, 20, 50, 50);
 
+    public boolean dark = false;
+    public Color filter = new Color(0, 0, 0, 0);
+
     public Font text = new Font("TimesRoman", Font.PLAIN, 60);
     public Font text2 = new Font("TimesRoman", Font.PLAIN, 30);
+
+    //time
+    private int dayTick = 0;
+    private int time;
+    private int timeOffset = 1;
+    private int days = 0;
     //</editor-fold>
 
     //<editor-fold defaultstate="collapsed" desc="Main">
+    public ESC() {
+    }
+
     public static void main(String[] args) {
+        System.setProperty("sun.java2d.opengl", "TRUE");
         ESC MainEngine = new ESC();
         assetLdr = new AssetLoader(MainEngine);
-        MainEngine.createDisplay();
-        MainEngine.start();
+        MainEngine.Window();
+        MainEngine.init();
     }
     //</editor-fold>
 
     //<editor-fold defaultstate="collapsed" desc="CreateDisplay">
-    private void createDisplay() {
-        //Name the game window
+    public void Window() {
+        //Name the game window       
         frame = new JFrame("GameTime");
         //Frame setup
         frame.setSize(sizew, sizeh);
@@ -115,22 +144,24 @@ public class ESC {
         canvas.setMaximumSize(new Dimension(sizew, sizeh));
         canvas.setMinimumSize(new Dimension(sizew, sizeh));
         canvas.setFocusable(false);
+
         //Adding elements to frame for use
         frame.add(canvas);
         frame.addKeyListener(input);
         canvas.addMouseListener(new CustomListener());
+        canvas.addMouseWheelListener(new WheelListener());
         frame.pack();
     }
     //</editor-fold>
 
-    //Restart the game with the same save file
+    //Restart the game with the same save file currently not being used 
     //<editor-fold defaultstate="collapsed" desc="Restart">
     public void restart() {
         this.frame.dispose();
-        ESC CargoEngine = new ESC();
-        assetLdr = new AssetLoader(CargoEngine);
-        CargoEngine.createDisplay();
-        CargoEngine.start();
+        //ESC CargoEngine = new ESC();
+        //assetLdr = new AssetLoader(CargoEngine);
+        //CargoEngine.createDisplay();
+        //CargoEngine.start();
     }
     //</editor-fold>
 
@@ -142,6 +173,17 @@ public class ESC {
         world.update();
         //Character update
         mainChar.update();
+        if (fire) {
+            fireSize++;
+        } else {
+            fireSize--;
+        }
+        if (fireSize == 0) {
+            fire = true;
+        }
+        if (fireSize == 25) {
+            fire = false;
+        }
         //pause 
         if (input.close && !pause && pdelay == 0 && !Loc.equalsIgnoreCase("menu")) {
             pause = true;
@@ -168,58 +210,91 @@ public class ESC {
             inventory = false;
             invTimer = 0;
         }
+        if (input.temp) {
+            time += 60;
+        }
         if (pause) {
             pauseMenu.update();
         }
+        if (delay == mouseDelay) {
+            delaystart = false;
+            right = false;
+            left = false;
+            delay = 0;
+        }
+        if (screenDelay) {
+            tp++;
+        }
+        if (tp == 20) {
+            screenDelay = false;
+            tp = 0;
+        }
+        if (delaystart == true) {
+            delay++;
+        }
+        if (pause && pdelay < 20) {
+            pdelay++;
+        }
+        if (paused) {
+            pdelay++;
+            if (pdelay > 15) {
+                pdelay = 0;
+                paused = false;
+            }
+        }
+        if (invTimer < 16) {
+            invTimer++;
+        }
+
     }
     //</editor-fold>
 
-    //<editor-fold defaultstate="collapsed" desc="Render Graphics g">
+    //<editor-fold defaultstate="collapsed" desc="Render">
     public void render() {
-        //Canvas setup with buffer strategy
         bs = canvas.getBufferStrategy();
         if (bs == null) {
-            canvas.createBufferStrategy(4);
+            canvas.createBufferStrategy(3);
             return;
         }
         g = bs.getDrawGraphics();
-        //Set up font
+
         g.setFont(text);
         g.getFontMetrics(text);
 
-        //Clear sceen before redrawing
         g.clearRect(0, 0, sizew, sizeh);
 
-        //Draw genaric coloured background
         g.setColor(new Color(50, 180, 255));
         g.fillRect(0, 0, sizew, sizeh);
 
-        //render the world
         world.render(g);
 
-        //needs to be delt with likely can be moved to world control
         if (!Loc.equalsIgnoreCase("menu")) {
             mainChar.render(g);
+
             overlay.render(g);
 
             world.priorityRrender(g);
 
             overlay.priorityRender(g);
 
-            mainChar.inv.render(g);
+            makeDark(g);
 
             g.setFont(text2);
             g.getFontMetrics(text2);
             g.setColor(Color.white);
+            drawClock(g);
+
+            mainChar.inv.render(g);
         }
+
         for (int i = 0; i < world.items.size(); i++) {
-            world.items.get(i).toolTips(g, this);
+            (world.items.get(i)).toolTips(g, this);
         }
 
         if (pause) {
             pauseMenu.render(g);
         }
-        //Controls fps and update readout if debug mode is on
+
         g.setFont(text);
         g.getFontMetrics(text);
         if (debug == true) {
@@ -229,10 +304,50 @@ public class ESC {
             g.drawString(Integer.toString(ticks), 250, 100);
         }
 
-        //end draw
         g.dispose();
         bs.show();
+    }
+    //</editor-fold>
 
+    //<editor-fold defaultstate="collapsed" desc="drawClock Graphics g">
+    void drawClock(Graphics g) {
+        g.setColor(Color.white);
+        g.setFont(new Font("Helvetica", Font.BOLD, 25));
+        int center = 85;
+        if (time < 60 * 12) {
+            if (time / 60 == 0) {
+                g.drawString("Day " + days + " " + 12 + ":" + String.format("%02d", (time - ((int) time / 60) * 60)) + " am", sizew / 2 - center, 25);
+            } else {
+                g.drawString("Day " + days + " " + String.format("%02d", (int) time / 60) + ":" + String.format("%02d", (time - ((int) time / 60) * 60)) + " am", sizew / 2 - center, 25);
+            }
+        } else {
+            if (time / 60 > 12) {
+                g.drawString("Day " + days + " " + String.format("%02d", (((int) time / 60) - 12)) + ":" + String.format("%02d", (time - ((int) time / 60) * 60)) + " pm", sizew / 2 - center, 25);
+            } else {
+                g.drawString("Day " + days + " " + String.format("%02d", ((int) time / 60)) + ":" + String.format("%02d", (time - ((int) time / 60) * 60)) + " pm", sizew / 2 - center, 25);
+            }
+        }
+    }
+//</editor-fold>
+
+    //<editor-fold defaultstate="collapsed" desc="makeDark Graphics g">
+    void makeDark(Graphics g) {
+        Graphics2D g2d = (Graphics2D) g.create();
+        g2d.setColor(filter);
+        Area outer = new Area(new Rectangle(0, 0, sizew, sizeh));
+
+        List<WorldObjects> obbys = world.hubRoom.obbys;
+        if (dark) {
+            for (int i = 0; i < obbys.size(); i++) {
+                if ((obbys.get(i) instanceof CampFire)) {
+                    if (obbys.get(i).actionTimer > 0 && obbys.get(i).dropped) {
+                        outer.subtract(new Area(((WorldObjects) obbys.get(i)).getLight()));
+                    }
+                }
+            }
+        }
+        g2d.fill(outer);
+        g2d.dispose();
     }
     //</editor-fold>
 
@@ -256,8 +371,10 @@ public class ESC {
     //</editor-fold>
 
     //<editor-fold defaultstate="collapsed" desc="Run">
+    //@Override
     public void run() {
-        int tp = 0;
+
+        long timediff = 0, startTime = 0;
         long lastTime = System.nanoTime();
         double amountOfTicks = 60.0; // Number of ticks for update and render cycle(in one second)
         double ns = 1000000000 / amountOfTicks; //Ticks per second
@@ -265,6 +382,7 @@ public class ESC {
         long timer = System.currentTimeMillis();
         int updates = 0;
         int frames = 0;
+
         while (running) { //Running loop
             long now = System.nanoTime();
             delta += (now - lastTime) / ns;
@@ -277,47 +395,19 @@ public class ESC {
                     frames++;
                 }
                 update();
+                dayCycle();
                 updates++;
                 delta--;
-                if (delay == 1) {
-                    delaystart = false;
-                    right = false;
-                    left = false;
-                    delay = 0;
-                }
-                if (screenDelay) {
-                    tp++;
-                }
-                if (tp == 20) {
-                    screenDelay = false;
-                    tp = 0;
-                }
-                if (delaystart == true) {
-                    delay++;
-                }
-                if (pause && pdelay < 20) {
-                    pdelay++;
-                }
-                if (paused) {
-                    pdelay++;
-                    if (pdelay > 15) {
-                        pdelay = 0;
-                        paused = false;
-                    }
-                }
-                if (invTimer < 16) {
-                    invTimer++;
-                }
+
             }
             //uncapped area
             if (sixty == false) {
                 render();
                 frames++;
             }
-
             if (System.currentTimeMillis() - timer > 1000) {
                 timer += 1000;
-                System.out.println("FPS: " + frames + " TICKS: " + updates);
+                //System.out.println("FPS: " + frames + " TICKS: " + updates);
                 fps = frames;
                 ticks = updates;
                 frames = 0;
@@ -328,13 +418,12 @@ public class ESC {
     //</editor-fold>
 
     //<editor-fold defaultstate="collapsed" desc="Start">
-    public void start() {
+    public void init() {
         try {
             assetLdr.init();
         } catch (IOException ex) {
             System.out.println("oops cant start loader");
         }
-        render();
         world = new World(input, this);
         world.start();
         mainChar = new Player(10, 10, input, this, world);
@@ -349,9 +438,37 @@ public class ESC {
         } catch (FileNotFoundException | UnsupportedEncodingException ex) {
             System.out.println("inital save failed");
         }
+
         run();
     }
     //</editor-fold>
+
+    //<editor-fold defaultstate="collapsed" desc="dayCycle">
+    public void dayCycle() {
+        int hour, minute;
+        if (!Loc.equalsIgnoreCase("menu")) {
+            dayTick++;
+            if (time >= 12 * 60) {
+                dark = true;
+                filter = new Color(0, 0, 0, 150);
+            }
+            if (dayTick == 60) {
+                time += 1 * timeOffset;
+                if (time >= 24 * 60) {
+                    dark = false;
+                    time = 0;
+                    filter = new Color(0, 0, 0, 0);
+                    days++;
+                    System.out.println(days);
+                }
+                dayTick = 0;
+                hour = time / 60;
+                minute = time - (hour * 60);
+                //System.out.println(String.format("%02d", hour) + ":" + String.format("%02d", minute));
+            }
+        }
+    }
+//</editor-fold>
 
     //<editor-fold defaultstate="collapsed" desc="Getters and Setters">
     public int getXOff() {
@@ -378,6 +495,22 @@ public class ESC {
         return frame.getY();
     }
 
+    public int getTime() {
+        return time;
+    }
+
+    public void setDay(int d) {
+        days = d;
+    }
+
+    public int getDay() {
+        return days;
+    }
+
+    public void setTime(int t) {
+        time = t;
+    }
+
     //</editor-fold>
     //Mouse listener with delay for noise reduction
     //<editor-fold defaultstate="collapsed" desc="Mouse listener">
@@ -393,11 +526,13 @@ public class ESC {
                 if (!delaystart) {
                     left = true;
                     delaystart = true;
+                    //System.out.println("left press");
                 }
             } else if (mouseEvent.getButton() == MouseEvent.BUTTON3 && !screenDelay) {
                 if (!delaystart) {
                     right = true;
                     delaystart = true;
+                    //System.out.println("right press");
                 }
             }
         }
@@ -416,4 +551,24 @@ public class ESC {
     }
     //</editor-fold>
 
+    //<editor-fold defaultstate="collapsed" desc="Mouse Wheel Listener">
+    public class WheelListener implements MouseWheelListener {
+
+        @Override
+        public void mouseWheelMoved(MouseWheelEvent e) {
+            if (upNotching) {
+                if (e.getWheelRotation() < 0) {
+                    notches += scrollSens;
+                }
+            }
+            if (downNotching) {
+                if (e.getWheelRotation() > 0) {
+                    notches -= scrollSens;
+                }
+            }
+
+        }
+
+    }
+    //</editor-fold>
 }

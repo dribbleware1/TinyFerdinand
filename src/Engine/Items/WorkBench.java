@@ -6,7 +6,6 @@
 package Engine.Items;
 
 import Engine.Engine.ESC;
-import Engine.Map.Hub;
 import Engine.Map.WorldObjects;
 import java.awt.Graphics;
 import java.awt.Color;
@@ -22,32 +21,35 @@ import java.awt.image.BufferedImage;
 public class WorkBench extends WorldObjects {
 
 //<editor-fold defaultstate="collapsed" desc="Declarations">
-    public int w, h;
     private int scale = 2;
-    ESC eng;
     BufferedImage image;
     public Rectangle bench;
 //</editor-fold>
 
 //<editor-fold defaultstate="collapsed" desc="Constructor">
-    public WorkBench(int xin, int yin, ESC engine, Hub hub) {
+    public WorkBench(int xin, int yin, ESC engine) {
         eng = engine;
         image = eng.assetLdr.workBench;
         w = image.getWidth() * scale;
         h = image.getHeight() * scale;
         x = xin;
         y = yin;
-        bench = builder();
+        bench = collisBox();
         size = new Rectangle(x, y, w, h);
-        collis = builder();
+        collis = collisBox();
     }
     //</editor-fold>
 
 //<editor-fold defaultstate="collapsed" desc="update">
     public void update() {
-//        if (contains(bench, true)) {
-//            
-//        }
+        mouseUpdate();
+        if (!dropped) {
+            drop();
+        }
+        if (contains(size, true) && recBuilder(size).intersects(eng.mainChar.box)) {
+            //actions
+        }
+
     }
     //</editor-fold>
 
@@ -56,11 +58,6 @@ public class WorkBench extends WorldObjects {
         if (eng.mainChar.y >= y + eng.getYOff()) {
             g.drawImage(image, x + eng.getXOff(), y + eng.getYOff(), w, h, null);
         }
-
-        g.setColor(Color.red);
-
-        g.drawRect(bench.x + eng.getXOff(), bench.y + eng.getYOff(), bench.width, bench.height);
-
     }
 //</editor-fold>
 
@@ -68,6 +65,10 @@ public class WorkBench extends WorldObjects {
     public void priorityRender(Graphics g) {
         if (eng.mainChar.y < y + eng.getYOff()) {
             g.drawImage(image, x + eng.getXOff(), y + eng.getYOff(), w, h, null);
+        }
+        if (blocked) {
+            g.setColor(new Color(255, 0, 0, 100));
+            g.fillRect(x + eng.getXOff(), y + eng.getYOff(), w, h);
         }
     }
 //</editor-fold>
@@ -87,9 +88,9 @@ public class WorkBench extends WorldObjects {
     }
     //</editor-fold>
 
-//<editor-fold defaultstate="collapsed" desc="builder">
-    public Rectangle builder() {
-        return new Rectangle(x, y + 35, w, h - 100);
+//<editor-fold defaultstate="collapsed" desc="collisBox">
+    public Rectangle collisBox() {
+        return new Rectangle(x, y + 30, w, h - 55);
     }
 //</editor-fold>
 

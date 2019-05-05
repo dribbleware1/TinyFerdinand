@@ -251,6 +251,7 @@ public class Hub {
         for (int i = 0; i < obbys.size(); i++) {
             obbys.get(i).priorityRender(g);
         }
+        
         for (int i = 0; i < obbys.size(); i++) {
             obbys.get(i).popUpRender(g);
         }
@@ -387,7 +388,9 @@ public class Hub {
     //<editor-fold defaultstate="collapsed" desc="updateList">
     public void updateList() {
         objects.clear();
-
+        
+        stuff();
+        
         for (int i = 0; i < obbys.size(); i++) {
             objects.add(obbys.get(i).collis);
         }

@@ -15,7 +15,7 @@ import java.awt.event.KeyListener;
 public class Input implements KeyListener {
 
     private boolean[] button;
-    public boolean up, down, left, right, reset, start, close, pause, action, set;
+    public boolean up, down, left, right, reset, start, close, pause, action, set, temp;
     ESC engine;
 
     public Input(ESC cargoEngine) {
@@ -33,6 +33,7 @@ public class Input implements KeyListener {
         close = button[KeyEvent.VK_ESCAPE];
         action = button[KeyEvent.VK_E];
         set = button[KeyEvent.VK_UP];
+        temp = button[KeyEvent.VK_B];
     }
 
     @Override

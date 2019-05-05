@@ -24,8 +24,6 @@ import java.util.Random;
 public class Tree extends WorldObjects {
 
     //<editor-fold defaultstate="collapsed" desc="Declarations">
-    ESC eng;
-
     public boolean temp = false;
 
     final int MAX_TIME = 120;
@@ -37,10 +35,8 @@ public class Tree extends WorldObjects {
     int watering = 30;
     boolean wats = false;
     Random rand = new Random();
-    private boolean pick = true, trigger = false, longtime = false, opty = false;
-    public Rectangle tree, treebox, menuBox;
-
-    private String name = "";
+    private boolean pick = true, trigger = false, longtime = false;
+    public Rectangle tree, treebox;
 
     int tmp = 0;
     boolean tp = false;
@@ -49,8 +45,8 @@ public class Tree extends WorldObjects {
     public Rectangle collectBox = new Rectangle(0, 0, 0, 0);
 
     public Font text = new Font("Courier", Font.BOLD + Font.ITALIC, 25), text2 = new Font("Helvetica", Font.BOLD, 32);
-
 //</editor-fold>
+
     //<editor-fold defaultstate="collapsed" desc="Constructor">
     public Tree(ESC engine, int xi, int yi, int id) {
         eng = engine;
@@ -63,6 +59,7 @@ public class Tree extends WorldObjects {
 
     //<editor-fold defaultstate="collapsed" desc="Update">
     public void update() {
+        mouseUpdate();
         if (timer < MAX_TIME && count > 0) {
             timer++;
             pick = false;
@@ -70,13 +67,19 @@ public class Tree extends WorldObjects {
         if (timer == MAX_TIME) {
             pick = true;
         }
-        mouseControl();
         if (wats) {
             watering++;
         }
         if (watering > 30) {
             wats = false;
         }
+        if (contains(treebox, true) && recBuilder(treebox).intersects(eng.mainChar.box) && eng.left && mouseDelay) {
+            pop = true;
+            mouseDelay = false;
+            menuBox = new Rectangle(tree.x + tree.width / 3, tree.y, 400, 130);
+            collectBox = addButton(10, 40);
+        }
+
     }
 //</editor-fold>
 
@@ -97,7 +100,7 @@ public class Tree extends WorldObjects {
         if (eng.debug) {
             g.setColor(Color.red);
             g.drawRect(treebox.x + eng.getXOff(), treebox.y + eng.getYOff(), treebox.width, treebox.height);
-            if (opty) {
+            if (pop) {
                 g.drawRect(menuBox.x, menuBox.y, menuBox.width, menuBox.height);
             }
         }
@@ -119,9 +122,11 @@ public class Tree extends WorldObjects {
 //</editor-fold>
 
     //<editor-fold defaultstate="collapsed" desc="popUpRender Graphics g">
+    @Override
     public void popUpRender(Graphics g) {
-        if (opty) {
+        if (pop) {
             menuRender(g);
+            menuControl();
         }
     }
     //</editor-fold>
@@ -176,26 +181,6 @@ public class Tree extends WorldObjects {
     }
     //</editor-fold>
 
-    //<editor-fold defaultstate="collapsed" desc="Mouse Control">
-    private void mouseControl() {
-        if (contains(treebox, true) && eng.mainChar.box.intersects(recBuild()) && eng.left) {
-            opty = true;
-            menuBox = new Rectangle(tree.x + tree.width / 3, tree.y, 400, 250);
-        } else if ((!contains(treebox, true) || !eng.mainChar.box.intersects(recBuild())) && opty) {
-            if (!contains(menuBox, true) && eng.left) {
-                opty = false;
-            }
-        }
-
-        if (opty) {
-            tempBox = new Rectangle(menuBox.x + eng.getXOff(), menuBox.y + eng.getYOff(), menuBox.width, menuBox.height);
-            if (tempBox.x < 0 || tempBox.x + tempBox.width > eng.sizew || tempBox.y < 0 || tempBox.y + tempBox.height > eng.sizeh) {
-                opty = false;
-            }
-        }
-    }
-    //</editor-fold>
-
     //<editor-fold defaultstate="collapsed" desc="Random apple">
     private void randomApple() {
         boolean apples = false;
@@ -215,46 +200,10 @@ public class Tree extends WorldObjects {
 
     //<editor-fold defaultstate="collapsed" desc="Menu render Graphics g">
     private void menuRender(Graphics g) {
-        text = new Font("Courier", Font.BOLD + Font.ITALIC, 25);
-        g.setFont(text);
-        g.setColor(new Color(10, 10, 10, 150));
-        g.fillRect(menuBox.x + eng.getXOff(), menuBox.y + eng.getYOff(), menuBox.width, 130);//menuBox.height);
-        g.setColor(new Color(200, 200, 200, 200));
-        g.fillRect(menuBox.x + eng.getXOff(), menuBox.y + eng.getYOff(), menuBox.width, 30);
-        g.drawRect(menuBox.x + eng.getXOff(), menuBox.y + eng.getYOff() + 30, menuBox.width - 1, 100);//menuBox.height - 30);
-
-        //
-        //
-        //still needs some fine tuning
-        g.setColor(new Color(255, 255, 255, 200));
+        basicMenu(g);
         Graphics2D g2d = (Graphics2D) g;
-        float[] fa = {10, 10, 10};
         BasicStroke bs = new BasicStroke(2);
         g2d.setStroke(bs);
-        int set = 8;
-        g2d.drawLine(menuBox.x + eng.getXOff() + menuBox.width - text.getSize() - set, menuBox.y + eng.getYOff() + 8,
-                menuBox.x + eng.getXOff() + menuBox.width - text.getSize() - set, menuBox.y + 22 + eng.getYOff());
-        //
-        //
-        //
-        g.setColor(Color.white);
-        g.drawString(name, menuBox.x + eng.getXOff() + 5, menuBox.y + text.getSize() - 2 + eng.getYOff());
-        g.setFont(text2);
-        Rectangle temps = new Rectangle(menuBox.x + eng.getXOff() + menuBox.width - text.getSize() - 4, menuBox.y + eng.getYOff() + 2, 26, 26);
-        //g.drawRect(temps.x, temps.y, temps.width, temps.height);
-        if (!contains(temps, false)) {
-            g.setColor(Color.red);
-            g.drawString("x", menuBox.x + eng.getXOff() + menuBox.width - text.getSize(), menuBox.y + 24 + eng.getYOff());
-
-        } else {
-            g.setColor(Color.red);
-            g.fillRect(temps.x, temps.y, temps.width, temps.height);
-            g.setColor(Color.white);
-            g.drawString("x", menuBox.x + eng.getXOff() + menuBox.width - text.getSize(), menuBox.y + 24 + eng.getYOff());
-            if (eng.left) {
-                opty = false;
-            }
-        }
         g.setColor(new Color(255, 87, 51));
         g.fillRect(menuBox.x + 140 + eng.getXOff(), menuBox.y + 50 + eng.getYOff(), timer * 2, 20);
         bs = new BasicStroke(1);
@@ -262,28 +211,27 @@ public class Tree extends WorldObjects {
         g.setColor(Color.white);
         g.drawRect(menuBox.x + 140 + eng.getXOff(), menuBox.y + 50 + eng.getYOff(), MAX_TIME * 2, 20);
 
-        g.drawRect(menuBox.x + 10 + eng.getXOff(), menuBox.y + eng.getYOff() + 40, 120, 40);
-        collectBox = new Rectangle(menuBox.x + 10 + eng.getXOff(), menuBox.y + eng.getYOff() + 40, 120, 40);
+        g.drawRect(collectBox.x + eng.getXOff(), collectBox.y + eng.getYOff(), collectBox.width, collectBox.height);
 
-        if (!contains(collectBox, false)) {
+        if (!contains(collectBox, true)) {
             g.drawString("Collect", menuBox.x + eng.getXOff() + 16, menuBox.y + 70 + eng.getYOff());
         } else {
             if (timer < MAX_TIME) {
-                g.setColor(new Color(150,0,0));
-            }else{
-                g.setColor(new Color(0,150,0));
-                if(eng.left){
+                g.setColor(bad);
+            } else {
+                g.setColor(good);
+                if (eng.left) {
                     pickup();
                 }
             }
-            g.fillRect(collectBox.x + 2, collectBox.y + 2, collectBox.width - 3, collectBox.height - 3);
+            g.fillRect(collectBox.x + 2 + eng.getXOff(), collectBox.y + 2 + eng.getYOff(), collectBox.width - 3, collectBox.height - 3);
             g.setColor(Color.white);
             g.drawString("Collect", menuBox.x + eng.getXOff() + 16, menuBox.y + 70 + eng.getYOff());
         }
         g.setFont(new Font("Courier", Font.BOLD + Font.ITALIC, 23));
         g.drawString("Logs Remaining: " + Integer.toString(count), menuBox.x + eng.getXOff() + 10, menuBox.y + eng.getYOff() + 110);
-        
-    //<editor-fold defaultstate="collapsed" desc="Old menu (kept for reference)">
+
+        //<editor-fold defaultstate="collapsed" desc="Old menu (kept for reference)">
 //        for (int i = 0; i < eng.mainChar.inv.inven.size(); i++) {
 //            if (eng.mainChar.inv.inven.get(i).id == 3 || eng.mainChar.inv.inven.get(i).id == 5) {
 //                boxes++;
@@ -325,7 +273,6 @@ public class Tree extends WorldObjects {
 //                }
 //        }
 //</editor-fold>
-    
     }
 //</editor-fold>
 
@@ -336,6 +283,12 @@ public class Tree extends WorldObjects {
         randomApple();
         timer = 0;
         count--;
+        if (count == 0) {
+
+            eng.world.hubRoom.obbys.remove(this);
+            eng.world.updatelist();
+
+        }
     }
 //</editor-fold>
 

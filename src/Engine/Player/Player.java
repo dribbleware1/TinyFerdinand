@@ -54,7 +54,9 @@ public class Player {
     public Rectangle map, collbox;
 
     public boolean pass = false;
-//</editor-fold>    
+
+    int ticks = 0;
+//</editor-fold>  
 
     //<editor-fold defaultstate="collapsed" desc="Initializer">
     public Player(float xi, float yi, Input in, ESC eng, World world) {
@@ -94,6 +96,7 @@ public class Player {
         inv.update();
         collect();
         collision();
+
         if (ani == (aSpeed * 8) - 1) {
             ani = 0;
         } else {

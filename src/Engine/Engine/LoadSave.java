@@ -135,8 +135,16 @@ public class LoadSave {
                     scanner.nextLine();
                 }
             }
-            fill();
+
+            engine.loadVars[0] = inputs.get(0);
+            engine.loadVars[1] = inputs.get(1);
+            engine.loadVars[2] = inputs.get(2);
+            engine.loadVars[3] = inputs.get(3);
+            engine.setTime(Integer.parseInt(inputs.get(4)));
+            engine.setDay(Integer.parseInt(inputs.get(5)));
+
         }
+        //<editor-fold defaultstate="collapsed" desc="Hub load">
         if (id == 1) { //hub load
             int x = 0, y = 0, idd = 0, qnt = 0;
             Scanner scanner = new Scanner(new File(path + "/Hub.zbd"));
@@ -180,7 +188,9 @@ public class LoadSave {
                 }
             }
         }
+        //</editor-fold>
 
+        //<editor-fold defaultstate="collapsed" desc="INV load">
         if (id == 2) { //inventory load
             int i = 0, qty = 0;
             Scanner scanner = new Scanner(new File(path + "/Inventory.zbd"));
@@ -206,11 +216,12 @@ public class LoadSave {
                 }
             }
         }
+//</editor-fold>
 
         if (id == 3) { //objects load
             int treeCount = 0, fireCount = 0, benchCount = 0;
             int tX = 0, tY = 0, tID = 0, tC = 0, tic = 0; // trees
-            int fX = 0, fY = 0; //fires
+            int fX = 0, fY = 0, fT = 0; //fires
             int bX = 0, bY = 0; //workbenches
             String section = "BLANK", hold;
             Scanner scanner = new Scanner(new File(path + "/hubTree.zbd"));
@@ -252,7 +263,8 @@ public class LoadSave {
                     if (section.equalsIgnoreCase("FIRES")) {
                         fX = Integer.parseInt(temp[0]);
                         fY = Integer.parseInt(temp[1]);
-                        CampFire placeHolder = new CampFire(fX, fY, engine);
+                        fT = Integer.parseInt(temp[2]);
+                        CampFire placeHolder = new CampFire(fX, fY, fT, engine);
                         engine.world.hubRoom.obbys.add(placeHolder);
                         engine.world.updatelist();
                         placeHolder.dropped = true;
@@ -264,7 +276,9 @@ public class LoadSave {
                     if (section.equalsIgnoreCase("BENCHES")) {
                         bX = Integer.parseInt(temp[0]);
                         bY = Integer.parseInt(temp[1]);
-                        engine.world.hubRoom.obbys.add(new WorkBench(bX, bY, engine, engine.world.hubRoom));
+                        WorkBench placeHolder = new WorkBench(bX, bY, engine);
+                        engine.world.hubRoom.obbys.add(placeHolder);
+                        placeHolder.dropped = true;
                         benchCount++;
                     }
 //</editor-fold>
@@ -282,19 +296,6 @@ public class LoadSave {
         }
     }
 
-    public void fill() {
-        for (int i = 0; i < inputs.size(); i++) {
-            engine.loadVars[i] = inputs.get(i);
-        }
-        if (inputs.size() != engine.loadVars.length) {
-            for (int i = 0; i < engine.loadVars.length; i++) {
-                if (engine.loadVars[i].equals(" ")) {
-                    engine.loadVars[i] = "oops";
-                }
-            }
-        }
-    }
-
     public void itemSave() throws FileNotFoundException, UnsupportedEncodingException {
         PrintWriter writer = new PrintWriter(Loc2 + "/Hub.zbd", "UTF-8");
         for (int i = 0; i < engine.world.items.size(); i++) {
@@ -309,6 +310,8 @@ public class LoadSave {
         writer.println(engine.name);
         writer.println(engine.xoff);
         writer.println(engine.yoff);
+        writer.println(engine.getTime());
+        writer.println(engine.getDay());
         writer.close();
     }
 
@@ -349,7 +352,7 @@ public class LoadSave {
                             first = false;
                         }
                         if (obbys.get(i) instanceof CampFire) {
-                            writer.println(obbys.get(i).x + " " + obbys.get(i).y);
+                            writer.println(obbys.get(i).x + " " + obbys.get(i).y + " " + obbys.get(i).actionTimer);
                         }
                         break;
                     case 2:
