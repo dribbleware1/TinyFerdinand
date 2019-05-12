@@ -23,7 +23,6 @@ public class WorkBench extends WorldObjects {
 //<editor-fold defaultstate="collapsed" desc="Declarations">
     private int scale = 2;
     BufferedImage image;
-    public Rectangle bench;
 //</editor-fold>
 
 //<editor-fold defaultstate="collapsed" desc="Constructor">
@@ -34,13 +33,13 @@ public class WorkBench extends WorldObjects {
         h = image.getHeight() * scale;
         x = xin;
         y = yin;
-        bench = collisBox();
         size = new Rectangle(x, y, w, h);
         collis = collisBox();
     }
     //</editor-fold>
 
 //<editor-fold defaultstate="collapsed" desc="update">
+    @Override
     public void update() {
         mouseUpdate();
         if (!dropped) {

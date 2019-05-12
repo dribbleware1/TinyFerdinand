@@ -40,7 +40,10 @@ public class AssetLoader {
     //</editor-fold>
 
     //<editor-fold defaultstate="collapsed" desc="Trees">
-    public BufferedImage smallTree, bigTree;
+    public BufferedImage sapling;
+    public BufferedImage smallT, bigT;
+    public List<BufferedImage> bigTree = new ArrayList<>();
+    public List<BufferedImage> smallTree = new ArrayList<>();
     //</editor-fold>
 
     //<editor-fold defaultstate="collapsed" desc="Inventory">
@@ -117,8 +120,19 @@ public class AssetLoader {
         //</editor-fold>
 
         //<editor-fold defaultstate="collapsed" desc="Trees">
-        smallTree = toCompatibleImage(crop(ImageIO.read(engine.getClass().getResource("/Hub/Tree Atlas.png")), 0, 0, 32 * 2, 32 * 2));
-        bigTree = toCompatibleImage(crop(ImageIO.read(engine.getClass().getResource("/Hub/Tree Atlas.png")), 64, 0, 32 * 4, 32 * 6));
+        //bigTree = toCompatibleImage(crop(ImageIO.read(engine.getClass().getResource("/Hub/Tree Atlas.png")), 64, 0, 32 * 4, 32 * 6));
+        smallTree.add(toCompatibleImage(crop(ImageIO.read(engine.getClass().getResource("/Hub/Trees.png")), 0, 0, 32, 64)));
+        smallTree.add(toCompatibleImage(crop(ImageIO.read(engine.getClass().getResource("/Hub/Trees.png")), 32, 0, 64, 64)));
+        smallTree.add(toCompatibleImage(crop(ImageIO.read(engine.getClass().getResource("/Hub/Trees.png")), 96, 0, 64, 64)));
+
+        bigTree.add(toCompatibleImage(crop(ImageIO.read(engine.getClass().getResource("/Hub/Trees.png")), 0, 64, 32, 64)));
+        bigTree.add(toCompatibleImage(crop(ImageIO.read(engine.getClass().getResource("/Hub/Trees.png")), 32, 64, 64, 96)));
+        bigTree.add(toCompatibleImage(crop(ImageIO.read(engine.getClass().getResource("/Hub/Trees.png")), 96, 64, 128, 192)));
+
+        sapling = toCompatibleImage(ImageIO.read(engine.getClass().getResource("/Items/sapling.png")));
+
+        smallT = toCompatibleImage(crop(ImageIO.read(engine.getClass().getResource("/Hub/Tree Atlas2.png")), 0, 0, 32 * 2, 32 * 2));
+        bigT = toCompatibleImage(crop(ImageIO.read(engine.getClass().getResource("/Hub/Tree Atlas2.png")), 64, 0, 32 * 4, 32 * 6));
         //</editor-fold>
 
         //<editor-fold defaultstate="collapsed" desc="Inventory">

@@ -24,9 +24,8 @@ import java.util.Scanner;
 
 /**
  *
- * @author gjudge9427
+ * @author DribbleWare
  */
-//add player inventory save;
 public class LoadSave {
 
     public String Loc, Loc2;
@@ -126,6 +125,8 @@ public class LoadSave {
     }
 
     public void load(String path, int id) throws IOException {
+
+        //<editor-fold defaultstate="collapsed" desc="Player load">
         if (id == 0) { //player load
             Scanner scanner = new Scanner(new File(path + "/Save.zbd"));
             while (scanner.hasNext()) {
@@ -143,7 +144,11 @@ public class LoadSave {
             engine.setTime(Integer.parseInt(inputs.get(4)));
             engine.setDay(Integer.parseInt(inputs.get(5)));
 
+            scanner.close();
+
         }
+        //</editor-fold>
+
         //<editor-fold defaultstate="collapsed" desc="Hub load">
         if (id == 1) { //hub load
             int x = 0, y = 0, idd = 0, qnt = 0;
@@ -187,6 +192,7 @@ public class LoadSave {
                     engine.world.hubRoom.addItems();
                 }
             }
+            scanner.close();
         }
         //</editor-fold>
 
@@ -215,9 +221,11 @@ public class LoadSave {
                     scanner.nextLine();
                 }
             }
+            scanner.close();
         }
 //</editor-fold>
 
+        //<editor-fold defaultstate="collapsed" desc="Objects load">
         if (id == 3) { //objects load
             int treeCount = 0, fireCount = 0, benchCount = 0;
             int tX = 0, tY = 0, tID = 0, tC = 0, tic = 0; // trees
@@ -250,11 +258,15 @@ public class LoadSave {
                         tY = Integer.parseInt(temp[1]);
                         tID = Integer.parseInt(temp[2]);
                         tC = Integer.parseInt(temp[3]);
+                        tic = Integer.parseInt(temp[4]);
 
                         Tree tmp = new Tree(engine, tX, tY, tID);
                         tmp.count = tC;
+                        tmp.actionTimer = tic;
+                        tmp.dropped = true;
+                        tmp.loading();
                         engine.world.hubRoom.obbys.add(tmp);
-                        engine.world.hubRoom.updateTrees();
+                        engine.world.updatelist();
                         treeCount++;
                     }
 //</editor-fold>
@@ -293,7 +305,11 @@ public class LoadSave {
 
             engine.world.hubRoom.stuff();
 
+            scanner.close();
+
         }
+        //</editor-fold>
+
     }
 
     public void itemSave() throws FileNotFoundException, UnsupportedEncodingException {
@@ -343,7 +359,7 @@ public class LoadSave {
                             first = false;
                         }
                         if (obbys.get(i) instanceof Tree) {
-                            writer.println(obbys.get(i).x + " " + obbys.get(i).y + " " + obbys.get(i).ID + " " + obbys.get(i).count);
+                            writer.println(obbys.get(i).x + " " + obbys.get(i).y + " " + obbys.get(i).ID + " " + obbys.get(i).count + " " + obbys.get(i).actionTimer);
                         }
                         break;
                     case 1:
@@ -384,24 +400,28 @@ public class LoadSave {
     public void reset() {
         String path = System.getProperty("user.home") + File.separator + "Documents" + File.separator + "Game" + File.separator + "Save" + File.separator + "Player";
         String path2 = System.getProperty("user.home") + File.separator + "Documents" + File.separator + "Game" + File.separator + "Save" + File.separator + "Items";
+
         File customDir = new File(path + File.separator + "/Save.zbd");
         File itemDir = new File(path2 + File.separator + "/Hub.zbd");
         File hubTree = new File(path2 + File.separator + "/hubTree.zbd");
         File invenDir = new File(path + File.separator + "/Inventory.zbd");
         System.out.println("resetting");
         try {
-            Files.delete(Paths.get(customDir.toString()));
-            Files.delete(Paths.get(itemDir.toString()));
-            Files.delete(Paths.get(invenDir.toString()));
-            Files.delete(Paths.get(hubTree.toString()));
 
-            System.out.println("reset successful!");
+            System.out.println("1");
+            Files.delete(customDir.toPath());
+            System.out.println("2");
+            Files.delete(itemDir.toPath());
+            System.out.println("3");
+            Files.delete(invenDir.toPath());
+            System.out.println("4");
+            Files.delete(hubTree.toPath());
 
             engine.restart();
             System.exit(0);
 
         } catch (IOException ex) {
-            System.out.println("Reset failed");
+            System.out.println(ex);
         }
     }
 }

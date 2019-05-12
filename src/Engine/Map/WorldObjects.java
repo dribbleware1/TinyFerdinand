@@ -22,12 +22,16 @@ import java.awt.geom.Ellipse2D;
  */
 public class WorldObjects {
 
+    //<editor-fold defaultstate="collapsed" desc="declarations">
     public final int DEFAULT_BUTTON_WIDTH = 120;
     public final int DEFAULT_BUTTON_HEIGHT = 40;
 
     public Rectangle size, collis;
     public Rectangle menuBox;
-    public int x, y, ID = 0, count = 0;
+    public Rectangle buffer = new Rectangle(0, 0, 0, 0);
+    public int x, y, ID = 0, count = -1;
+
+    public boolean grown = false;
 
     public int h, w;
 
@@ -54,10 +58,14 @@ public class WorldObjects {
     public Ellipse2D light = new Ellipse2D.Double(0, 0, 0, 0);
 
     public Font text = new Font("Courier", Font.BOLD + Font.ITALIC, 25), text2 = new Font("Helvetica", Font.BOLD, 32), text3 = new Font("Courier", Font.BOLD, 15);
+//</editor-fold>
 
+    //<editor-fold defaultstate="collapsed" desc="update">
     public void update() {
     }
+    //</editor-fold>
 
+    //<editor-fold defaultstate="collapsed" desc="mouseUpdate">
     public void mouseUpdate() {
         if (!mouseDelay) {
             mouse++;
@@ -67,13 +75,19 @@ public class WorldObjects {
             mouse = 0;
         }
     }
+    //</editor-fold>
 
+    //<editor-fold defaultstate="collapsed" desc="priorityRender Grpahics g">
     public void priorityRender(Graphics g) {
     }
+    //</editor-fold>
 
+    //<editor-fold defaultstate="collapsed" desc="popUpRender Grpahics g">
     public void popUpRender(Graphics g) {
     }
+    //</editor-fold>
 
+    //<editor-fold defaultstate="collapsed" desc="basicMenu Graphic g">
     public void basicMenu(Graphics g) {
         g.setFont(text);
         g.setColor(new Color(10, 10, 10, 150));
@@ -108,6 +122,7 @@ public class WorldObjects {
             }
         }
     }
+    //</editor-fold>
 
     //<editor-fold defaultstate="collapsed" desc="menuControl">
     public void menuControl() {
@@ -121,16 +136,22 @@ public class WorldObjects {
     }
 //</editor-fold>
 
+    //<editor-fold defaultstate="collapsed" desc="render Grpahics g">
     public void render(Graphics g) {
     }
+    //</editor-fold>
 
+    //<editor-fold defaultstate="collapsed" desc="addButton int x, int y, int width, int height">
     public Rectangle addButton(int x, int y, int width, int height) {
         return new Rectangle(menuBox.x + x, menuBox.y + y, width, height);
     }
+    //</editor-fold>
 
+    //<editor-fold defaultstate="collapsed" desc="addButton int x, int y *uses default size">
     public Rectangle addButton(int x, int y) {
         return new Rectangle(menuBox.x + x, menuBox.y + y, DEFAULT_BUTTON_WIDTH, DEFAULT_BUTTON_HEIGHT);
     }
+    //</editor-fold>
 
     //<editor-fold defaultstate="collapsed" desc="Contains rectangle boxIn boolean addOffSet ">
     public boolean contains(Rectangle boxin, boolean addOffSet) {
@@ -161,7 +182,7 @@ public class WorldObjects {
         }
 
         for (int i = 0; i < eng.world.Objects.size(); i++) {
-            if (collisBox().intersects(eng.world.Objects.get(i))) {
+            if (collisBox().intersects(eng.world.Objects.get(i)) || buffer.intersects(eng.world.Objects.get(i))) {
                 blocked = true;
                 break;
             } else if (new Rectangle(collisBox().x + eng.getXOff(), collisBox().y + eng.getYOff(), collisBox().width, collisBox().height).intersects(eng.mainChar.collbox)) {
@@ -178,6 +199,7 @@ public class WorldObjects {
             size = new Rectangle(x, y, w, h);
             collis = collisBox();
             eng.world.updatelist();
+
         }
     }
     //</editor-fold>
@@ -194,7 +216,14 @@ public class WorldObjects {
     }
 //</editor-fold>
 
+    //<editor-fold defaultstate="collapsed" desc="getLight">
     public Ellipse2D getLight() {
         return null;
     }
+    //</editor-fold>
+
+    //<editor-fold defaultstate="collapsed" desc="stageUpdate">
+    public void stageUpdate() {
+    }
+    //</editor-fold>
 }

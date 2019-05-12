@@ -5,7 +5,7 @@
  */
 package Engine.Items;
 
-import Engine.Engine.ESC;
+import Engine.Engine.*;
 import Engine.Map.WorldObjects;
 import java.awt.BasicStroke;
 import java.awt.Color;
@@ -21,7 +21,7 @@ import java.util.Random;
  *
  * @author DribbleWare
  */
-public class Tree extends WorldObjects {
+public class TreeV2 extends WorldObjects {
 
     //<editor-fold defaultstate="collapsed" desc="delcarations">
     //final variables 
@@ -29,14 +29,14 @@ public class Tree extends WorldObjects {
     final int DEFAULT_COUNT_SMALL = 5;
     final int DEFAULT_COUNT_LARGE = 8;
     final int SCALE_FACTOR = 4;
-    int GROW_TIME = 15; //in seconds not ticks
+    final int GROW_TIME = 2; //in seconds not ticks
 
     Random rand = new Random(); //used for apples
 
     //growing variables
     int scaleX = 0, scaleY = 0;
     int maxScaleX = 0, maxScaleY = 0;
-    //boolean grown = false;
+    boolean grown = false;
 
     int textY = 0;
 
@@ -52,7 +52,7 @@ public class Tree extends WorldObjects {
     //</editor-fold>
 
     //<editor-fold defaultstate="collapsed" desc="Constructor">
-    public Tree(ESC engine, int xi, int yi, int idi) {
+    public TreeV2(ESC engine, int xi, int yi, int idi) {
         eng = engine;
         x = xi;
         y = yi;
@@ -82,15 +82,13 @@ public class Tree extends WorldObjects {
         if (dropped && !initialized) {
             size.y -= 150;
             size.height += 100;
-            eng.world.updatelist();
-            if (count == -1) {
-                if (ID == 0) {
-                    count = DEFAULT_COUNT_SMALL;
-                }
-                if (ID == 1) {
-                    count = DEFAULT_COUNT_LARGE;
-                }
+            if (ID == 0) {
+                count = DEFAULT_COUNT_SMALL;
             }
+            if (ID == 1) {
+                count = DEFAULT_COUNT_LARGE;
+            }
+            eng.world.updatelist();
             initialized = true;
         }
         if (grown && !finialized) {
@@ -216,12 +214,12 @@ public class Tree extends WorldObjects {
     //<editor-fold defaultstate="collapsed" desc="grow">
     public void grow() {
         actionTimer++;
-        if (actionTimer % 10 == 0) {
+        if (actionTimer % 60 == 0) {
             if (scaleY < maxScaleY) {
-                scaleY += (maxScaleY / GROW_TIME) / 6;
+                scaleY += (maxScaleY / GROW_TIME);
             }
             if (scaleX < maxScaleX) {
-                scaleX += (maxScaleX / GROW_TIME) / 6;
+                scaleX += (maxScaleX / GROW_TIME);
             }
             if (scaleX >= maxScaleX && scaleY >= maxScaleY) {
                 grown = true;
@@ -238,7 +236,7 @@ public class Tree extends WorldObjects {
             name = "Small Tree";
         }
         if (ID == 1) {
-            collis = new Rectangle(x - 155, y - 150, 312, 100);
+            collis = new Rectangle((x - 40), (y - 120), 264, 100);
             name = "BigTree";
         }
         return collis;
@@ -250,11 +248,9 @@ public class Tree extends WorldObjects {
         BufferedImage ret = null;
         if (ID == 0) {
             ret = eng.assetLdr.smallT;
-            GROW_TIME = 15;
         }
         if (ID == 1) {
             ret = eng.assetLdr.bigT;
-            GROW_TIME = 25;
         }
         return ret;
     }
@@ -301,17 +297,6 @@ public class Tree extends WorldObjects {
         eng.world.updatelist();
     }
 //</editor-fold>
-
-    //<editor-fold defaultstate="collapsed" desc="loading">
-    public void loading() {
-        scaleY += (maxScaleY / GROW_TIME) * (actionTimer / 60);
-        scaleX += (maxScaleX / GROW_TIME) * (actionTimer / 60);
-        if (actionTimer == 120) {
-            grown = true;
-        }
-        size = new Rectangle(x - 50, y - 50, 100, 100);
-    }
-    //</editor-fold>
 
     //<editor-fold defaultstate="collapsed" desc="tree location to keep them centered around the bottom so growing is less trippy">
     public Point treeLoc(BufferedImage img) {

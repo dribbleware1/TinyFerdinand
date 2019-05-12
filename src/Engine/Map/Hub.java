@@ -58,20 +58,12 @@ public class Hub {
     public Rectangle Pond2_1, Pond2_2, Pond2_3, Pond2_4, Pond2_5;
     public Rectangle Pond2_6, Pond2_7, Pond2_8, Pond2_9, Pond2_10;
     public Rectangle Pond2_11, Pond2_12;
-
-    //Default locations for items if no save loaded
-    public Rectangle item1 = new Rectangle(1, 1, 50, 50);
-    public Rectangle item2 = new Rectangle(450, 450, 50, 50);
-    public Rectangle item3 = new Rectangle(275, 134, 50, 50);
-    public Rectangle item4 = new Rectangle(256, 256, 50, 50);
 //</editor-fold>
 
     //gotta fix this wayyyyy too much work
     //<editor-fold defaultstate="collapsed" desc="Constructor">
     public Hub(ESC eng) {
         engi = eng;
-        //fires.add(new CampFire(450, 450, eng));
-        //benches.add(new WorkBench(engi, this));
 
         //Ponds
         pond1 = new Rectangle(273 * engi.size, 140 * engi.size, 62 * engi.size, 68 * engi.size);
@@ -128,10 +120,6 @@ public class Hub {
         Pond2_12 = new Rectangle(1010 * engi.size, 938 * engi.size, 110 * engi.size, 40 * engi.size);
         ponds.add(Pond2_12);
 
-        for (int i = 0; i < fires.size(); i++) {
-            objects.add(fires.get(i).collisBox());
-        }
-
         //Adding objects for collision map
         //<editor-fold defaultstate="collapsed" desc="Adding everything to the object list">
         //objects.add(trees.get(0).getBox());
@@ -168,40 +156,22 @@ public class Hub {
         objects.add(Pond2_11);
         objects.add(Pond2_12);
         //</editor-fold>
-
-        updateTrees();
     }
     //</editor-fold>
 
     //<editor-fold defaultstate="collapsed" desc="Stuff">
     //reorganizes, adds and sorts the objects to the obbys list to create the render order
     public void stuff() {
-
-        for (int i = 0; i < fires.size(); i++) {
-            obbys.add(fires.get(i));
-        }
-        for (int i = 0; i < benches.size(); i++) {
-            obbys.add(benches.get(i));
-        }
-        for (int i = 0; i < trees.size(); i++) {
-            obbys.add(trees.get(i));
-        }
-
         boolean order = true;
         WorldObjects holder;
         if (obbys.size() >= 2) {
-            while (order) {
-                for (int j = 0; j < obbys.size(); j++) {
-                    for (int i = 1; i < obbys.size(); i++) {
-                        if (obbys.get(i).size.y < obbys.get(i - 1).size.y) {
-                            holder = obbys.get(i);
-                            obbys.set(i, obbys.get(i - 1));
-                            obbys.set((i - 1), holder);
-                            continue;
-                        }
-                    }
+            for (int i = 1; i < obbys.size(); i++) {
+                if (obbys.get(i).y < obbys.get(i - 1).y) {
+                    holder = obbys.get(i);
+                    obbys.set(i, obbys.get(i - 1));
+                    obbys.set(i - 1, holder);
+                    i = 1;
                 }
-                order = false;
             }
         }
     }
@@ -239,7 +209,6 @@ public class Hub {
         for (int i = 0; i < items.size(); i++) {
             g.drawImage(items.get(i).art[items.get(i).id], items.get(i).x + xOff, items.get(i).y + yOff, items.get(i).width, items.get(i).height, null);
         }
-
         for (int i = 0; i < obbys.size(); i++) {
             obbys.get(i).render(g);
         }
@@ -251,7 +220,7 @@ public class Hub {
         for (int i = 0; i < obbys.size(); i++) {
             obbys.get(i).priorityRender(g);
         }
-        
+
         for (int i = 0; i < obbys.size(); i++) {
             obbys.get(i).popUpRender(g);
         }
@@ -277,40 +246,10 @@ public class Hub {
 
     //<editor-fold defaultstate="collapsed" desc="addItems">
     public void addItems() {
-        //Item set up for defaults if nothing loaded
-        items.add(new Item(item1.x, item1.y, item1.width, item1.height, 0, 3));
-        items.add(new Item(item2.x, item2.y, item2.width, item2.height, 0, 3));
-        items.add(new Item(item3.x, item3.y, item3.width, item3.height, 1, 1));
-        items.add(new Item(item4.x, item4.y, item4.width, item4.height, 1, 1));
+        items.add(new Item(100, 100, 50, 50, 5, 2));
+
     }
     //</editor-fold>
-
-    //<editor-fold defaultstate="collapsed" desc="Update trees">
-    public void updateTrees() {
-        boolean order = true;
-        Tree holder;
-        if (firstTree) {
-            while (order) {
-                for (int j = 0; j < trees.size(); j++) {
-                    for (int i = 1; i < trees.size(); i++) {
-                        if (trees.get(i).y < trees.get(i - 1).y || trees.get(i).tree.y < trees.get(i - 1).tree.y) {
-                            holder = trees.get(i);
-                            trees.set(i, trees.get(i - 1));
-                            trees.set((i - 1), holder);
-                            System.out.println("moved");
-                            continue;
-                        }
-                    }
-                }
-                order = false;
-            }
-        }
-
-        for (int i = 0; i < trees.size(); i++) {
-            objects.add(trees.get(i).tree);
-        }
-    }
-//    </editor-fold>
 
     //<editor-fold defaultstate="collapsed" desc="Water Check">
     public void waterCheck() {
@@ -388,50 +327,51 @@ public class Hub {
     //<editor-fold defaultstate="collapsed" desc="updateList">
     public void updateList() {
         objects.clear();
-        
+
         stuff();
-        
+
         for (int i = 0; i < obbys.size(); i++) {
-            objects.add(obbys.get(i).collis);
+            if (obbys.get(i).dropped == false) {
+                //do nothing
+            } else {
+                objects.add(obbys.get(i).collis);
+            }
+            //updateTrees();
+            objects.add(pond1);
+            objects.add(shrub1);
+            objects.add(shrub2);
+            objects.add(Fence1);
+            objects.add(Fence2);
+            objects.add(Fence3);
+            objects.add(Fence4);
+            objects.add(Fence5);
+            objects.add(Tomb);
+            objects.add(Haybales);
+            objects.add(House1);
+            objects.add(House2);
+            objects.add(House3);
+            objects.add(House4);
+            objects.add(House5);
+            objects.add(Wheelbarrow1);
+            objects.add(Wheelbarrow2);
+            objects.add(Wheelbarrow3);
+            objects.add(Pitchfork);
+            objects.add(Pond2_1);
+            objects.add(Pond2_2);
+            objects.add(Pond2_3);
+            objects.add(Pond2_4);
+            objects.add(Pond2_5);
+            objects.add(Pond2_6);
+            objects.add(Pond2_7);
+            objects.add(Pond2_8);
+            objects.add(Pond2_9);
+            objects.add(Pond2_10);
+            objects.add(Pond2_11);
+            objects.add(Pond2_12);
         }
-
-        updateTrees();
-
-        objects.add(pond1);
-        objects.add(shrub1);
-        objects.add(shrub2);
-        objects.add(Fence1);
-        objects.add(Fence2);
-        objects.add(Fence3);
-        objects.add(Fence4);
-        objects.add(Fence5);
-        objects.add(Tomb);
-        objects.add(Haybales);
-        objects.add(House1);
-        objects.add(House2);
-        objects.add(House3);
-        objects.add(House4);
-        objects.add(House5);
-        objects.add(Wheelbarrow1);
-        objects.add(Wheelbarrow2);
-        objects.add(Wheelbarrow3);
-        objects.add(Pitchfork);
-        objects.add(Pond2_1);
-        objects.add(Pond2_2);
-        objects.add(Pond2_3);
-        objects.add(Pond2_4);
-        objects.add(Pond2_5);
-        objects.add(Pond2_6);
-        objects.add(Pond2_7);
-        objects.add(Pond2_8);
-        objects.add(Pond2_9);
-        objects.add(Pond2_10);
-        objects.add(Pond2_11);
-        objects.add(Pond2_12);
     }
+    //</editor-fold>
 
-//</editor-fold>
-    
     //<editor-fold defaultstate="collapsed" desc="getWater">
     public boolean getWater() {
         return water;

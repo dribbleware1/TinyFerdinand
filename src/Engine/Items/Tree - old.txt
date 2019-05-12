@@ -1,0 +1,328 @@
+    //<editor-fold defaultstate="collapsed" desc="Declarations">
+    public boolean temp = false;
+
+    final int MAX_TIME = 120;
+    final int DEFAULT_COUNT_SMALL = 5;
+    final int DEFAULT_COUNT_LARGE = 8;
+    final int LONG_TIME = 120;
+    final int MENU_BOX_HEIGHT = 30;
+    int timer = 0, longtimer = 0;
+    int watering = 30;
+    boolean wats = false;
+    Random rand = new Random();
+    private boolean pick = true, trigger = false, longtime = false;
+    public Rectangle tree, treebox;
+
+    private int[] timers = {2, 2}; //time between stages for the trees in seconds
+    private int scale = 4;
+
+    int tmp = 0;
+    boolean tp = false;
+
+    public Rectangle collectBox = new Rectangle(0, 0, 0, 0);
+
+    public Font text = new Font("Courier", Font.BOLD + Font.ITALIC, 25), text2 = new Font("Helvetica", Font.BOLD, 32);
+//</editor-fold>
+
+    //<editor-fold defaultstate="collapsed" desc="Constructor">
+    public Tree(ESC engine, int xi, int yi, int id) {
+        eng = engine;
+        ID = id;
+        x = xi;
+        y = yi;
+        if (ID == 0) {
+            count = DEFAULT_COUNT_SMALL;
+            name = "Small Tree";
+        }
+        if (ID == 1) {
+            count = DEFAULT_COUNT_LARGE;
+            name = "Big Tree";
+        }
+    }
+    //</editor-fold>
+
+    //<editor-fold defaultstate="collapsed" desc="Update">
+    public void update() {
+        mouseUpdate();
+        if (!dropped) {
+            drop();
+        }
+
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        if (stage < 2 && dropped) {
+            actionTimer++;
+            if ((actionTimer / 60) == timers[stage]) {
+                stage++;
+                stageUpdate();
+                if (stage < 2) {
+                    actionTimer = 0;
+                }
+            }
+        }
+
+        if (timer < MAX_TIME && count > 0) {
+            timer++;
+            pick = false;
+        }
+        if (timer == MAX_TIME) {
+            pick = true;
+        }
+        if (wats) {
+            watering++;
+        }
+        if (watering > 30) {
+            wats = false;
+        }
+        if (contains(treebox, true) && recBuilder(treebox).intersects(eng.mainChar.box) && eng.left && mouseDelay) {
+            pop = true;
+            mouseDelay = false;
+            menuBox = new Rectangle(tree.x + tree.width / 3, tree.y, 400, 130);
+            collectBox = addButton(10, 40);
+        }
+
+    }
+//</editor-fold>
+
+    //<editor-fold defaultstate="collapsed" desc="Render Graphics g">
+    public void render(Graphics g) {
+        if (dropped) {
+            if (eng.mainChar.y >= tree.y + eng.getYOff()) {
+                if (ID == 0) {
+                    g.drawImage(eng.assetLdr.smallTree.get(stage), treeLocX(eng.assetLdr.smallTree.get(stage)) + eng.getXOff(), treeLocY(eng.assetLdr.smallTree.get(stage)) + eng.getYOff(), eng.assetLdr.smallTree.get(stage).getWidth() * scale, eng.assetLdr.smallTree.get(stage).getHeight() * scale, null);
+                }
+                if (ID == 1) {
+                    g.drawImage(eng.assetLdr.bigTree.get(stage), treeLocX(eng.assetLdr.bigTree.get(stage)) + eng.getXOff(), treeLocY(eng.assetLdr.bigTree.get(stage)) + eng.getYOff(), eng.assetLdr.bigTree.get(stage).getWidth() * scale, eng.assetLdr.bigTree.get(stage).getHeight() * scale, null);
+                }
+            }
+        }
+
+        if (eng.debug) {
+            g.setColor(Color.red);
+            g.drawRect(treebox.x + eng.getXOff(), treebox.y + eng.getYOff(), treebox.width, treebox.height);
+            if (pop) {
+                g.drawRect(menuBox.x, menuBox.y, menuBox.width, menuBox.height);
+            }
+        }
+    }
+//    </editor-fold>
+
+    //<editor-fold defaultstate="collapsed" desc="Priority render Graphics g">
+    @Override
+    public void priorityRender(Graphics g) {
+        if (dropped) {
+            if (eng.mainChar.y < tree.y + eng.getYOff()) {
+                if (ID == 0) {
+                    g.drawImage(eng.assetLdr.smallTree.get(stage), treeLocX(eng.assetLdr.smallTree.get(stage)) + eng.getXOff(), treeLocY(eng.assetLdr.smallTree.get(stage)) + eng.getYOff(), eng.assetLdr.smallTree.get(stage).getWidth() * scale, eng.assetLdr.smallTree.get(stage).getHeight() * scale, null);
+                }
+                if (ID == 1) {
+                    g.drawImage(eng.assetLdr.bigTree.get(stage), treeLocX(eng.assetLdr.bigTree.get(stage)) + eng.getXOff(), treeLocY(eng.assetLdr.bigTree.get(stage)) + eng.getYOff(), eng.assetLdr.bigTree.get(stage).getWidth() * scale, eng.assetLdr.bigTree.get(stage).getHeight() * scale, null);
+                }
+            }
+            g.setColor(Color.green);
+            g.fillOval(x + eng.getXOff(), y + eng.getYOff(), 10, 10);
+        }
+        g.drawRect(buffer.x + eng.getXOff(), buffer.y + eng.getYOff(), buffer.width, buffer.height);
+    }
+//</editor-fold>
+
+    //<editor-fold defaultstate="collapsed" desc="popUpRender Graphics g">
+    @Override
+    public void popUpRender(Graphics g) {
+        if (!dropped) {
+            g.drawImage(eng.assetLdr.bigTree.get(0), treeLocX(eng.assetLdr.bigTree.get(0)) + eng.getXOff(), treeLocY(eng.assetLdr.bigTree.get(0)) + eng.getYOff(), eng.assetLdr.bigTree.get(0).getWidth() * scale, eng.assetLdr.bigTree.get(0).getHeight() * scale, null);
+            if (blocked) {
+                g.setColor(new Color(255, 0, 0, 100));
+                g.fillRect(treeLocX(eng.assetLdr.bigTree.get(0)) + eng.getXOff(), treeLocY(eng.assetLdr.bigTree.get(0)) + eng.getYOff(), eng.assetLdr.bigTree.get(0).getWidth() * scale, eng.assetLdr.bigTree.get(0).getHeight() * scale);
+            }
+        }
+
+        if (pop) {
+            menuRender(g);
+            menuControl();
+        }
+    }
+    //</editor-fold>
+
+    //<editor-fold defaultstate="collapsed" desc="Menu render Graphics g">
+    private void menuRender(Graphics g) {
+        basicMenu(g);
+        if (stage == 2) {
+            Graphics2D g2d = (Graphics2D) g;
+            BasicStroke bs = new BasicStroke(2);
+            g2d.setStroke(bs);
+            //collecting bar
+            g.setColor(new Color(255, 87, 51));
+            g.fillRect(menuBox.x + 140 + eng.getXOff(), menuBox.y + 50 + eng.getYOff(), timer * 2, 20);
+            bs = new BasicStroke(1);
+            g2d.setStroke(bs);
+            g.setColor(Color.white);
+            g.drawRect(menuBox.x + 140 + eng.getXOff(), menuBox.y + 50 + eng.getYOff(), MAX_TIME * 2, 20);
+
+            g.drawRect(collectBox.x + eng.getXOff(), collectBox.y + eng.getYOff(), collectBox.width, collectBox.height);
+            if (!contains(collectBox, true)) {
+                g.drawString("Collect", menuBox.x + eng.getXOff() + 16, menuBox.y + 70 + eng.getYOff());
+            } else {
+                if (timer < MAX_TIME) {
+                    g.setColor(bad);
+                } else {
+                    g.setColor(good);
+                    if (eng.left) {
+                        pickup();
+                    }
+                }
+                g.fillRect(collectBox.x + 2 + eng.getXOff(), collectBox.y + 2 + eng.getYOff(), collectBox.width - 3, collectBox.height - 3);
+                g.setColor(Color.white);
+                g.drawString("Collect", menuBox.x + eng.getXOff() + 16, menuBox.y + 70 + eng.getYOff());
+            }
+            g.setFont(new Font("Courier", Font.BOLD + Font.ITALIC, 23));
+            g.drawString("Logs Remaining: " + Integer.toString(count), menuBox.x + eng.getXOff() + 10, menuBox.y + eng.getYOff() + 110);
+        } else {
+            g.setColor(Color.white);
+            g.setFont(text);
+            g.drawString("Growing", menuBox.x + eng.getXOff() + 10, menuBox.y + eng.getYOff() + 80);
+        }
+    }
+//</editor-fold>
+
+    //<editor-fold defaultstate="collapsed" desc="RecBuild">
+    public Rectangle recBuild() {
+        
+        
+        
+        
+        
+        
+        return new Rectangle(treebox.x + eng.getXOff(), treebox.y + eng.getYOff(), treebox.width, treebox.height);
+    }
+    //</editor-fold>
+
+    //<editor-fold defaultstate="collapsed" desc="Loc">
+    public Point loc(ESC engine) {
+        return new Point(MouseInfo.getPointerInfo().getLocation().x - engine.frame.getX(),
+                MouseInfo.getPointerInfo().getLocation().y - engine.frame.getY() - Math.abs(engine.frame.getLocationOnScreen().y - engine.canvas.getLocationOnScreen().y));
+    }
+    //</editor-fold>
+
+    //<editor-fold defaultstate="collapsed" desc="Random apple">
+    private void randomApple() {
+        boolean apples = false;
+        if (rand.nextInt(25) == 16) {
+            for (int j = 0; j < eng.mainChar.inv.inven.size(); j++) {
+                if (eng.mainChar.inv.inven.get(j).id == 4) {
+                    eng.mainChar.inv.inven.get(j).qnty += 1;
+                    apples = true;
+                }
+            }
+            if (!apples) {
+                eng.mainChar.inv.inven.add(new Item(4, 1));
+            }
+        }
+    }
+    //</editor-fold>
+
+    //<editor-fold defaultstate="collapsed" desc="Pickup">
+    private void pickup() {
+        pick = false;
+        eng.mainChar.inv.itemReplace(0, -1, 1);
+        randomApple();
+        timer = 0;
+        count--;
+        if (count == 0) {
+            eng.mainChar.inv.itemReplace(5, -1, new Random().nextInt(2) + 1);
+            eng.world.hubRoom.obbys.remove(this);
+            eng.world.updatelist();
+
+        }
+    }
+//</editor-fold>
+
+    //<editor-fold defaultstate="collapsed" desc="stageUpdate">
+    @Override
+    public void stageUpdate() {
+        int width, height;
+        switch (ID) {
+            case 0:
+                width = (eng.assetLdr.smallTree.get(stage).getWidth() * scale);
+                height = (eng.assetLdr.smallTree.get(stage).getHeight() * scale);
+                switch (stage) {
+                    case 0:
+                        tree = new Rectangle(treeLocX(eng.assetLdr.smallTree.get(stage)) + (width / 3), treeLocY(eng.assetLdr.smallTree.get(stage)) + ((height / 13) * 10) + 20, width / 3, height / 13);
+                        break;
+                    case 1:
+                        tree = new Rectangle(treeLocX(eng.assetLdr.smallTree.get(stage)) + ((width / 4)) + (width / 8), treeLocY(eng.assetLdr.smallTree.get(stage)) + ((height / 13) * 9) + 28, (width / 4) - 5, height / 13);
+                        break;
+                    case 2:
+                        tree = new Rectangle(treeLocX(eng.assetLdr.smallTree.get(stage)) + (width / 3), treeLocY(eng.assetLdr.smallTree.get(stage)) + ((height / 4) * 3) + 20, (width / 3), height / 13);
+                        break;
+                }
+                break;
+            case 1:
+                width = (eng.assetLdr.bigTree.get(stage).getWidth() * scale);
+                height = (eng.assetLdr.bigTree.get(stage).getHeight() * scale);
+                switch (stage) {
+                    case 0:
+                        tree = new Rectangle(treeLocX(eng.assetLdr.bigTree.get(stage)) + (width / 3), treeLocY(eng.assetLdr.bigTree.get(stage)) + ((height / 13) * 10) + 20, width / 3, height / 13);
+                        break;
+                    case 1:
+                        tree = new Rectangle(treeLocX(eng.assetLdr.bigTree.get(stage)) + 30, treeLocY(eng.assetLdr.bigTree.get(stage)) + ((height / 8) * 4) + 32, width - 60, (height / 8) + 20);
+                        break;
+                    case 2:
+                        tree = new Rectangle((treeLocX(eng.assetLdr.bigTree.get(stage)) + 32 * 4), (treeLocY(eng.assetLdr.bigTree.get(stage)) + 147 * 4), 66 * 4, 100);
+                        break;
+                }
+                break;
+        }
+        buffer = new Rectangle(tree.x - tree.width / 2, tree.y - tree.height / 2, tree.width * 2, tree.height * 2);
+        treebox = new Rectangle(tree.x - 30, tree.y - 100, tree.width + 60, tree.height + 150);
+        size = new Rectangle(tree.x, tree.y, tree.width, tree.height);
+
+        if (dropped) {
+            collis = size;
+            eng.world.hubRoom.firstTree = true;
+            eng.world.hubRoom.updateTrees();
+            eng.world.updatelist();
+        }
+
+    }
+    //</editor-fold>
+
+    //<editor-fold defaultstate="collapsed" desc="collisBox()">
+    @Override
+    public Rectangle collisBox() {
+        stageUpdate();
+        return collis;
+    }
+    //</editor-fold>
+
+    //<editor-fold defaultstate="collapsed" desc="tree locations to keep them centered around the bottom so growing is less trippy">
+    public int treeLocX(BufferedImage img) {
+        return x - ((img.getWidth() * scale) / 2);
+    }
+
+    public int treeLocY(BufferedImage img) {
+        return y - (img.getHeight() * 4);
+    }
+    //</editor-fold>
+
+    //<editor-fold defaultstate="collapsed" desc="Getters and Setters">
+    public Rectangle getBox() {
+        return tree;
+    }
+//</editor-fold>

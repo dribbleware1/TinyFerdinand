@@ -16,7 +16,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- *
  * @author DribbleWare
  */
 public class CampFire extends WorldObjects {

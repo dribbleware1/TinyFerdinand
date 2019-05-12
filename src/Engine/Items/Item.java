@@ -20,15 +20,15 @@ import java.awt.image.BufferedImage;
  */
 public class Item {
 
-    public final String[] NAMES = new String[] {"Logs", "Rocks", "Bucket", "Water", "Apple"};
+    public final String[] NAMES = new String[]{"Logs", "Rocks", "Bucket", "Water", "Apple", "Sapling"};
     public BufferedImage[] art = new BufferedImage[]{};
-    
+
     public int x, y, width, height, id, qnty;
     public boolean tool = false;
     public Font text = new Font("TimesRoman", Font.PLAIN, 25);
 
     public Rectangle conBox;
-    
+
     ESC eng;
 
     public Item(int xi, int yi, int widthi, int heighti, int idi, int q) {
@@ -50,7 +50,7 @@ public class Item {
     public void toolTips(Graphics g, ESC engine) {
         eng = engine;
         g.setColor(Color.red);
-        if (tool && !engine.Loc.equalsIgnoreCase("menu") && !engine.pause) {
+        if (tool && !engine.Loc.equalsIgnoreCase("menu") && !engine.pause && !eng.inventory) {
             g.drawImage(engine.assetLdr.greyBox, loc(engine).x, loc(engine).y - 75, 100, 75, null);
             g.setColor(Color.white);
             g.drawString(NAMES[id], loc(engine).x + 5, loc(engine).y - 50);
@@ -64,6 +64,6 @@ public class Item {
     }
 
     public void artBuild() {
-        art = new BufferedImage[]{eng.assetLdr.logs, eng.assetLdr.rocks, eng.assetLdr.emptyBucket, eng.assetLdr.fullBucket, eng.assetLdr.apple};
+        art = new BufferedImage[]{eng.assetLdr.logs, eng.assetLdr.rocks, eng.assetLdr.emptyBucket, eng.assetLdr.fullBucket, eng.assetLdr.apple, eng.assetLdr.sapling};
     }
 }
