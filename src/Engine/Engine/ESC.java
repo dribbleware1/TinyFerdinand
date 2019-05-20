@@ -29,6 +29,7 @@ import java.awt.image.BufferStrategy;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -93,6 +94,7 @@ public class ESC implements Runnable {
 
     //player
     public Player mainChar;
+    public boolean move = true;
 
     //world
     public World world;
@@ -113,6 +115,8 @@ public class ESC implements Runnable {
     private int time;
     private int timeOffset = 1;
     private int days = 0;
+
+    List<scrollingText> popups = new ArrayList<>();
     //</editor-fold>
 
     //<editor-fold defaultstate="collapsed" desc="Main">
@@ -170,6 +174,14 @@ public class ESC implements Runnable {
         //Movement checks
         move();
         //World
+        for (int i = 0; i < popups.size(); i++) {
+            if (popups.get(i).tick == 240) {
+                popups.remove(i);
+                i = 0;
+            } else {
+                popups.get(i).update();
+            }
+        }
         world.update();
         //Character update
         mainChar.update();
@@ -203,6 +215,9 @@ public class ESC implements Runnable {
             }
         }
         if (input.action && !inventory && invTimer > 15) {
+            if (world.hubRoom.obbys.size() > 0) {
+                world.hubRoom.obbys.get(0).closeAll(null);
+            }
             inventory = true;
             invTimer = 0;
         }
@@ -291,6 +306,11 @@ public class ESC implements Runnable {
             (world.items.get(i)).toolTips(g, this);
         }
 
+        g.setFont(text2);
+        for (int i = 0; i < popups.size(); i++) {
+            popups.get(i).render(g);
+        }
+
         if (pause) {
             pauseMenu.render(g);
         }
@@ -353,7 +373,7 @@ public class ESC implements Runnable {
 
     //<editor-fold defaultstate="collapsed" desc="Move">
     private void move() {
-        if (!"menu".equals(Loc) && !pause) {
+        if (!"menu".equals(Loc) && !pause && move) {
             if (input.up && !mainChar.up) { //Moving up
                 yoff = Integer.toString((Integer.parseInt(yoff)) + mainChar.speed);
             }
@@ -369,6 +389,10 @@ public class ESC implements Runnable {
         }
     }
     //</editor-fold>
+
+    public void pop(String text) {
+        popups.add(new scrollingText(text));
+    }
 
     //<editor-fold defaultstate="collapsed" desc="Run">
     //@Override
@@ -513,7 +537,7 @@ public class ESC implements Runnable {
 
     //</editor-fold>
     //Mouse listener with delay for noise reduction
-    //<editor-fold defaultstate="collapsed" desc="Mouse listener">
+    //<editor-fold defaultstate="collapsed" desc="Mouse listener class">
     public class CustomListener implements MouseListener {
 
         @Override
@@ -551,7 +575,7 @@ public class ESC implements Runnable {
     }
     //</editor-fold>
 
-    //<editor-fold defaultstate="collapsed" desc="Mouse Wheel Listener">
+    //<editor-fold defaultstate="collapsed" desc="Mouse Wheel Listener classs">
     public class WheelListener implements MouseWheelListener {
 
         @Override
@@ -571,4 +595,35 @@ public class ESC implements Runnable {
 
     }
     //</editor-fold>
+
+    //<editor-fold defaultstate="collapsed" desc="Scrolling Text class">
+    public class scrollingText {
+
+        int x = (sizew / 2), y = (sizeh / 2) - 50;
+        int scale = 2;
+        int tick = 0;
+        int alpha = 255;
+        String text;
+
+        Color textColor = new Color(255, 255, 255);
+
+        public scrollingText(String textin) {
+            text = textin;
+            x -= (text.length() / 3) * text2.getSize();
+        }
+
+        public void update() {
+            y -= scale;
+            tick += 5;
+            alpha -= 5;
+        }
+
+        public void render(Graphics g) {
+            g.setColor(new Color(textColor.getRed(), textColor.getGreen(), textColor.getBlue(), alpha));
+            g.drawString(text, x, y);
+        }
+
+    }
+    //</editor-fold>
+
 }

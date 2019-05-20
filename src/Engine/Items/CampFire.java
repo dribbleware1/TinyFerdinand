@@ -100,6 +100,7 @@ public class CampFire extends WorldObjects {
         }
 
         if (contains(size, true) && recBuilder(size).intersects(eng.mainChar.box) && eng.left && mouseDelay) {
+            closeAll(this);
             pop = true;
             mouseDelay = false;
             menuBox = new Rectangle(x + w, y, 450, 250);

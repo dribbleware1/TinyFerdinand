@@ -99,11 +99,17 @@ public class Tree extends WorldObjects {
         }
 
         if (contains(size, true) && dropped && mouseDelay && eng.left) {
-            pop = true;
-            mouseDelay = false;
-            menuBox = new Rectangle(x + (maxScaleX / 3), y - (maxScaleX / 2), 400, 200);
-            collectBox = addButton(10, 40);
-            chopBox = addButton(10, 90);
+            if (recBuilder(size).intersects(eng.mainChar.box)) {
+                closeAll(this);
+                pop = true;
+                mouseDelay = false;
+                menuBox = new Rectangle(x + (maxScaleX / 3), y - (maxScaleX / 2), 600, 200);
+                collectBox = addButton(10, 40);
+                chopBox = addButton(10, 90);
+            } else {
+                eng.pop("Too far away!");
+                mouseDelay = false;
+            }
         }
     }
     //</editor-fold>

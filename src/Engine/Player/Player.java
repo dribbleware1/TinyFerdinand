@@ -40,6 +40,7 @@ public class Player {
     private final Rectangle rside;
     private final Rectangle bottom;
     public boolean up = false, down = false, left = false, right = false, overIt = false;
+
     //animations
     public int ani;
     public int aSpeed = 5; //animation speed (high is slow)
@@ -109,9 +110,14 @@ public class Player {
     public void render(Graphics g) {
         g.setColor(Color.red);
         g.drawImage(engine.assetLdr.dropShadow, (int) x - 5, (int) y + 65, engine.assetLdr.dropShadow.getWidth() * 2, engine.assetLdr.dropShadow.getHeight() * 2, null);
-        animate(g);
+        if (engine.move) {
+            animate(g);
+        } else {
+            g.drawImage(walkUp.get(0), (int) x - 36, (int) y - 30, 128, 128, null);
+        }
         //g.drawRect(collbox.x, collbox.y, collbox.width, collbox.height);
-//Collision boxes for debug mode
+
+        //Collision boxes for debug mode
         if (engine.debug) {
             g.setColor(Color.ORANGE);
             g.drawRect(top.x, top.y, top.width, top.height);
@@ -133,15 +139,28 @@ public class Player {
                 overIt = true;
                 World.items.get(i).tool = true;
                 if (engine.left) {
-                    for (int j = 0; j < inv.inven.size(); j++) {
-                        if (World.items.get(i).id == inv.inven.get(j).id) {
-                            inv.inven.get(j).qnty += World.items.get(i).qnty;
-                            World.items.remove(i);
-                            return;
-                        }
-                    }
-                    inv.inven.add(new Item(World.items.get(i).id, World.items.get(i).qnty));
+
+                    inv.itemAdd(World.items.get(i).id, World.items.get(i).qnty);
                     World.items.remove(i);
+//                    for (int j = 0; j < inv.inven.size(); j++) {
+//                        if (World.items.get(i).id == inv.inven.get(j).id) {
+//                            inv.inven.get(j).qnty += World.items.get(i).qnty;
+//                            if (World.items.get(i).qnty == 1) {
+//                                engine.pop("+" + World.items.get(i).qnty + " " + World.items.get(i).NAMES[World.items.get(i).id]);
+//                            } else {
+//                                engine.pop("+" + World.items.get(i).qnty + " " + World.items.get(i).NAMES[World.items.get(i).id] + "s");
+//                            }
+//                            World.items.remove(i);
+//                            return;
+//                        }
+//                    }
+//                    inv.inven.add(new Item(World.items.get(i).id, World.items.get(i).qnty));
+//                    if (World.items.get(i).qnty == 1) {
+//                        engine.pop("+" + World.items.get(i).qnty + " " + World.items.get(i).NAMES[World.items.get(i).id]);
+//                    } else {
+//                        engine.pop("+" + World.items.get(i).qnty + " " + World.items.get(i).NAMES[World.items.get(i).id] + "s");
+//                    }
+//                    World.items.remove(i);
                 }
             } else {
                 World.items.get(i).tool = false;

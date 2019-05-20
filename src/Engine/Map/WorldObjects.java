@@ -15,6 +15,8 @@ import java.awt.MouseInfo;
 import java.awt.Point;
 import java.awt.Rectangle;
 import java.awt.geom.Ellipse2D;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  *
@@ -32,6 +34,8 @@ public class WorldObjects {
     public int x, y, ID = 0, count = -1;
 
     public boolean grown = false;
+
+    public List<Rectangle> Crafts = new ArrayList<>();
 
     public int h, w;
 
@@ -57,7 +61,7 @@ public class WorldObjects {
 
     public Ellipse2D light = new Ellipse2D.Double(0, 0, 0, 0);
 
-    public Font text = new Font("Courier", Font.BOLD + Font.ITALIC, 25), text2 = new Font("Helvetica", Font.BOLD, 32), text3 = new Font("Courier", Font.BOLD, 15);
+    public Font text = new Font("Courier", Font.BOLD + Font.ITALIC, 25), text2 = new Font("Helvetica", Font.BOLD, 32), text3 = new Font("Courier", Font.BOLD, 15), text4 = new Font("Courier", Font.BOLD, 20);
 //</editor-fold>
 
     //<editor-fold defaultstate="collapsed" desc="update">
@@ -124,6 +128,43 @@ public class WorldObjects {
     }
     //</editor-fold>
 
+    //<editor-fold defaultstate="collapsed" desc="basicMenu Graphic g">
+    public void basicMenu(Graphics g, int i) {
+        g.setFont(text);
+        g.setColor(new Color(10, 10, 10, 150));
+        g.fillRect(menuBox.x, menuBox.y, menuBox.width, menuBox.height);
+        g.setColor(new Color(200, 200, 200, 200));
+        g.fillRect(menuBox.x, menuBox.y, menuBox.width, 30);
+        g.drawRect(menuBox.x, menuBox.y + 30, menuBox.width - 1, menuBox.height - 30);
+
+        //still needs some fine tuning
+        g.setColor(new Color(255, 255, 255, 200));
+        Graphics2D g2d = (Graphics2D) g;
+        BasicStroke bs = new BasicStroke(2);
+        g2d.setStroke(bs);
+        int set = 8;
+        g2d.drawLine(menuBox.x + menuBox.width - text.getSize() - set, menuBox.y + 8,
+                menuBox.x + menuBox.width - text.getSize() - set, menuBox.y + 22);
+        g.setColor(Color.white);
+        g.drawString(name, menuBox.x + 5, menuBox.y + text.getSize() - 2);
+        g.setFont(text2);
+        Rectangle temps = new Rectangle(menuBox.x + menuBox.width - text.getSize() - 4, menuBox.y + 2, 26, 26);
+        if (!contains(temps, false)) {
+            g.setColor(Color.red);
+            g.drawString("x", menuBox.x + menuBox.width - text.getSize(), menuBox.y + 24);
+
+        } else {
+            g.setColor(Color.red);
+            g.fillRect(temps.x, temps.y, temps.width, temps.height);
+            g.setColor(Color.white);
+            g.drawString("x", menuBox.x + menuBox.width - text.getSize(), menuBox.y + 24);
+            if (eng.left) {
+                pop = false;
+            }
+        }
+    }
+    //</editor-fold>
+
     //<editor-fold defaultstate="collapsed" desc="menuControl">
     public void menuControl() {
         if (!eng.frame.contains(menuBox.x + eng.getXOff(), menuBox.y + eng.getYOff()) || !eng.frame.contains(menuBox.x + eng.getXOff() + menuBox.width, menuBox.y + eng.getYOff() + menuBox.height)) {
@@ -134,7 +175,16 @@ public class WorldObjects {
             mouseDelay = false;
         }
     }
-//</editor-fold>
+    //</editor-fold>
+
+    //<editor-fold defaultstate="collapsed" desc="menuControl int i">
+    public void menuControl(int i) {
+        if (!contains(menuBox, true) && eng.left && mouseDelay) {
+            pop = false;
+            mouseDelay = false;
+        }
+    }
+    //</editor-fold>
 
     //<editor-fold defaultstate="collapsed" desc="render Grpahics g">
     public void render(Graphics g) {
@@ -222,8 +272,20 @@ public class WorldObjects {
     }
     //</editor-fold>
 
-    //<editor-fold defaultstate="collapsed" desc="stageUpdate">
-    public void stageUpdate() {
+    //<editor-fold defaultstate="collapsed" desc="closeAll">
+    public void closeAll(WorldObjects holder) {
+
+        for (int i = 0; i < eng.world.hubRoom.obbys.size(); i++) {
+            if (eng.world.hubRoom.obbys.get(i) == holder) {
+
+            } else {
+                eng.world.hubRoom.obbys.get(i).pop = false;
+            }
+        }
+        if (eng.inventory) {
+            eng.inventory = false;
+        }
     }
-    //</editor-fold>
+//</editor-fold>
+
 }

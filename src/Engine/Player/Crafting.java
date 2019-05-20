@@ -9,7 +9,6 @@ import Engine.Engine.ESC;
 import Engine.Items.CampFire;
 import Engine.Items.Item;
 import Engine.Items.Tree;
-import Engine.Items.TreeV2;
 import Engine.Items.WorkBench;
 import java.awt.Color;
 import java.awt.Graphics;
@@ -28,6 +27,7 @@ import java.util.Random;
  */
 public class Crafting {
 
+    //<editor-fold defaultstate="collapsed" desc="declarations">
     ESC eng;
     inventory inv;
     boolean mouseDelay = true;
@@ -37,13 +37,18 @@ public class Crafting {
     private List<Item> Fire = new ArrayList<>();
     private List<Item> Bench = new ArrayList<>();
     private List<Item> Tree = new ArrayList<>();
+    private List<Rectangle> Crafts = new ArrayList<>();
+    //</editor-fold>
 
+    //<editor-fold defaultstate="collapsed" desc="constructor">
     public Crafting(ESC engine, inventory invent) {
         eng = engine;
         inv = invent;
         craftInit();
     }
+    //</editor-fold>
 
+    //<editor-fold defaultstate="collapsed" desc="update">
     public void update() {
         if (!mouseDelay) {
             del++;
@@ -52,13 +57,36 @@ public class Crafting {
             mouseDelay = true;
             del = 0;
         }
+        if (eng.inventory) {
+            Crafts = inv.Crafts;
+        }
+        for (int i = 0; i < eng.world.hubRoom.obbys.size(); i++) {
+            if (eng.world.hubRoom.obbys.get(i) instanceof WorkBench && eng.world.hubRoom.obbys.get(i).pop) {
+                Crafts = eng.world.hubRoom.obbys.get(i).Crafts;
+                break;
+            }
+        }
+
+    }
+    //</editor-fold>
+
+    public void workbench(Graphics g, int page) {
+        switch (page) {
+            case 1:
+                craftBox(0, eng.assetLdr.emptyBucket, Bucket, 2, g);
+                break;
+            case 2:
+                break;
+            case 3:
+                craftBox(0, eng.assetLdr.emptyBucket, Bucket, 2, g);
+                break;
+        }
     }
 
     //<editor-fold defaultstate="collapsed" desc="logCraft Graphics g">
     public void logCraft(Graphics g) {
-        craftBox(0, eng.assetLdr.emptyBucket, Bucket, 2, g);
-        craftBox(1, eng.assetLdr.campFire.get(eng.assetLdr.campFire.size() - 1), Fire, g, "Campfire");
-        craftBox(2, eng.assetLdr.workBench, Bench, g, "Bench");
+        craftBox(0, eng.assetLdr.campFire.get(eng.assetLdr.campFire.size() - 1), Fire, g, "Campfire");
+        craftBox(1, eng.assetLdr.workBench, Bench, g, "Bench");
     }
     //</editor-fold>
 
@@ -91,16 +119,11 @@ public class Crafting {
                 qty = false;
             }
         }
-        if (contains(inv.Crafts.get(number))) {
+        if (contains(Crafts.get(number))) {
             if (qty) {
                 g.setColor(new Color(255, 255, 255, 100));
                 if (eng.left && mouseDelay) {
-                    if (newIDSlot > -1) {
-                        inv.inven.get(newIDSlot).qnty += 1;
-                    } else {
-                        inv.inven.add(new Item(newId, 1));
-
-                    }
+                    inv.itemAdd(newId, 1);
                     for (int i = 0; i < craftSlots.size(); i++) {
                         int slot = craftSlots.get(i);
                         inv.inven.get(slot).qnty -= cost.get(i).qnty;
@@ -119,22 +142,22 @@ public class Crafting {
         }
 
         if (!after) {
-            g.fillRect(inv.Crafts.get(number).x, inv.Crafts.get(number).y + eng.notches, inv.Crafts.get(number).width, inv.Crafts.get(number).height);
+            g.fillRect(Crafts.get(number).x, Crafts.get(number).y, Crafts.get(number).width, Crafts.get(number).height);
         }
         g.setColor(Color.white);
-        g.drawRect(inv.Crafts.get(number).x, inv.Crafts.get(number).y, inv.Crafts.get(number).width, inv.Crafts.get(number).height);
+        g.drawRect(Crafts.get(number).x, Crafts.get(number).y, Crafts.get(number).width, Crafts.get(number).height);
 
-        g.drawImage(image, inv.Crafts.get(number).x + 5, inv.Crafts.get(number).y + 5 + eng.notches, inv.Crafts.get(number).height - 10, inv.Crafts.get(number).height - 10, null);
+        g.drawImage(image, Crafts.get(number).x + 5, Crafts.get(number).y + 5, Crafts.get(number).height - 10, Crafts.get(number).height - 10, null);
 
-        g.drawString(cost.get(0).NAMES[newId], inv.Crafts.get(number).x + inv.Crafts.get(number).height + 5, inv.Crafts.get(number).y + 50 + eng.notches);
+        g.drawString(cost.get(0).NAMES[newId], Crafts.get(number).x + Crafts.get(number).height + 5, Crafts.get(number).y + 50);
 
         for (int i = 0; i < cost.size(); i++) {
-            g.drawString("Cost: " + cost.get(i).NAMES[cost.get(i).id] + " " + cost.get(i).qnty, inv.Crafts.get(number).x + inv.Crafts.get(number).height + 5, inv.Crafts.get(number).y + 75 + eng.notches + lineOff * i);
+            g.drawString("Cost: " + cost.get(i).NAMES[cost.get(i).id] + " " + cost.get(i).qnty, Crafts.get(number).x + Crafts.get(number).height + 5, Crafts.get(number).y + 75 + lineOff * i);
         }
 
         if (after) {
             g.setColor(new Color(255, 0, 0, 150));
-            g.fillRect(inv.Crafts.get(number).x + 2, inv.Crafts.get(number).y + eng.notches + 2, inv.Crafts.get(number).width - 3, inv.Crafts.get(number).height - 3);
+            g.fillRect(Crafts.get(number).x + 2, Crafts.get(number).y + 2, Crafts.get(number).width - 3, Crafts.get(number).height - 3);
         }
     }
 //</editor-fold>
@@ -158,7 +181,7 @@ public class Crafting {
                 qty = false;
             }
         }
-        if (contains(inv.Crafts.get(number))) {
+        if (contains(Crafts.get(number))) {
             if (qty) {
                 g.setColor(new Color(255, 255, 255, 100));
                 if (eng.left && mouseDelay) {
@@ -201,22 +224,22 @@ public class Crafting {
         }
 
         if (!after) {
-            g.fillRect(inv.Crafts.get(number).x, inv.Crafts.get(number).y + eng.notches, inv.Crafts.get(number).width, inv.Crafts.get(number).height);
+            g.fillRect(Crafts.get(number).x, Crafts.get(number).y, Crafts.get(number).width, Crafts.get(number).height);
         }
         g.setColor(Color.white);
-        g.drawRect(inv.Crafts.get(number).x, inv.Crafts.get(number).y, inv.Crafts.get(number).width, inv.Crafts.get(number).height);
+        g.drawRect(Crafts.get(number).x, Crafts.get(number).y, Crafts.get(number).width, Crafts.get(number).height);
 
-        g.drawImage(image, inv.Crafts.get(number).x + 5, inv.Crafts.get(number).y + 5 + eng.notches, inv.Crafts.get(number).height - 10, inv.Crafts.get(number).height - 10, null);
+        g.drawImage(image, Crafts.get(number).x + 5, Crafts.get(number).y + 5, Crafts.get(number).height - 10, Crafts.get(number).height - 10, null);
 
-        g.drawString(specialMod, inv.Crafts.get(number).x + inv.Crafts.get(number).height + 5, inv.Crafts.get(number).y + 50 + eng.notches);
+        g.drawString(specialMod, Crafts.get(number).x + Crafts.get(number).height + 5, Crafts.get(number).y + 50);
 
         for (int i = 0; i < cost.size(); i++) {
-            g.drawString("Cost: " + cost.get(i).NAMES[cost.get(i).id] + " " + cost.get(i).qnty, inv.Crafts.get(number).x + inv.Crafts.get(number).height + 5, inv.Crafts.get(number).y + 75 + eng.notches + lineOff * i);
+            g.drawString("Cost: " + cost.get(i).NAMES[cost.get(i).id] + " " + cost.get(i).qnty, Crafts.get(number).x + Crafts.get(number).height + 5, Crafts.get(number).y + 75 + lineOff * i);
         }
 
         if (after) {
             g.setColor(new Color(255, 0, 0, 150));
-            g.fillRect(inv.Crafts.get(number).x + 2, inv.Crafts.get(number).y + eng.notches + 2, inv.Crafts.get(number).width - 3, inv.Crafts.get(number).height - 3);
+            g.fillRect(Crafts.get(number).x + 2, Crafts.get(number).y + 2, Crafts.get(number).width - 3, Crafts.get(number).height - 3);
         }
     }
 //</editor-fold>
