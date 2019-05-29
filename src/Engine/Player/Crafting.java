@@ -32,7 +32,7 @@ public class Crafting {
 
     //<editor-fold defaultstate="collapsed" desc="declarations">
     ESC eng;
-    inventory inv;
+    Inventory inv;
     boolean mouseDelay = true;
     int del = 0, maxDel = 15;
 
@@ -60,7 +60,7 @@ public class Crafting {
     //</editor-fold>
 
     //<editor-fold defaultstate="collapsed" desc="constructor">
-    public Crafting(ESC engine, inventory invent) {
+    public Crafting(ESC engine, Inventory invent) {
         eng = engine;
         inv = invent;
         craftInit();

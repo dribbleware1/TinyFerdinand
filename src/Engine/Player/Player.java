@@ -32,7 +32,7 @@ public class Player {
     public int health = 500;
     Input input;
     ESC engine;
-    public inventory inv;
+    public Inventory inv;
     World World;
     public final Rectangle box, box2;
     private final Rectangle top;
@@ -66,7 +66,7 @@ public class Player {
         input = in;
         engine = eng;
         health = Integer.parseInt(engine.loadVars[0]);
-        inv = new inventory(engine);
+        inv = new Inventory(engine);
         box = new Rectangle((int) (x - 82.5 + 25), (int) y - h / 2, w * 3, h * 2);
         box2 = new Rectangle(box.x - 75, box.y - 75, box.width + 140, box.height + 140);
 
