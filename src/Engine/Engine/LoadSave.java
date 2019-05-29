@@ -6,6 +6,7 @@
 package Engine.Engine;
 
 import Engine.Items.CampFire;
+import Engine.Items.Fence;
 import Engine.Items.Item;
 import Engine.Items.Tree;
 import Engine.Items.WorkBench;
@@ -227,10 +228,11 @@ public class LoadSave {
 
         //<editor-fold defaultstate="collapsed" desc="Objects load">
         if (id == 3) { //objects load
-            int treeCount = 0, fireCount = 0, benchCount = 0;
+            int treeCount = 0, fireCount = 0, benchCount = 0, fenceCount = 0;
             int tX = 0, tY = 0, tID = 0, tC = 0, tic = 0; // trees
             int fX = 0, fY = 0, fT = 0; //fires
             int bX = 0, bY = 0; //workbenches
+            int feX = 0, feY = 0, feId; //fences
             String section = "BLANK", hold;
             Scanner scanner = new Scanner(new File(path + "/hubTree.zbd"));
             while (scanner.hasNext()) {
@@ -247,6 +249,10 @@ public class LoadSave {
                     }
                     if (hold.equalsIgnoreCase("BENCHES")) {
                         section = "BENCHES";
+                        hold = scanner.nextLine();
+                    }
+                    if (hold.equalsIgnoreCase("FENCES")) {
+                        section = "FENCES";
                         hold = scanner.nextLine();
                     }
 
@@ -295,6 +301,19 @@ public class LoadSave {
                     }
 //</editor-fold>
 
+//<editor-fold defaultstate="collapsed" desc="Fences">
+                    if (section.equalsIgnoreCase("Fences")) {
+                        feX = Integer.parseInt(temp[0]);
+                        feY = Integer.parseInt(temp[1]);
+                        feId = Integer.parseInt(temp[2]);
+                        Fence placeHolder = new Fence(feX, feY, feId, engine);
+                        engine.world.hubRoom.obbys.add(placeHolder);
+                        placeHolder.dropped = true;
+                        placeHolder.first = false;
+                        fenceCount++;
+                    }
+//</editor-fold>
+
                 } else {
                     scanner.nextLine();
                 }
@@ -302,6 +321,7 @@ public class LoadSave {
             System.out.println("Loaded " + treeCount + " trees");
             System.out.println("Loaded " + fireCount + " fires");
             System.out.println("Loaded " + benchCount + " benches");
+            System.out.println("Loaded " + fenceCount + " fences");
 
             engine.world.hubRoom.stuff();
 
@@ -336,7 +356,7 @@ public class LoadSave {
 
         List<WorldObjects> obbys = engine.world.hubRoom.obbys;
 
-        boolean trees = false, fires = false, benches = false;
+        boolean trees = false, fires = false, benches = false, fences = false;
         for (int i = 0; i < obbys.size(); i++) {
             if (obbys.get(i) instanceof Tree) {
                 trees = true;
@@ -347,9 +367,12 @@ public class LoadSave {
             if (obbys.get(i) instanceof CampFire) {
                 fires = true;
             }
+            if (obbys.get(i) instanceof Fence) {
+                fences = true;
+            }
         }
 
-        for (int j = 0; j < 3; j++) {
+        for (int j = 0; j < 4; j++) {
             boolean first = true;
             for (int i = 0; i < engine.world.hubRoom.obbys.size(); i++) {
                 switch (j) {
@@ -378,6 +401,15 @@ public class LoadSave {
                         }
                         if (obbys.get(i) instanceof WorkBench) {
                             writer.println(obbys.get(i).x + " " + obbys.get(i).y);
+                        }
+                        break;
+                    case 3:
+                        if (first && fences) {
+                            writer.println("Fences");
+                            first = false;
+                        }
+                        if (obbys.get(i) instanceof Fence) {
+                            writer.println(obbys.get(i).x + " " + obbys.get(i).y + " " + obbys.get(i).ID);
                         }
                         break;
 

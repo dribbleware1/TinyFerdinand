@@ -115,7 +115,7 @@ public class Player {
         } else {
             g.drawImage(walkUp.get(0), (int) x - 36, (int) y - 30, 128, 128, null);
         }
-        //g.drawRect(collbox.x, collbox.y, collbox.width, collbox.height);
+//        g.drawRect(box2.x, box2.y, box2.width, box2.height);
 
         //Collision boxes for debug mode
         if (engine.debug) {

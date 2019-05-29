@@ -28,7 +28,7 @@ public class Menu {
     Rectangle debon;
     Rectangle deboff;
     Rectangle cont;
-    
+
     public boolean update = false;
     public boolean opty = false;
     public int scale = 2;
@@ -51,7 +51,7 @@ public class Menu {
 
     public void render(Graphics g) {
         //mainmenu
-        g.drawImage(eng.assetLdr.menuBack, 0, 0, eng.assetLdr.menuBack.getWidth() * 2, eng.assetLdr.menuBack.getHeight() * 2, null);
+        g.drawImage(eng.assetLdr.menuBack, 0, 0, eng.sizew, eng.sizeh, null);
         //debug boxes
         if (eng.debug) {
             g.setColor(Color.red);
@@ -100,14 +100,13 @@ public class Menu {
             } else {
                 g.drawImage(eng.assetLdr.framerate, framerate.x, framerate.y, framerate.width, framerate.height, null);
             }
-            
-            if(eng.sixty){
-                g.drawImage(eng.assetLdr.sixty, framerate.x + framerate.width + 15, framerate.y, eng.assetLdr.sixty.getWidth()/3, eng.assetLdr.sixty.getHeight()/3 ,null);
-            }else{
-                g.drawImage(eng.assetLdr.uncapped, framerate.x + framerate.width + 15, framerate.y, eng.assetLdr.uncapped.getWidth()/3, eng.assetLdr.uncapped.getHeight()/3 ,null);
+
+            if (eng.sixty) {
+                g.drawImage(eng.assetLdr.sixty, framerate.x + framerate.width + 15, framerate.y, eng.assetLdr.sixty.getWidth() / 3, eng.assetLdr.sixty.getHeight() / 3, null);
+            } else {
+                g.drawImage(eng.assetLdr.uncapped, framerate.x + framerate.width + 15, framerate.y, eng.assetLdr.uncapped.getWidth() / 3, eng.assetLdr.uncapped.getHeight() / 3, null);
             }
-            
-            
+
             //reset
             if (contains(reset) && opty) {
                 g.drawImage(eng.assetLdr.reset2, reset.x, reset.y, reset.width, reset.height, null);

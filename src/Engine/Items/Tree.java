@@ -103,11 +103,11 @@ public class Tree extends WorldObjects {
                 closeAll(this);
                 pop = true;
                 mouseDelay = false;
-                menuBox = new Rectangle(x + (maxScaleX / 3), y - (maxScaleX / 2), 600, 200);
+                menuBox = new Rectangle(x + (maxScaleX / 3), y - (maxScaleX / 2), 450, 200);
                 collectBox = addButton(10, 40);
                 chopBox = addButton(10, 90);
             } else {
-                eng.pop("Too far away!");
+                eng.pop("Too far away!", 0);
                 mouseDelay = false;
             }
         }
@@ -268,17 +268,8 @@ public class Tree extends WorldObjects {
 
     //<editor-fold defaultstate="collapsed" desc="Random apple">
     private void randomApple() {
-        boolean apples = false;
         if (rand.nextInt(25) == 16) {
-            for (int j = 0; j < eng.mainChar.inv.inven.size(); j++) {
-                if (eng.mainChar.inv.inven.get(j).id == 4) {
-                    eng.mainChar.inv.inven.get(j).qnty += 1;
-                    apples = true;
-                }
-            }
-            if (!apples) {
-                eng.mainChar.inv.inven.add(new Item(4, 1));
-            }
+            eng.mainChar.inv.itemAdd(5, 1);
         }
     }
     //</editor-fold>
@@ -290,7 +281,8 @@ public class Tree extends WorldObjects {
         timer = 0;
         count--;
         if (count == 0) {
-            eng.mainChar.inv.itemReplace(5, -1, new Random().nextInt(2) + 1);
+            eng.mainChar.inv.itemAdd(5, new Random().nextInt(2) + 1);
+            eng.mainChar.inv.itemAdd(9, new Random().nextInt(6) + 1);
             eng.world.hubRoom.obbys.remove(this);
             eng.world.updatelist();
 
@@ -300,9 +292,10 @@ public class Tree extends WorldObjects {
 
     //<editor-fold defaultstate="collapsed" desc="chopDown">
     private void chopDown(int qnt) {
-        eng.mainChar.inv.itemReplace(0, -1, qnt);
+        eng.mainChar.inv.itemAdd(0, qnt);
         randomApple();
         eng.mainChar.inv.itemReplace(5, -1, new Random().nextInt(2) + 1);
+        eng.mainChar.inv.itemAdd(9, new Random().nextInt(6) + 1);
         eng.world.hubRoom.obbys.remove(this);
         eng.world.updatelist();
     }

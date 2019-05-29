@@ -70,7 +70,7 @@ public class WorkBench extends WorldObjects {
                 page3 = addButton(- 25, 340, 25, 150);
 
             } else {
-                eng.pop("Too far away!");
+                eng.pop("Too far away!", 0);
                 mouseDelay = false;
             }
         }
@@ -159,13 +159,13 @@ public class WorkBench extends WorldObjects {
         g.setFont(text);
         switch (page) {
             case 1:
-                craftSetup(g, 1);
+                craftSetup(g, 4);
                 break;
             case 2:
-                craftSetup(g, 1);
+                craftSetup(g, 2);
                 break;
             case 3:
-                craftSetup(g, 1);
+                craftSetup(g, 3);
                 break;
         }
         crafter.workbench(g, page);

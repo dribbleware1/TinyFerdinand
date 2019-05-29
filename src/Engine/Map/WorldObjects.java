@@ -30,6 +30,7 @@ public class WorldObjects {
 
     public Rectangle size, collis;
     public Rectangle menuBox;
+    public Rectangle snapBox;
     public Rectangle buffer = new Rectangle(0, 0, 0, 0);
     public int x, y, ID = 0, count = -1;
 
@@ -53,6 +54,8 @@ public class WorldObjects {
     public boolean mouseDelay = false;
     public boolean blocked = false;
     public boolean mouseBox = false;
+
+    protected boolean snapped = false;
 
     public Color good = new Color(0, 150, 0, 150);
     public Color bad = new Color(150, 0, 0, 150);
@@ -128,7 +131,7 @@ public class WorldObjects {
     }
     //</editor-fold>
 
-    //<editor-fold defaultstate="collapsed" desc="basicMenu Graphic g">
+    //<editor-fold defaultstate="collapsed" desc="basicMenu Graphic g int i">
     public void basicMenu(Graphics g, int i) {
         g.setFont(text);
         g.setColor(new Color(10, 10, 10, 150));
@@ -233,8 +236,10 @@ public class WorldObjects {
 
         for (int i = 0; i < eng.world.Objects.size(); i++) {
             if (collisBox().intersects(eng.world.Objects.get(i)) || buffer.intersects(eng.world.Objects.get(i))) {
-                blocked = true;
-                break;
+                if (!snapped) {
+                    blocked = true;
+                    break;
+                }
             } else if (new Rectangle(collisBox().x + eng.getXOff(), collisBox().y + eng.getYOff(), collisBox().width, collisBox().height).intersects(eng.mainChar.collbox)) {
                 blocked = true;
                 break;

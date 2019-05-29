@@ -5,13 +5,18 @@
  */
 package Engine.Engine;
 
+import java.awt.Font;
+import java.awt.FontFormatException;
 import java.awt.Graphics2D;
 import java.awt.GraphicsConfiguration;
 import java.awt.GraphicsEnvironment;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.imageio.ImageIO;
 
 /**
@@ -25,8 +30,9 @@ public class AssetLoader {
 
     //<editor-fold defaultstate="collapsed" desc="World">
     public BufferedImage Hub1, overlay;
-    //</editor-fold>
+    public List<BufferedImage> fenceParts = new ArrayList<>();
 
+    //</editor-fold>
     //<editor-fold defaultstate="collapsed" desc="Main Menu">
     public BufferedImage menuBack, title, title2, cont, cont2, opt, opt2, exit, exit2;
     //</editor-fold>
@@ -64,6 +70,14 @@ public class AssetLoader {
     public BufferedImage decoSheet, logs, emptyBucket, fullBucket;//decoration sprite sheet
     public BufferedImage terrainSheet, rocks;
     public BufferedImage apple, workBench;
+    //newest stuff
+    public BufferedImage stick, leaf, plank, paper;
+    public BufferedImage axe1, shovel1, pick1;
+    public BufferedImage sign, fence;
+    //</editor-fold>
+
+    //<editor-fold defaultstate="collapsed" desc="Fonts">
+    public Font testing;
     //</editor-fold>
 
     public BufferedImage greyBox;
@@ -83,8 +97,14 @@ public class AssetLoader {
         //<editor-fold defaultstate="collapsed" desc="World">
         overlay = toCompatibleImage(ImageIO.read(engine.getClass().getResource("/Hub/hub 2.png")));
         Hub1 = toCompatibleImage(ImageIO.read(engine.getClass().getResource("/Hub/hub - 2.png")));
-        //</editor-fold>
 
+        for (int i = 0; i < 5; i++) {
+            for (int j = 0; j < 3; j++) {
+                fenceParts.add(toCompatibleImage(crop(ImageIO.read(engine.getClass().getResource("/fenceSheet.png")), 0 + (32 * j), 0 + (32 * i), 32, 32)));
+            }
+        }
+
+        //</editor-fold>
         //<editor-fold defaultstate="collapsed" desc="Main menu">
         title = toCompatibleImage(ImageIO.read(engine.getClass().getResource("/Menu/tiny_ferdinand - l.png")));
         title2 = toCompatibleImage(ImageIO.read(engine.getClass().getResource("/Menu/TITLE - L.png")));
@@ -168,14 +188,36 @@ public class AssetLoader {
         workBench = toCompatibleImage(ImageIO.read(engine.getClass().getResource("/Items/Workbench.png")));
         terrainSheet = ImageIO.read(engine.getClass().getResource("/terrainSheet.png"));
         rocks = toCompatibleImage(crop(terrainSheet, (160), (1728), 32, 32));
+
+        //new additions being worked on
+        stick = toCompatibleImage(crop(ImageIO.read(engine.getClass().getResource("/Items/items.png")), 0, 16, 16, 16));
+        plank = toCompatibleImage(crop(ImageIO.read(engine.getClass().getResource("/Items/items.png")), 0, 32, 16, 16));
+        leaf = toCompatibleImage(crop(ImageIO.read(engine.getClass().getResource("/Items/items.png")), 16, 96, 16, 16));
+        paper = toCompatibleImage(crop(ImageIO.read(engine.getClass().getResource("/Items/items.png")), 16, 32, 16, 16));
+
+        shovel1 = toCompatibleImage(crop(ImageIO.read(engine.getClass().getResource("/Items/rpgItems.png")), 64, 48, 16, 16));
+        axe1 = toCompatibleImage(crop(ImageIO.read(engine.getClass().getResource("/Items/rpgItems.png")), 64, 80, 16, 16));
+        pick1 = toCompatibleImage(crop(ImageIO.read(engine.getClass().getResource("/Items/rpgItems.png")), 80, 48, 16, 16));
+
+        sign = toCompatibleImage(crop(decoSheet, 224, 128, 32, 32));
+        fence = toCompatibleImage(crop(ImageIO.read(engine.getClass().getResource("/fenceSheet.png")), 32, 0, 32, 32));
+
         for (int i = 0; i < 5; i++) {
             campFire.add(toCompatibleImage(crop(decoSheet, (8 + i) * 32, 47 * 32, 32, 64)));
         }
         campFire.add(toCompatibleImage(crop(decoSheet, 320, 49 * 32, 32, 32)));
         //</editor-fold>
 
-        greyBox = toCompatibleImage(ImageIO.read(engine.getClass().getResource("/grey box.png")));
+        //<editor-fold defaultstate="collapsed" desc="Fonts (to come)">
+        InputStream is = engine.getClass().getResourceAsStream("/Fonts/Useable/Unbroken.ttf");
+        try {
+            testing = Font.createFont(Font.TRUETYPE_FONT, is);
+        } catch (FontFormatException ex) {
+            Logger.getLogger(AssetLoader.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        //</editor-fold>
 
+        greyBox = toCompatibleImage(ImageIO.read(engine.getClass().getResource("/grey box.png")));
     }
 //</editor-fold>
 

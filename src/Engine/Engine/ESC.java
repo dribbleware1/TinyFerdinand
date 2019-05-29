@@ -33,6 +33,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import javax.imageio.ImageIO;
 import javax.swing.JFrame;
 //</editor-fold>
 
@@ -49,7 +50,8 @@ public class ESC implements Runnable {
     public boolean running = false;
     boolean fire;
     int tp = 0;
-
+    int poptime = 0;
+    int popcounter = 0;
     //Input input;
     public String Loc = "menu";
 
@@ -77,7 +79,7 @@ public class ESC implements Runnable {
 
     public int delay = 0;
     public boolean delaystart = false;
-    int mouseDelay = 5;
+    int mouseDelay = 1;
 
     //frame
     public JFrame frame;
@@ -120,22 +122,24 @@ public class ESC implements Runnable {
     //</editor-fold>
 
     //<editor-fold defaultstate="collapsed" desc="Main">
-    public ESC() {
+    public ESC(int w, int h) {
+        sizew = w;
+        sizeh = h;
+        assetLdr = new AssetLoader(this);
+        Window();
+        init();
     }
 
     public static void main(String[] args) {
-        System.setProperty("sun.java2d.opengl", "TRUE");
-        ESC MainEngine = new ESC();
-        assetLdr = new AssetLoader(MainEngine);
-        MainEngine.Window();
-        MainEngine.init();
+        System.setProperty("sun.java2d.opengl", "true");
+        ESC MainEngine = new ESC(1500, 800);
     }
     //</editor-fold>
 
     //<editor-fold defaultstate="collapsed" desc="CreateDisplay">
     public void Window() {
         //Name the game window       
-        frame = new JFrame("GameTime");
+        frame = new JFrame("Tiny Ferdinand");
         //Frame setup
         frame.setSize(sizew, sizeh);
         frame.setLocation(Toolkit.getDefaultToolkit().getScreenSize().width / 2 - sizew / 2, Toolkit.getDefaultToolkit().getScreenSize().height / 2 - sizeh / 2);
@@ -158,14 +162,16 @@ public class ESC implements Runnable {
     }
     //</editor-fold>
 
-    //Restart the game with the same save file currently not being used 
+    //Restart the game with the same save file 
     //<editor-fold defaultstate="collapsed" desc="Restart">
     public void restart() {
         this.frame.dispose();
-        //ESC CargoEngine = new ESC();
-        //assetLdr = new AssetLoader(CargoEngine);
-        //CargoEngine.createDisplay();
-        //CargoEngine.start();
+        ESC MainEngine = new ESC(sizew, sizeh);
+    }
+
+    public void restart(int w, int h) {
+        this.frame.dispose();
+        ESC MainEngine = new ESC(w, h);
     }
     //</editor-fold>
 
@@ -181,6 +187,12 @@ public class ESC implements Runnable {
             } else {
                 popups.get(i).update();
             }
+        }
+        if (poptime < 50) {
+            poptime++;
+        }
+        if (poptime == 15) {
+            popcounter = 0;
         }
         world.update();
         //Character update
@@ -260,7 +272,6 @@ public class ESC implements Runnable {
         if (invTimer < 16) {
             invTimer++;
         }
-
     }
     //</editor-fold>
 
@@ -390,9 +401,13 @@ public class ESC implements Runnable {
     }
     //</editor-fold>
 
-    public void pop(String text) {
-        popups.add(new scrollingText(text));
+    //<editor-fold defaultstate="collapsed" desc="pop String text int y">
+    public void pop(String text, int y) {
+        popcounter++;
+        popups.add(new scrollingText(text, y - (popcounter * 30)));
+        poptime = 0;
     }
+    //</editor-fold>
 
     //<editor-fold defaultstate="collapsed" desc="Run">
     //@Override
@@ -550,7 +565,6 @@ public class ESC implements Runnable {
                 if (!delaystart) {
                     left = true;
                     delaystart = true;
-                    //System.out.println("left press");
                 }
             } else if (mouseEvent.getButton() == MouseEvent.BUTTON3 && !screenDelay) {
                 if (!delaystart) {
@@ -607,9 +621,10 @@ public class ESC implements Runnable {
 
         Color textColor = new Color(255, 255, 255);
 
-        public scrollingText(String textin) {
+        public scrollingText(String textin, int offSet) {
             text = textin;
             x -= (text.length() / 3) * text2.getSize();
+            y = ((sizeh / 2) - 50) - offSet;
         }
 
         public void update() {

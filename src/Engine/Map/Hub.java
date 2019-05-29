@@ -334,7 +334,7 @@ public class Hub {
             if (obbys.get(i).dropped == false) {
                 //do nothing
             } else {
-                objects.add(obbys.get(i).collis);
+                objects.add(obbys.get(i).collisBox());
             }
             //updateTrees();
             objects.add(pond1);
