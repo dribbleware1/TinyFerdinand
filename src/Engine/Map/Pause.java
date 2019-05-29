@@ -28,7 +28,7 @@ public class Pause {
 
     public Pause(ESC engine) {
         eng = engine;
-        exit = new Rectangle(eng.sizew / 2 - eng.assetLdr.exitToTitle.getWidth() / 2 / scale, 1300 / scale, eng.assetLdr.exitToTitle.getWidth() / scale, eng.assetLdr.exitToTitle.getHeight() / scale);
+        exit = new Rectangle(eng.sizew / 2 - ESC.assetLdr.exitToTitle.getWidth() / 2 / scale, 1300 / scale, ESC.assetLdr.exitToTitle.getWidth() / scale, ESC.assetLdr.exitToTitle.getHeight() / scale);
     }
 
     public void update() {
