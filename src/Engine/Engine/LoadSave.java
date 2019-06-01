@@ -5,17 +5,11 @@
  */
 package Engine.Engine;
 
-import Engine.Items.CampFire;
-import Engine.Items.Fence;
-import Engine.Items.Item;
-import Engine.Items.Tree;
-import Engine.Items.WorkBench;
+import Engine.FileIO.FileUtils;
+import Engine.Items.*;
 import Engine.Map.WorldObjects;
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.io.PrintWriter;
-import java.io.UnsupportedEncodingException;
+
+import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -43,20 +37,21 @@ public class LoadSave {
     }
 
     public void init() {
-        String path = System.getProperty("user.home") + File.separator + "Documents" + File.separator + "Game" + File.separator + "Save" + File.separator + "Player";
-        String path2 = System.getProperty("user.home") + File.separator + "Documents" + File.separator + "Game" + File.separator + "Save" + File.separator + "Items";
-        File customDir = new File(path);
-        File itemDir = new File(path2);
-        File mainDir = new File(path + File.separator + "/Save.zbd");
-        File hubDir = new File(path2 + File.separator + "/Hub.zbd");
-        File hubTree = new File(path2 + File.separator + "/hubTree.zbd");
-        File invenDir = new File(path + File.separator + "/Inventory.zbd");
+        final String userHomeDirectory = System.getProperty("user.home");
+        final Path playerSavePath = FileUtils.getFilePath(userHomeDirectory, "Documents", "Game", "Save", "Player");
+        final Path playerItemsSavePath = FileUtils.getFilePath(userHomeDirectory, "Documents", "Game", "Save", "Items");
+        File customDir = playerSavePath.toFile();
+        File itemDir = playerItemsSavePath.toFile();
+        File mainDir = playerSavePath.resolve(Path.of("Save.zbd")).toFile();
+        File hubDir = playerItemsSavePath.resolve(Path.of("Hub.zbd")).toFile();
+        File hubTree = playerItemsSavePath.resolve(Path.of("hubTree.zbd")).toFile();
+        File invenDir = playerSavePath.resolve(Path.of("Inventory.zbd")).toFile();
 
 //stats saving init
         if (customDir.exists() && mainDir.isFile()) {
             System.out.println(mainDir + " already exists");
             try {
-                load(path, 0);
+                load(playerSavePath.toAbsolutePath().toString(), 0);
             } catch (IOException ex) {
                 System.out.println("Failed to load");
             }
@@ -70,7 +65,7 @@ public class LoadSave {
         if (customDir.exists() && invenDir.isFile()) {
             System.out.println(invenDir + " already exists");
             try {
-                load(path, 2);
+                load(playerSavePath.toAbsolutePath().toString(), 2);
             } catch (IOException ex) {
                 System.out.println("Failed to load");
             }
@@ -84,7 +79,7 @@ public class LoadSave {
         if (itemDir.exists() && hubDir.isFile()) {
             System.out.println(hubDir + " already exists");
             try {
-                load(path2, 1);
+                load(playerItemsSavePath.toAbsolutePath().toString(), 1);
             } catch (IOException ex) {
                 System.out.println("Failed to load");
             }
@@ -100,7 +95,7 @@ public class LoadSave {
         if (itemDir.exists() && hubTree.isFile()) {
             System.out.println(hubTree + " already exists");
             try {
-                load(path2, 3);
+                load(playerItemsSavePath.toAbsolutePath().toString(), 3);
             } catch (IOException ex) {
                 System.out.println("Failed to load");
             }
@@ -110,8 +105,8 @@ public class LoadSave {
         } else {
             System.out.println(hubTree + " save file added");
         }
-        Loc = path;
-        Loc2 = path2;
+        Loc = playerSavePath.toAbsolutePath().toString();
+        Loc2 = playerItemsSavePath.toAbsolutePath().toString();
 
     }
 
