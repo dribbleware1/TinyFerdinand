@@ -8,7 +8,7 @@ public final class FileUtils {
 
     private static final String ROOT_DIRECTORY = FileSystems.getDefault().getPath("").toAbsolutePath().toString();
 
-    public static Path getFilePath(final String ... names) {
+    public static Path getFilePathFromRoot(final String ... names) {
         return Paths.get(ROOT_DIRECTORY, names);
     }
 
