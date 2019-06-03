@@ -42,10 +42,16 @@ public class LoadSave {
         final Path playerItemsSavePath = FileUtils.getFilePath(userHomeDirectory, "Documents", "Game", "Save", "Items");
         File customDir = playerSavePath.toFile();
         File itemDir = playerItemsSavePath.toFile();
-        File mainDir = playerSavePath.resolve(Path.of("Save.zbd")).toFile();
-        File hubDir = playerItemsSavePath.resolve(Path.of("Hub.zbd")).toFile();
-        File hubTree = playerItemsSavePath.resolve(Path.of("hubTree.zbd")).toFile();
-        File invenDir = playerSavePath.resolve(Path.of("Inventory.zbd")).toFile();
+
+//        File mainDir = playerSavePath.resolve(Path.of("Save.zbd")).toFile();
+//        File hubDir = playerItemsSavePath.resolve(Path.of("Hub.zbd")).toFile();
+//        File hubTree = playerItemsSavePath.resolve(Path.of("hubTree.zbd")).toFile();
+//        File invenDir = playerSavePath.resolve(Path.of("Inventory.zbd")).toFile();
+
+        File mainDir = FileUtils.getFilePath(playerSavePath.toString(), "Save.zbd").toFile();
+        File hubDir = FileUtils.getFilePath(playerItemsSavePath.toString(), "Hub.zbd").toFile();
+        File hubTree = FileUtils.getFilePath(playerItemsSavePath.toString(), "hubTree.zbd").toFile();
+        File invenDir = FileUtils.getFilePath(playerSavePath.toString(), "Inventory.zbd").toFile();
 
 //stats saving init
         if (customDir.exists() && mainDir.isFile()) {
