@@ -46,6 +46,7 @@ public class Item {
     public Item(int idi, int q) {
         id = idi;
         qnty = q;
+        artBuild();
     }
 
     public void toolTips(Graphics g, ESC engine) {

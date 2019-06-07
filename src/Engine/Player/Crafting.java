@@ -6,6 +6,7 @@
 package Engine.Player;
 
 import Engine.Engine.ESC;
+import Engine.FileIO.FileUtils;
 import Engine.Items.CampFire;
 import Engine.Items.Fence;
 import Engine.Items.Item;
@@ -18,16 +19,22 @@ import java.awt.MouseInfo;
 import java.awt.Point;
 import java.awt.Rectangle;
 import java.awt.image.BufferedImage;
+import java.io.BufferedReader;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Random;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  *
- * @author DribbleWare
+ * @author DribbleWare shortened by 54 lines
  */
-
 public class Crafting {
 
     //<editor-fold defaultstate="collapsed" desc="declarations">
@@ -36,27 +43,14 @@ public class Crafting {
     boolean mouseDelay = true;
     int del = 0, maxDel = 15;
 
-    private List<Item> Bucket = new ArrayList<>();
-    private List<Item> Fire = new ArrayList<>();
-    private List<Item> Bench = new ArrayList<>();
-    private List<Item> Tree = new ArrayList<>();
-    private List<Item> Stick = new ArrayList<>();
-    private List<Item> Paper = new ArrayList<>();
-    private List<Item> Plank = new ArrayList<>();
-    private List<Item> Leaf = new ArrayList<>();
-
-    private List<Item> Axe1 = new ArrayList<>();
-    private List<Item> Shovel1 = new ArrayList<>();
-    private List<Item> Pick1 = new ArrayList<>();
-
-    private List<Item> Sign = new ArrayList<>();
-    private List<Item> Fence = new ArrayList<>();
-
-    private List<Item> FenceParts = new ArrayList<>();
+    HashMap<Integer, CraftObject[]> Recipies = new HashMap<Integer, CraftObject[]>();
+    HashMap<Integer, CraftObject[]> BenchRecipies = new HashMap<Integer, CraftObject[]>();
 
     private List<Rectangle> Crafts = new ArrayList<>();
 
     private int fontSize = 20;
+
+    int[] index = {0, 2, 3, 5};
     //</editor-fold>
 
     //<editor-fold defaultstate="collapsed" desc="constructor">
@@ -91,244 +85,125 @@ public class Crafting {
 
     //<editor-fold defaultstate="collapsed" desc="Workbench Graphics g int page">
     public void workbench(Graphics g, int page) {
-        switch (page) {
-            case 1: //tools
-                craftBox(0, eng.assetLdr.emptyBucket, Bucket, 2, g);
-                craftBox(1, eng.assetLdr.axe1, Axe1, 10, g, 1);
-                craftBox(2, eng.assetLdr.shovel1, Shovel1, 11, g, 1);
-                craftBox(3, eng.assetLdr.pick1, Pick1, 12, g, 1);
-                break;
-            case 2: //objects
-                craftBox(0, eng.assetLdr.sign, Sign, 13, g);
-                craftBox(1, eng.assetLdr.fence, Fence, 14, g);
-                //fence
-                break;
-            case 3: //resources
-                craftBox(0, eng.assetLdr.stick, Stick, 6, g);
-                craftBox(1, eng.assetLdr.paper, Paper, 7, g);
-                craftBox(2, eng.assetLdr.plank, Plank, 8, g);
-//                craftBox(3, eng.assetLdr.leaf, Leaf, 9, g);
-                break;
-        }
-    }
-    //</editor-fold>
 
-    //<editor-fold defaultstate="collapsed" desc="logCraft Graphics g">
-    public void logCraft(Graphics g) {
-        craftBox(0, eng.assetLdr.campFire.get(eng.assetLdr.campFire.size() - 1), Fire, g, "Campfire");
-        craftBox(1, eng.assetLdr.workBench, Bench, g, "Bench");
-    }
-    //</editor-fold>
-
-    //<editor-fold defaultstate="collapsed" desc="Sapling Craft Graphics g">
-    public void saplingCraft(Graphics g) {
-        craftBox(0, eng.assetLdr.sapling, Tree, g, "Tree");
-    }
-    //</editor-fold>
-
-    //<editor-fold defaultstate="collapsed" desc="fenceCraft Graphics g">
-    public void fenceCraft(Graphics g) {
-        for (int i = 0; i < eng.assetLdr.fenceParts.size(); i++) {
-            craftBox(i, eng.assetLdr.fenceParts.get(i), FenceParts, g, "Fences");
-        }
-    }
-    //</editor-fold>
-
-    //<editor-fold defaultstate="collapsed" desc="craftBox int number, image, cost, int newId, graphics">
-    public void craftBox(int number, BufferedImage image, List<Item> cost, int newId, Graphics g) {
-        boolean after = false;
-        boolean qty = true;
-        int lineOff = fontSize + 10;
-        List<Integer> craftSlots = new ArrayList<>();
-        int newIDSlot = -1;
-
-//        g.setFont(eng.assetLdr.testing.deriveFont((float) fontSize));
-        for (int i = 0; i < cost.size(); i++) {
-            for (int j = 0; j < inv.inven.size(); j++) {
-                if (inv.inven.get(j).id == cost.get(i).id) {
-                    craftSlots.add(j);
-                }
-                if (newId == inv.inven.get(j).id) {
-                    newIDSlot = j;
-                }
+        if (BenchRecipies.get(page) != null) {
+            for (int i = 0; i < BenchRecipies.get(page).length; i++) {
+                craftBox(i, BenchRecipies.get(page)[i], g);
             }
         }
-        for (int i = 0; i < craftSlots.size(); i++) {
-            if (inv.inven.get(craftSlots.get(i)).qnty < cost.get(i).qnty) {
-                qty = false;
+    }
+    //</editor-fold>
+
+    //<editor-fold defaultstate="collapsed" desc="Inventory int id, Graphic g">
+    public void Inventory(int id, Graphics g) {
+        int a = 0;
+        if (Recipies.get(id) != null) {
+            inv.craftSetup(g, Recipies.get(id).length);
+            for (int i = 0; i < Recipies.get(id).length; i++) {
+                craftBox(i, Recipies.get(id)[i], g);
             }
-        }
-        if (contains(Crafts.get(number))) {
-            if (qty && craftSlots.size() == cost.size()) {
-                g.setColor(new Color(255, 255, 255, 100));
-                if (eng.left && mouseDelay) {
-                    inv.itemAdd(newId, 1);
-                    for (int i = 0; i < craftSlots.size(); i++) {
-                        inv.itemRemove(cost.get(i).id, cost.get(i).qnty);
-                    }
-                    mouseDelay = false;
-                }
-            } else {
-                after = true;
-            }
-
-        } else {
-            g.setColor(new Color(100, 100, 100, 150));
-        }
-
-        if (!after) {
-            g.fillRect(Crafts.get(number).x, Crafts.get(number).y, Crafts.get(number).width, Crafts.get(number).height);
-        }
-        g.setColor(Color.white);
-        g.drawRect(Crafts.get(number).x, Crafts.get(number).y, Crafts.get(number).width, Crafts.get(number).height);
-
-        g.drawImage(image, Crafts.get(number).x + 5, Crafts.get(number).y + 5, Crafts.get(number).height - 10, Crafts.get(number).height - 10, null);
-
-        g.drawString(cost.get(0).NAMES[newId], Crafts.get(number).x + Crafts.get(number).height + 5, Crafts.get(number).y + lineOff);
-
-        for (int i = 0; i < cost.size(); i++) {
-            g.drawString("Cost: " + cost.get(i).NAMES[cost.get(i).id] + " " + cost.get(i).qnty, Crafts.get(number).x + Crafts.get(number).height + 5, Crafts.get(number).y + lineOff + lineOff * (i + 1));
-        }
-
-        if (after) {
-            g.setColor(new Color(255, 0, 0, 150));
-            g.fillRect(Crafts.get(number).x + 2, Crafts.get(number).y + 2, Crafts.get(number).width - 3, Crafts.get(number).height - 3);
         }
     }
-//</editor-fold>
+    //</editor-fold>
 
-    //<editor-fold defaultstate="collapsed" desc="craftBox int number, image, cost, int newId, graphics in maxCount">
-    public void craftBox(int number, BufferedImage image, List<Item> cost, int newId, Graphics g, int maxCount) {
+    //<editor-fold defaultstate="collapsed" desc="craftBox int number, CraftObject item, graphics">
+    public void craftBox(int number, CraftObject item, Graphics g) {
         boolean after = false;
         boolean qty = true;
         boolean maxxed = false;
         int lineOff = fontSize + 10;
         List<Integer> craftSlots = new ArrayList<>();
-        int newIDSlot = -1;
 
 //        g.setFont(eng.assetLdr.testing.deriveFont((float) fontSize));
-        for (int i = 0; i < inv.inven.size(); i++) {
-            if (inv.inven.get(i).id == newId) {
-                if (inv.inven.get(i).qnty >= maxCount) {
-                    maxxed = true;
-                }
-            }
-        }
-
-        for (int i = 0; i < cost.size(); i++) {
+        for (int i = 0; i < item.cost.size(); i++) {
             for (int j = 0; j < inv.inven.size(); j++) {
-                if (inv.inven.get(j).id == cost.get(i).id) {
+                if (inv.inven.get(j).id == item.cost.get(i).id) {
                     craftSlots.add(j);
                 }
-                if (newId == inv.inven.get(j).id) {
-                    newIDSlot = j;
+                if (item.hasMax) {
+                    if (inv.inven.get(j).qnty >= item.maxCount) {
+                        maxxed = true;
+                    }
                 }
             }
         }
         for (int i = 0; i < craftSlots.size(); i++) {
-            if (inv.inven.get(craftSlots.get(i)).qnty < cost.get(i).qnty) {
+            if (inv.inven.get(craftSlots.get(i)).qnty < item.cost.get(i).qnty) {
                 qty = false;
             }
         }
-        if (contains(Crafts.get(number))) {
-            if (qty && craftSlots.size() == cost.size() && !maxxed) {
-                g.setColor(new Color(255, 255, 255, 100));
-                if (eng.left && mouseDelay) {
-                    inv.itemAdd(newId, 1);
-                    for (int i = 0; i < craftSlots.size(); i++) {
-                        inv.itemRemove(cost.get(i).id, cost.get(i).qnty);
-                    }
-                    mouseDelay = false;
-                }
-            } else {
-                after = true;
-                if (eng.left && mouseDelay) {
-                    eng.pop("Already have one", 0);
-                    mouseDelay = false;
-                }
-            }
-
-        } else {
-            g.setColor(new Color(100, 100, 100, 150));
-        }
-
-        if (!after) {
-            g.fillRect(Crafts.get(number).x, Crafts.get(number).y, Crafts.get(number).width, Crafts.get(number).height);
-        }
-        g.setColor(Color.white);
-        g.drawRect(Crafts.get(number).x, Crafts.get(number).y, Crafts.get(number).width, Crafts.get(number).height);
-
-        g.drawImage(image, Crafts.get(number).x + 5, Crafts.get(number).y + 5, Crafts.get(number).height - 10, Crafts.get(number).height - 10, null);
-
-        g.drawString(cost.get(0).NAMES[newId], Crafts.get(number).x + Crafts.get(number).height + 5, Crafts.get(number).y + lineOff);
-
-        for (int i = 0; i < cost.size(); i++) {
-            g.drawString("Cost: " + cost.get(i).NAMES[cost.get(i).id] + " " + cost.get(i).qnty, Crafts.get(number).x + Crafts.get(number).height + 5, Crafts.get(number).y + lineOff + lineOff * (i + 1));
-        }
-
-        if (after) {
-            g.setColor(new Color(255, 0, 0, 150));
-            g.fillRect(Crafts.get(number).x + 2, Crafts.get(number).y + 2, Crafts.get(number).width - 3, Crafts.get(number).height - 3);
-        }
-    }
-//</editor-fold>
-
-    //<editor-fold defaultstate="collapsed" desc="craftBox int number, image, cost, int newId, graphics, specialMod">
-    public void craftBox(int number, BufferedImage image, List<Item> cost, Graphics g, String specialMod) {
-        boolean after = false;
-        boolean qty = true;
-        int lineOff = fontSize + 10;
-        List<Integer> craftSlots = new ArrayList<>();
-
-//        g.setFont(eng.assetLdr.testing.deriveFont((float) fontSize));
-        for (int i = 0; i < cost.size(); i++) {
-            for (int j = 0; j < inv.inven.size(); j++) {
-                if (inv.inven.get(j).id == cost.get(i).id) {
-                    craftSlots.add(j);
-                }
-            }
-        }
-        for (int i = 0; i < craftSlots.size(); i++) {
-            if (inv.inven.get(craftSlots.get(i)).qnty < cost.get(i).qnty) {
-                qty = false;
-            }
+        if (craftSlots.size() < item.cost.size()) {
+            qty = false;
         }
         if (contains(Crafts.get(number))) {
-            if (qty) {
+            if (qty && !maxxed) {
                 g.setColor(new Color(255, 255, 255, 100));
                 if (eng.left && mouseDelay) {
-                    switch (specialMod) {
-                        case "Campfire":
-                            eng.world.hubRoom.obbys.add(new CampFire((int) eng.mainChar.x - eng.getXOff(), (int) eng.mainChar.y - eng.getYOff(), 5, eng));
-                            inv.r.mouseMove((int) (eng.mainChar.x) + eng.getFrameX(), (int) (eng.mainChar.y) + eng.getFrameY());
-                            eng.left = false;
-                            eng.inventory = false;
-                            break;
-                        case "Bench":
-                            eng.world.hubRoom.obbys.add(new WorkBench((int) eng.mainChar.x - eng.getXOff(), (int) eng.mainChar.y - eng.getYOff(), eng));
-                            inv.r.mouseMove((int) (eng.mainChar.x) + eng.getFrameX(), (int) (eng.mainChar.y) + eng.getFrameY());
-                            eng.left = false;
-                            eng.inventory = false;
-                            break;
-                        case "Tree":
-                            if (new Random().nextInt(20) == 7) {
-                                eng.world.hubRoom.obbys.add(new Tree(eng, (int) eng.mainChar.x - eng.getXOff(), (int) eng.mainChar.y - eng.getYOff(), 1));
-                            } else {
-                                eng.world.hubRoom.obbys.add(new Tree(eng, (int) eng.mainChar.x - eng.getXOff(), (int) eng.mainChar.y - eng.getYOff(), 0));
-                            }
-                            inv.r.mouseMove((int) (eng.mainChar.x) + eng.getFrameX(), (int) (eng.mainChar.y) + eng.getFrameY());
-                            eng.left = false;
-                            eng.inventory = false;
-                            break;
-                        case "Fences":
-                            eng.world.hubRoom.obbys.add(new Fence((int) eng.mainChar.x - eng.getXOff(), (int) eng.mainChar.y - eng.getYOff(), number, eng));
-                            inv.r.mouseMove((int) (eng.mainChar.x) + eng.getFrameX(), (int) (eng.mainChar.y) + eng.getFrameY());
-                            eng.left = false;
-                            eng.inventory = false;
-                            break;
+                    if (item.hasSpecial) {
+                        switch (item.specialMod) {
+                            case "Campfire":
+                                CampFire placeHolderFire = new CampFire((int) eng.mainChar.x - eng.getXOff(), (int) eng.mainChar.y - eng.getYOff(), 5, eng);
+                                placeHolderFire.costs = item.cost;
+                                eng.world.hubRoom.obbys.add(placeHolderFire);
+                                inv.r.mouseMove((int) (eng.mainChar.x) + eng.getFrameX(), (int) (eng.mainChar.y) + eng.getFrameY());
+                                eng.left = false;
+                                eng.inventory = false;
+                                break;
+                            case "Bench":
+                                WorkBench placeHolderBench = new WorkBench((int) eng.mainChar.x - eng.getXOff(), (int) eng.mainChar.y - eng.getYOff(), eng);
+                                placeHolderBench.costs = item.cost;
+                                eng.world.hubRoom.obbys.add(placeHolderBench);
+                                inv.r.mouseMove((int) (eng.mainChar.x) + eng.getFrameX(), (int) (eng.mainChar.y) + eng.getFrameY());
+                                eng.left = false;
+                                eng.inventory = false;
+                                break;
+                            case "Tree":
+                                Tree placeHolderTree;
+                                if (new Random().nextInt(20) == 7) {
+                                    placeHolderTree = new Tree(eng, (int) eng.mainChar.x - eng.getXOff(), (int) eng.mainChar.y - eng.getYOff(), 1);
+                                } else {
+                                    placeHolderTree = new Tree(eng, (int) eng.mainChar.x - eng.getXOff(), (int) eng.mainChar.y - eng.getYOff(), 0);
+                                }
+                                placeHolderTree.costs = item.cost;
+                                eng.world.hubRoom.obbys.add(placeHolderTree);
+                                inv.r.mouseMove((int) (eng.mainChar.x) + eng.getFrameX(), (int) (eng.mainChar.y) + eng.getFrameY());
+                                eng.left = false;
+                                eng.inventory = false;
+                                break;
+                            case "Fence":
+                                Fence placeHolderFence = new Fence((int) eng.mainChar.x - eng.getXOff(), (int) eng.mainChar.y - eng.getYOff(), number, eng, true);
+                                placeHolderFence.costs = item.cost;
+                                eng.world.hubRoom.obbys.add(placeHolderFence);
+                                inv.r.mouseMove((int) (eng.mainChar.x) + eng.getFrameX(), (int) (eng.mainChar.y) + eng.getFrameY());
+                                eng.left = false;
+                                eng.inventory = false;
+                                break;
+                            case "Static-Fence":
+                                int fence = 0;
+                                switch (number) {
+                                    case 2:
+                                        fence = 2;
+                                        break;
+                                    case 3:
+                                        fence = 3;
+                                        break;
+                                    case 4:
+                                        fence = 5;
+                                        break;
+                                }
+                                Fence placeHolderStaticFence = new Fence((int) eng.mainChar.x - eng.getXOff(), (int) eng.mainChar.y - eng.getYOff(), fence, eng, false);
+                                placeHolderStaticFence.costs = item.cost;
+                                eng.world.hubRoom.obbys.add(placeHolderStaticFence);
+                                inv.r.mouseMove((int) (eng.mainChar.x) + eng.getFrameX(), (int) (eng.mainChar.y) + eng.getFrameY());
+                                eng.left = false;
+                                eng.inventory = false;
+                                break;
+                        }
+                    } else {
+                        inv.itemAdd(item.newId, 1);
                     }
                     for (int i = 0; i < craftSlots.size(); i++) {
-                        inv.itemRemove(cost.get(i).id, cost.get(i).qnty);
+                        inv.itemRemove(item.cost.get(i).id, item.cost.get(i).qnty);
                     }
 
                     mouseDelay = false;
@@ -347,12 +222,16 @@ public class Crafting {
         g.setColor(Color.white);
         g.drawRect(Crafts.get(number).x, Crafts.get(number).y, Crafts.get(number).width, Crafts.get(number).height);
 
-        g.drawImage(image, Crafts.get(number).x + 5, Crafts.get(number).y + 5, Crafts.get(number).height - 10, Crafts.get(number).height - 10, null);
+        g.drawImage(item.image, Crafts.get(number).x + 5, Crafts.get(number).y + 5, Crafts.get(number).height - 10, Crafts.get(number).height - 10, null);
 
-        g.drawString(specialMod, Crafts.get(number).x + Crafts.get(number).height + 5, Crafts.get(number).y + lineOff);
+        if (item.hasSpecial) {
+            g.drawString(item.specialMod, Crafts.get(number).x + Crafts.get(number).height + 5, Crafts.get(number).y + lineOff);
+        } else {
+            g.drawString(item.cost.get(0).NAMES[item.newId], Crafts.get(number).x + Crafts.get(number).height + 5, Crafts.get(number).y + lineOff);
+        }
 
-        for (int i = 0; i < cost.size(); i++) {
-            g.drawString("Cost: " + cost.get(i).NAMES[cost.get(i).id] + " " + cost.get(i).qnty, Crafts.get(number).x + Crafts.get(number).height + 5, Crafts.get(number).y + lineOff + lineOff * (i + 1));
+        for (int i = 0; i < item.cost.size(); i++) {
+            g.drawString("Cost: " + item.cost.get(i).NAMES[item.cost.get(i).id] + " " + item.cost.get(i).qnty, Crafts.get(number).x + Crafts.get(number).height + 5, Crafts.get(number).y + lineOff + lineOff * (i + 1));
         }
 
         if (after) {
@@ -364,43 +243,63 @@ public class Crafting {
 
     //<editor-fold defaultstate="collapsed" desc="craftInit">
     public void craftInit() { //should make a file to load these all in 
+        List<CraftObject> objectList = new ArrayList<>(50);
+        String line;
+        try {
+            BufferedReader reader = new BufferedReader(new FileReader(FileUtils.getFilePathFromRoot("Res", "Crafting", "Crafts.zbd").toFile()));
+            line = reader.readLine();
+            while (line != null) {
+                String[] blocks = line.split("//");
+                for (int j = 0; j < blocks.length; j++) {
+                    String[] buff = blocks[j].split(" ");
+                    CraftObject holder = new CraftObject(eng.assetLdr.crafting.get(buff[0]), Integer.parseInt(buff[1]), Integer.parseInt(buff[2]), buff[3], new Item(Integer.parseInt(buff[4]), Integer.parseInt(buff[5])));
 
-        Item[] bucketList = {new Item(0, 3)};
-        Item[] fireList = {new Item(0, 7)};
-        Item[] benchList = {new Item(0, 15)};
-        Item[] treeList = {new Item(5, 1)};
-        Item[] stickList = {new Item(0, 1)};
+                    if (buff.length > 7) {
+                        for (int k = 6; k < buff.length - 1; k += 2) {
+                            holder.addCost(new Item(Integer.parseInt(buff[k]), Integer.parseInt(buff[k + 1])));
+                        }
+                    }
+                    objectList.add(j, holder);
+                }
+                String[] endTag = line.split("ID");
+                Recipies.put(Integer.parseInt(endTag[1]), objectList.toArray(new CraftObject[objectList.size()]));
+                objectList.clear();
+                line = reader.readLine();
+            }
+            reader.close();
+        } catch (FileNotFoundException ex) {
+            System.out.println("File not found");
+        } catch (IOException ex) {
+            System.out.println("Reader Crashed");
+        }
 
-        Item[] paperList = {new Item(0, 1)};
-        Item[] plankList = {new Item(0, 2)};
-        Item[] leafList = {new Item(0, 1)};
-
-        Item[] axe1List = {new Item(6, 2), new Item(1, 5)};
-        Item[] shovel1List = {new Item(6, 2), new Item(1, 3)};
-        Item[] pick1List = {new Item(6, 2), new Item(1, 5)};
-
-        Item[] signList = {new Item(6, 2), new Item(8, 4)};
-        Item[] fenceList = {new Item(0, 2), new Item(6, 4)};
-
-        Item[] fencePartsList = {new Item(14, 1)};
-
-        Bucket.addAll(Arrays.asList(bucketList));
-        Fire.addAll(Arrays.asList(fireList));
-        Bench.addAll(Arrays.asList(benchList));
-        Tree.addAll(Arrays.asList(treeList));
-        Stick.addAll(Arrays.asList(stickList));
-        Paper.addAll(Arrays.asList(paperList));
-        Plank.addAll(Arrays.asList(plankList));
-        Leaf.addAll(Arrays.asList(leafList));
-
-        Axe1.addAll(Arrays.asList(axe1List));
-        Shovel1.addAll(Arrays.asList(shovel1List));
-        Pick1.addAll(Arrays.asList(pick1List));
-
-        Sign.addAll(Arrays.asList(signList));
-        Fence.addAll(Arrays.asList(fenceList));
-        FenceParts.addAll(Arrays.asList(fencePartsList));
-
+        objectList.clear();
+        try {
+            BufferedReader reader = new BufferedReader(new FileReader(FileUtils.getFilePathFromRoot("Res", "Crafting", "BenchCrafts.zbd").toFile()));
+            line = reader.readLine();
+            while (line != null) {
+                String[] blocks = line.split("//");
+                for (int j = 0; j < blocks.length; j++) {
+                    String[] buff = blocks[j].split(" ");
+                    CraftObject holder = new CraftObject(eng.assetLdr.crafting.get(buff[0]), Integer.parseInt(buff[1]), Integer.parseInt(buff[2]), buff[3], new Item(Integer.parseInt(buff[4]), Integer.parseInt(buff[5])));
+                    if (buff.length > 7) {
+                        for (int k = 6; k < buff.length - 1; k += 2) {
+                            holder.addCost(new Item(Integer.parseInt(buff[k]), Integer.parseInt(buff[k + 1])));
+                        }
+                    }
+                    objectList.add(holder);
+                }
+                String[] endTag = line.split("ID");
+                BenchRecipies.put(Integer.parseInt(endTag[1]), objectList.toArray(new CraftObject[objectList.size()]));
+                objectList.clear();
+                line = reader.readLine();
+            }
+            reader.close();
+        } catch (FileNotFoundException ex) {
+            System.out.println("File not found");
+        } catch (IOException ex) {
+            System.out.println("Reader Crashed");
+        }
     }
     //</editor-fold>
 
@@ -415,4 +314,70 @@ public class Crafting {
     }
     //</editor-fold>
 
+}
+
+class CraftObject {
+//<editor-fold defaultstate="collapsed" desc="CraftObject class">
+
+    BufferedImage image;
+    int newId;
+    List<Item> cost;
+
+    int maxCount;
+    String specialMod;
+
+    boolean hasMax = false, hasSpecial = false;
+
+    public CraftObject(BufferedImage img, int ID, int max, String special, Item... costs) {
+        image = img;
+        cost = new ArrayList<Item>(Arrays.asList(costs));
+
+        if (!special.equalsIgnoreCase("null")) {
+            specialMod = special;
+            hasSpecial = true;
+        } else {
+            newId = ID;
+        }
+        if (max != -1) {
+            maxCount = max;
+            hasMax = true;
+        }
+
+    }
+
+    public CraftObject(BufferedImage img, int ID, Item... costs) {
+        image = img;
+        newId = ID;
+        cost = Arrays.asList(costs);
+    }
+
+    public CraftObject(BufferedImage img, int ID, int max, Item... costs) {
+        image = img;
+        newId = ID;
+        cost = Arrays.asList(costs);
+
+        maxCount = max;
+        hasMax = true;
+    }
+
+    public CraftObject(BufferedImage img, String special, Item... costs) {
+        image = img;
+        cost = Arrays.asList(costs);
+
+        specialMod = special;
+        hasSpecial = true;
+    }
+
+    public boolean hasMax() {
+        return hasMax;
+    }
+
+    public boolean hasSpecial() {
+        return hasSpecial;
+    }
+
+    public void addCost(Item item) {
+        cost.add(item);
+    }
+    //</editor-fold>
 }

@@ -47,7 +47,6 @@ public class LoadSave {
 //        File hubDir = playerItemsSavePath.resolve(Path.of("Hub.zbd")).toFile();
 //        File hubTree = playerItemsSavePath.resolve(Path.of("hubTree.zbd")).toFile();
 //        File invenDir = playerSavePath.resolve(Path.of("Inventory.zbd")).toFile();
-
         File mainDir = FileUtils.getFilePath(playerSavePath.toString(), "Save.zbd").toFile();
         File hubDir = FileUtils.getFilePath(playerItemsSavePath.toString(), "Hub.zbd").toFile();
         File hubTree = FileUtils.getFilePath(playerItemsSavePath.toString(), "hubTree.zbd").toFile();
@@ -234,6 +233,7 @@ public class LoadSave {
             int fX = 0, fY = 0, fT = 0; //fires
             int bX = 0, bY = 0; //workbenches
             int feX = 0, feY = 0, feId; //fences
+            boolean feC = true;
             String section = "BLANK", hold;
             Scanner scanner = new Scanner(new File(path + "/hubTree.zbd"));
             while (scanner.hasNext()) {
@@ -307,7 +307,8 @@ public class LoadSave {
                         feX = Integer.parseInt(temp[0]);
                         feY = Integer.parseInt(temp[1]);
                         feId = Integer.parseInt(temp[2]);
-                        Fence placeHolder = new Fence(feX, feY, feId, engine);
+                        feC = Boolean.parseBoolean(temp[3]);
+                        Fence placeHolder = new Fence(feX, feY, feId, engine, feC);
                         engine.world.hubRoom.obbys.add(placeHolder);
                         placeHolder.dropped = true;
                         placeHolder.first = false;
@@ -410,7 +411,7 @@ public class LoadSave {
                             first = false;
                         }
                         if (obbys.get(i) instanceof Fence) {
-                            writer.println(obbys.get(i).x + " " + obbys.get(i).y + " " + obbys.get(i).ID);
+                            writer.println(obbys.get(i).x + " " + obbys.get(i).y + " " + obbys.get(i).ID + " " + obbys.get(i).changeable);
                         }
                         break;
 

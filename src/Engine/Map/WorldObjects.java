@@ -6,6 +6,7 @@
 package Engine.Map;
 
 import Engine.Engine.ESC;
+import Engine.Items.Item;
 import java.awt.BasicStroke;
 import java.awt.Color;
 import java.awt.Font;
@@ -55,6 +56,9 @@ public class WorldObjects {
     public boolean blocked = false;
     public boolean mouseBox = false;
 
+    public boolean left = false, right = false, up = false, down = false, changeable = true;
+    public boolean cl = true, cr = true, cu = true, cd = true;
+
     protected boolean snapped = false;
 
     public Color good = new Color(0, 150, 0, 150);
@@ -63,6 +67,8 @@ public class WorldObjects {
     public ESC eng;
 
     public Ellipse2D light = new Ellipse2D.Double(0, 0, 0, 0);
+
+    public List<Item> costs = new ArrayList<>();
 
     public Font text = new Font("Courier", Font.BOLD + Font.ITALIC, 25), text2 = new Font("Helvetica", Font.BOLD, 32), text3 = new Font("Courier", Font.BOLD, 15), text4 = new Font("Courier", Font.BOLD, 20);
 //</editor-fold>
@@ -256,6 +262,13 @@ public class WorldObjects {
             eng.world.updatelist();
 
         }
+
+        if (eng.right) {
+            eng.world.hubRoom.obbys.remove(this);
+            for (int i = 0; i < costs.size(); i++) {
+                eng.mainChar.inv.itemAdd(costs.get(i).id, costs.get(i).qnty);
+            }
+        }
     }
     //</editor-fold>
 
@@ -292,5 +305,9 @@ public class WorldObjects {
         }
     }
 //</editor-fold>
+
+    public void part() {
+
+    }
 
 }

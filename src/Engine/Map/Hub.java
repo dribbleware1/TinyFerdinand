@@ -7,6 +7,7 @@ package Engine.Map;
 
 import Engine.Engine.ESC;
 import Engine.Items.CampFire;
+import Engine.Items.Fence;
 import Engine.Items.Tree;
 import Engine.Items.Item;
 import Engine.Items.WorkBench;
@@ -166,7 +167,7 @@ public class Hub {
         WorldObjects holder;
         if (obbys.size() >= 2) {
             for (int i = 1; i < obbys.size(); i++) {
-                if (obbys.get(i).y < obbys.get(i - 1).y) {
+                if (obbys.get(i).collis.y < obbys.get(i - 1).collis.y) {
                     holder = obbys.get(i);
                     obbys.set(i, obbys.get(i - 1));
                     obbys.set(i - 1, holder);

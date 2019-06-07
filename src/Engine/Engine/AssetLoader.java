@@ -14,6 +14,7 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -26,12 +27,13 @@ public class AssetLoader {
 
     //<editor-fold defaultstate="collapsed" desc="Declarations">
     private final int width = 64, height = 64;//sprite sheet setup
+    public HashMap<String, BufferedImage> crafting = new HashMap<String, BufferedImage>();
 
     //<editor-fold defaultstate="collapsed" desc="World">
     public BufferedImage Hub1, overlay;
     public List<BufferedImage> fenceParts = new ArrayList<>();
-
     //</editor-fold>
+
     //<editor-fold defaultstate="collapsed" desc="Main Menu">
     public BufferedImage menuBack, title, title2, cont, cont2, opt, opt2, exit, exit2;
     //</editor-fold>
@@ -102,8 +104,9 @@ public class AssetLoader {
                 fenceParts.add(toCompatibleImage(crop(ImageIO.read(FileUtils.getFilePathFromRoot("Res", "fenceSheet.png").toFile()), 0 + (32 * j), 0 + (32 * i), 32, 32)));
             }
         }
-
+        fenceParts.add(toCompatibleImage(ImageIO.read(FileUtils.getFilePathFromRoot("Res", "FencePost.png").toFile())));
         //</editor-fold>
+
         //<editor-fold defaultstate="collapsed" desc="Main menu">
         title = toCompatibleImage(ImageIO.read(FileUtils.getFilePathFromRoot("Res", "UX", "Menu", "tiny_ferdinand - l.png").toFile()));
         title2 = toCompatibleImage(ImageIO.read(FileUtils.getFilePathFromRoot("Res", "UX", "Menu", "TITLE - L.png").toFile()));
@@ -129,7 +132,7 @@ public class AssetLoader {
         uncapped = toCompatibleImage(ImageIO.read(FileUtils.getFilePathFromRoot("Res", "UX", "Menu", "uncapped.png").toFile()));
         reset = toCompatibleImage(ImageIO.read(FileUtils.getFilePathFromRoot("Res", "UX", "Menu", "reset.png").toFile()));
         reset2 = toCompatibleImage(ImageIO.read(FileUtils.getFilePathFromRoot("Res", "UX", "Menu", "reset - l.png").toFile()));
-        framerate2 = toCompatibleImage(ImageIO.read(FileUtils.getFilePathFromRoot("Res", "UX", "Menu","framerate - l.png").toFile()));
+        framerate2 = toCompatibleImage(ImageIO.read(FileUtils.getFilePathFromRoot("Res", "UX", "Menu", "framerate - l.png").toFile()));
         //</editor-fold>
 
         //<editor-fold defaultstate="collapsed" desc="Pause menu">
@@ -209,6 +212,25 @@ public class AssetLoader {
             campFire.add(toCompatibleImage(crop(decoSheet, (8 + i) * 32, 47 * 32, 32, 64)));
         }
         campFire.add(toCompatibleImage(crop(decoSheet, 320, 49 * 32, 32, 32)));
+        //</editor-fold>
+
+        //<editor-fold defaultstate="collapsed" desc="Crafting map builder">
+        crafting.put("Campfire", campFire.get(campFire.size() - 1));
+        crafting.put("Bucket", emptyBucket);
+        crafting.put("Tree", sapling);
+        crafting.put("Bench", workBench);
+        crafting.put("Axe1", axe1);
+        crafting.put("Shovel1", shovel1);
+        crafting.put("Pick1", pick1);
+        crafting.put("Paper", paper);
+        crafting.put("Stick", stick);
+        crafting.put("Plank", plank);
+        crafting.put("Fence", fenceParts.get(15));
+        crafting.put("Fence0", fenceParts.get(0));
+        crafting.put("Fence2", fenceParts.get(2));
+        crafting.put("Fence3", fenceParts.get(3));
+        crafting.put("Fence5", fenceParts.get(5));
+        crafting.put("Sign", sign);
         //</editor-fold>
 
         //<editor-fold defaultstate="collapsed" desc="Fonts (to come)">

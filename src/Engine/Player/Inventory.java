@@ -22,9 +22,10 @@ import java.util.List;
 
 /**
  *
- * @author DribbleWare 
+ * @author DribbleWare shortend by 270 lines
  */
 public class Inventory {
+
     //<editor-fold defaultstate="collapsed" desc="Declarations">
     ESC eng;
 
@@ -233,62 +234,13 @@ public class Inventory {
                     g.drawString(text, slotmenu.x + 130, slotmenu.y + (y += 20));
                 }
                 break;
+            case 2:
+                crafter.Inventory(id, g);
+                break;
             case 3:
                 helpPage(g);
                 break;
         }
-
-        switch (id) {
-            case 0://logs
-                logMenu(g);
-                break;
-            case 1://rocks
-                rockMenu(g);
-                break;
-            case 2://bucket
-                bucketMenu(g);
-                break;
-            case 3://water
-                waterMenu(g);
-                break;
-            case 4://apple
-                appleMenu(g);
-                break;
-            case 5://sapling
-                saplingMenu(g);
-                break;
-            case 6://stick
-                stickMenu(g);
-                break;
-            case 7://paper
-                paperMenu(g);
-                break;
-            case 8://plank
-                plankMenu(g);
-                break;
-            case 9://leaf
-                leafMenu(g);
-                break;
-            case 10://axe
-                axe1Menu(g);
-                break;
-            case 11://shovel
-                shovel1Menu(g);
-                break;
-            case 12://pick
-                pick1Menu(g);
-                break;
-            case 13://sign
-                signMenu(g);
-                break;
-            case 14://fence
-                fenceMenu(g);
-                break;
-            default:
-                //do nothing
-                break;
-        }
-
         g2d.setClip(0, 0, eng.sizew, eng.sizeh);
     }
     //</editor-fold>
@@ -362,229 +314,6 @@ public class Inventory {
                 pop = false;
                 page = 1;
             }
-        }
-    }
-    //</editor-fold>
-
-    //<editor-fold defaultstate="collapsed" desc="logMenu Graphics g">
-    void logMenu(Graphics g) {
-        switch (page) {
-            case 1:
-                break;
-            case 2:
-                craftSetup(g, 2);
-                crafter.logCraft(g);
-                break;
-            case 3:
-                break;
-        }
-
-    }
-    //</editor-fold>
-
-    //<editor-fold defaultstate="collapsed" desc="rockMenu Graphics g">
-    void rockMenu(Graphics g) {
-        switch (page) {
-            case 1:
-                break;
-            case 2:
-                craftSetup(g, 2);
-                break;
-            case 3:
-                break;
-        }
-
-    }
-    //</editor-fold>
-
-    //<editor-fold defaultstate="collapsed" desc="bucketMenu Graphics g">
-    void bucketMenu(Graphics g) {
-        switch (page) {
-            case 1:
-                break;
-            case 2:
-                break;
-            case 3:
-                break;
-        }
-
-    }
-    //</editor-fold>
-
-    //<editor-fold defaultstate="collapsed" desc="waterMenu Graphics g">
-    void waterMenu(Graphics g) {
-        switch (page) {
-            case 1:
-                break;
-            case 2:
-                break;
-            case 3:
-                break;
-        }
-
-    }
-    //</editor-fold>
-
-    //<editor-fold defaultstate="collapsed" desc="appleMenu Graphics g">
-    void appleMenu(Graphics g) {
-        switch (page) {
-            case 1:
-                break;
-            case 2:
-                break;
-            case 3:
-                break;
-        }
-
-    }
-    //</editor-fold>
-
-    //<editor-fold defaultstate="collapsed" desc="saplingMenu Graphics g">
-    void saplingMenu(Graphics g) {
-        switch (page) {
-            case 1:
-                break;
-            case 2:
-                craftSetup(g, 2);
-                crafter.saplingCraft(g);
-                break;
-            case 3:
-                break;
-        }
-
-    }
-    //</editor-fold>
-
-    //<editor-fold defaultstate="collapsed" desc="stickMenu Graphics g">
-    void stickMenu(Graphics g) {
-        switch (page) {
-            case 1:
-                break;
-            case 2:
-                craftSetup(g, 1);
-                break;
-            case 3:
-                break;
-        }
-
-    }
-    //</editor-fold>
-
-    //<editor-fold defaultstate="collapsed" desc="paperMenu Graphics g">
-    void paperMenu(Graphics g) {
-        switch (page) {
-            case 1:
-                break;
-            case 2:
-                craftSetup(g, 1);
-                break;
-            case 3:
-                break;
-        }
-
-    }
-    //</editor-fold>
-
-    //<editor-fold defaultstate="collapsed" desc="plankMenu Graphics g">
-    void plankMenu(Graphics g) {
-        switch (page) {
-            case 1:
-                break;
-            case 2:
-                craftSetup(g, 1);
-                break;
-            case 3:
-                break;
-        }
-
-    }
-    //</editor-fold>
-
-    //<editor-fold defaultstate="collapsed" desc="leafMenu Graphics g">
-    void leafMenu(Graphics g) {
-        switch (page) {
-            case 1:
-                break;
-            case 2:
-                craftSetup(g, 1);
-                break;
-            case 3:
-                break;
-        }
-
-    }
-    //</editor-fold>
-
-    //<editor-fold defaultstate="collapsed" desc="axe1Menu Graphics g">
-    void axe1Menu(Graphics g) {
-        switch (page) {
-            case 1:
-                break;
-            case 2:
-                craftSetup(g, 1);
-                break;
-            case 3:
-                break;
-        }
-
-    }
-    //</editor-fold>
-
-    //<editor-fold defaultstate="collapsed" desc="shovel1Menu Graphics g">
-    void shovel1Menu(Graphics g) {
-        switch (page) {
-            case 1:
-                break;
-            case 2:
-                craftSetup(g, 1);
-                break;
-            case 3:
-                break;
-        }
-
-    }
-    //</editor-fold>
-
-    //<editor-fold defaultstate="collapsed" desc="pick1Graphics g">
-    void pick1Menu(Graphics g) {
-        switch (page) {
-            case 1:
-                break;
-            case 2:
-                craftSetup(g, 1);
-                break;
-            case 3:
-                break;
-        }
-
-    }
-    //</editor-fold>
-
-    //<editor-fold defaultstate="collapsed" desc="signMenu Graphics g">
-    public void signMenu(Graphics g) {
-        switch (page) {
-            case 1:
-                break;
-            case 2:
-                craftSetup(g, 1);
-                break;
-            case 3:
-                break;
-        }
-    }
-    //</editor-fold>
-
-    //<editor-fold defaultstate="collapsed" desc="fenceMenu Grpahics g">
-    public void fenceMenu(Graphics g) {
-        switch (page) {
-            case 1:
-                break;
-            case 2:
-                craftSetup(g, 15);
-                crafter.fenceCraft(g);
-                break;
-            case 3:
-                break;
         }
     }
     //</editor-fold>
@@ -681,8 +410,7 @@ public class Inventory {
 //</editor-fold>
 
     //<editor-fold defaultstate="collapsed" desc="drawItemBox Graphics g">
-    void drawItemBox(int x, int y, Graphics g
-    ) {
+    void drawItemBox(int x, int y, Graphics g) {
         g.setColor(new Color(100, 100, 100, 200));
         g.fillRect(x, y, slots[0].width, 100);
         g.setColor(new Color(200, 200, 200, 200));

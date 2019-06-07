@@ -198,7 +198,6 @@ public class CampFire extends WorldObjects {
     //<editor-fold defaultstate="collapsed" desc="menuRender Graphics g">
     public void menuRender(Graphics g) {
         basicMenu(g);
-        index = -1;
 
         for (int i = 0; i < eng.world.hubRoom.obbys.size(); i++) {
             if (eng.world.hubRoom.obbys.get(i) != this && eng.world.hubRoom.obbys.get(i).pop) {
@@ -230,11 +229,7 @@ public class CampFire extends WorldObjects {
             } else if ((actionTimer + ADD) < MAX_TIME && eng.mainChar.inv.inven.get(index).qnty >= 1 && actionTimer > 0) {
                 if (eng.left && mouseDelay) {
                     actionTimer += ADD;
-                    eng.mainChar.inv.inven.get(index).qnty -= 1;
-                    if (eng.mainChar.inv.inven.get(index).qnty == 0) {
-                        eng.mainChar.inv.inven.remove(index);
-                        return;
-                    }
+                    eng.mainChar.inv.itemRemove(0, 1);
                     mouseDelay = false;
                 }
                 g.setColor(good);
@@ -250,11 +245,7 @@ public class CampFire extends WorldObjects {
             } else if (actionTimer == 0 && eng.mainChar.inv.inven.get(index).qnty >= LIGHT_COST) {
                 if (eng.left && mouseDelay) {
                     actionTimer += ADD;
-                    eng.mainChar.inv.inven.get(index).qnty -= LIGHT_COST;
-                    if (eng.mainChar.inv.inven.get(index).qnty == 0) {
-                        eng.mainChar.inv.inven.remove(index);
-                        return;
-                    }
+                    eng.mainChar.inv.itemRemove(0, LIGHT_COST);
                     mouseDelay = false;
                 }
                 g.setColor(good);
@@ -276,11 +267,7 @@ public class CampFire extends WorldObjects {
         if (contains(pickUp, true)) {
             if (actionTimer == 0) {
                 if (eng.left && mouseDelay) {
-                    if (index == -1) {
-                        eng.mainChar.inv.inven.add(new Item(0, 2));
-                    } else {
-                        eng.mainChar.inv.inven.get(index).qnty += 2;
-                    }
+                    eng.mainChar.inv.itemAdd(0, 2);
                     mouseDelay = false;
                     eng.world.hubRoom.obbys.remove(this);
                     eng.world.updatelist();
@@ -298,7 +285,7 @@ public class CampFire extends WorldObjects {
         g.drawString("Cost: 1 Log", addBox.x + 10 + eng.getXOff() + addBox.width, addBox.y + eng.getYOff() + text.getSize() + 5);
         //draw light fire info
         g.drawString("Light Fire", lightBox.x + 3 + eng.getXOff(), lightBox.y + eng.getYOff() + text.getSize() + 5);
-        g.drawString("Cost: 3 Logs", lightBox.x + 10 + eng.getXOff() + lightBox.width, lightBox.y + eng.getYOff() + text.getSize() + 5);
+        g.drawString("Cost: " + LIGHT_COST + " Logs", lightBox.x + 10 + eng.getXOff() + lightBox.width, lightBox.y + eng.getYOff() + text.getSize() + 5);
         //draw put out info
         g.drawString("Put Out", putOut.x + 13 + eng.getXOff(), putOut.y + eng.getYOff() + text.getSize() + 5);
         //draw pick up info
