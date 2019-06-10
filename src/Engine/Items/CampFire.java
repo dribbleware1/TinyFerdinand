@@ -7,13 +7,18 @@ package Engine.Items;
 
 import Engine.Engine.ESC;
 import Engine.Map.WorldObjects;
+import Engine.Player.Crafting;
+import java.awt.BasicStroke;
 import java.awt.Color;
+import java.awt.Font;
 import java.awt.Graphics;
+import java.awt.Graphics2D;
 import java.awt.Rectangle;
 import java.awt.geom.Ellipse2D;
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Random;
 
 /**
  * @author DribbleWare
@@ -23,7 +28,7 @@ public class CampFire extends WorldObjects {
     //<editor-fold defaultstate="collapsed" desc="Declarations">
     private final int MAX_FIRE = 15;
     private final int FIRE_SIZE_MODIFIER = 1;
-    private final int MAX_LIGHT = 500;
+    private final int MAX_LIGHT = 750;
     private final int MAX_TIME = 60 * 99; //60 seconds in a minute * 99 minuts to keep it as a 2 digit minute second display
     private final int ADD = 120; //seconds to add per log (seems too short at 2 mins but we'll see
     private final int LIGHT_COST = 3; //cost to relight a fire thats burnt out
@@ -34,8 +39,8 @@ public class CampFire extends WorldObjects {
     public int sX = 0;
     public int sY = 0;
 
-    int fireSizex = MAX_FIRE / 3;
-    int fireSizey = 0;
+    int fireSizex = new Random().nextInt(MAX_FIRE / 2);
+    int fireSizey = new Random().nextInt(MAX_FIRE - (MAX_FIRE / 2));
     boolean firex = true, firey = true;
 
     int placeDis = 150;
@@ -44,17 +49,20 @@ public class CampFire extends WorldObjects {
     int aFrames;
     int ani = 0;
 
-    int scale = 2;
+    Crafting crafter;
 
+    int scale = 3;
     private List<BufferedImage> campFire = new ArrayList<>();
     private Rectangle addBox;
     private Rectangle lightBox;
     private Rectangle putOut;
-    private Rectangle pickUp;
     //</editor-fold>
 
     //<editor-fold defaultstate="collapsed" desc="Constructor int x, int y, ESC engine">
     public CampFire(int xi, int yi, int time, ESC engi) {
+
+        System.out.println(fireSizex + "          " + fireSizey);
+
         eng = engi;
         campFire = eng.assetLdr.campFire;
         x = xi;
@@ -69,12 +77,15 @@ public class CampFire extends WorldObjects {
         collis = collisBox();
         mouseDelay = false;
         name = "CampFire";
+        crafter = eng.mainChar.inv.crafter;
+        hasLight = true;
     }
     //</editor-fold>
 
     //<editor-fold defaultstate="collapsed" desc="Update">
     @Override
     public void update() {
+//        System.out.println(Crafts.size());
         mouseUpdate();
         if (!animated) {
             firex = false;
@@ -102,12 +113,12 @@ public class CampFire extends WorldObjects {
         if (contains(size, true) && recBuilder(size).intersects(eng.mainChar.box) && eng.left && mouseDelay) {
             closeAll(this);
             pop = true;
+            page = 1;
             mouseDelay = false;
             menuBox = new Rectangle(x + w, y, 450, 250);
             addBox = addButton(5, 70);
             lightBox = addButton(5, 125);
             putOut = addButton(5, 180);
-            pickUp = addButton(165, 180);
         }
     }
     //</editor-fold>
@@ -178,7 +189,7 @@ public class CampFire extends WorldObjects {
             g.drawRect(collisBox().x + eng.getXOff(), collisBox().y + eng.getYOff(), collisBox().width, collisBox().height);
         }
         if (blocked) {
-            g.setColor(new Color(255, 0, 0, 100));
+            g.setColor(bad);
             g.fillRect(x + eng.getXOff(), y + eng.getYOff() + h / 2 + 10, w, h / 2 - 10);
             g.setColor(Color.red);
         }
@@ -189,6 +200,7 @@ public class CampFire extends WorldObjects {
     @Override
     public void popUpRender(Graphics g) {
         if (pop) {
+            crafter.update();
             menuRender(g);
             menuControl();
         }
@@ -198,12 +210,7 @@ public class CampFire extends WorldObjects {
     //<editor-fold defaultstate="collapsed" desc="menuRender Graphics g">
     public void menuRender(Graphics g) {
         basicMenu(g);
-
-        for (int i = 0; i < eng.world.hubRoom.obbys.size(); i++) {
-            if (eng.world.hubRoom.obbys.get(i) != this && eng.world.hubRoom.obbys.get(i).pop) {
-                eng.world.hubRoom.obbys.get(i).pop = false;
-            }
-        }
+        menuBarButtons(g);
 
         for (int i = 0; i < eng.mainChar.inv.inven.size(); i++) { //get index of logs in inventory will make this a one time call everytime the menu opens
             if (eng.mainChar.inv.inven.get(i).id == 0) {
@@ -211,91 +218,74 @@ public class CampFire extends WorldObjects {
                 break;
             }
         }
-
-        g.setColor(Color.white);
-        g.setFont(text);
-        g.drawString("Burn Time: " + String.format("%02d", actionTimer / 60) + " Minutes " + String.format("%02d", actionTimer - (actionTimer / 60) * 60) + " Seconds", menuBox.x + 5 + eng.getXOff(), menuBox.y + eng.getYOff() + (text.getSize() * 2) + 5);
-        g.drawRect(addBox.x + eng.getXOff(), addBox.y + eng.getYOff(), addBox.width, addBox.height);
-        g.drawRect(lightBox.x + eng.getXOff(), lightBox.y + eng.getYOff(), lightBox.width, lightBox.height);
-        g.drawRect(putOut.x + eng.getXOff(), putOut.y + eng.getYOff(), putOut.width, putOut.height);
-        g.drawRect(pickUp.x + eng.getXOff(), pickUp.y + eng.getYOff(), pickUp.width, pickUp.height);
-
-        //
-        //
-        //add log button
-        if (contains(addBox, true)) {
-            if (index < 0) {
-                g.setColor(bad);
-            } else if ((actionTimer + ADD) < MAX_TIME && eng.mainChar.inv.inven.get(index).qnty >= 1 && actionTimer > 0) {
+        if (page == 1) {
+            g.setColor(Color.white);
+            g.setFont(text);
+            g.drawString("Burn Time: " + String.format("%02d", actionTimer / 60) + " Minutes " + String.format("%02d", actionTimer - (actionTimer / 60) * 60) + " Seconds", menuBox.x + 5 + eng.getXOff(), menuBox.y + eng.getYOff() + (text.getSize() * 2) + 5);
+            g.drawRect(addBox.x + eng.getXOff(), addBox.y + eng.getYOff(), addBox.width, addBox.height);
+            g.drawRect(lightBox.x + eng.getXOff(), lightBox.y + eng.getYOff(), lightBox.width, lightBox.height);
+            g.drawRect(putOut.x + eng.getXOff(), putOut.y + eng.getYOff(), putOut.width, putOut.height);
+            //add log button
+            if (contains(addBox, true)) {
+                if (index < 0) {
+                    g.setColor(bad);
+                } else if ((actionTimer + ADD) < MAX_TIME && eng.mainChar.inv.inven.get(index).qnty >= 1 && actionTimer > 0) {
+                    if (eng.left && mouseDelay) {
+                        actionTimer += ADD;
+                        eng.mainChar.inv.itemRemove(0, 1);
+                        mouseDelay = false;
+                    }
+                    g.setColor(good);
+                } else {
+                    g.setColor(bad);
+                }
+                g.fillRect(addBox.x + 2 + eng.getXOff(), addBox.y + 2 + eng.getYOff(), addBox.width - 4, addBox.height - 4);
+            }
+            //light fire button
+            if (contains(lightBox, true)) {
+                if (index < 0) {
+                    g.setColor(bad);
+                } else if (actionTimer == 0 && eng.mainChar.inv.inven.get(index).qnty >= LIGHT_COST) {
+                    if (eng.left && mouseDelay) {
+                        actionTimer += ADD;
+                        eng.mainChar.inv.itemRemove(0, LIGHT_COST);
+                        mouseDelay = false;
+                    }
+                    g.setColor(good);
+                } else {
+                    g.setColor(bad);
+                }
+                g.fillRect(lightBox.x + 2 + eng.getXOff(), lightBox.y + 2 + eng.getYOff(), lightBox.width - 4, lightBox.height - 4);
+            }
+            //put out fire button
+            if (contains(putOut, true)) {
+                g.setColor(good);
+                g.fillRect(putOut.x + eng.getXOff() + 2, putOut.y + eng.getYOff() + 2, putOut.width - 4, putOut.height - 4);
                 if (eng.left && mouseDelay) {
-                    actionTimer += ADD;
-                    eng.mainChar.inv.itemRemove(0, 1);
+                    actionTimer = 0;
                     mouseDelay = false;
                 }
-                g.setColor(good);
-            } else {
-                g.setColor(bad);
             }
-            g.fillRect(addBox.x + 2 + eng.getXOff(), addBox.y + 2 + eng.getYOff(), addBox.width - 4, addBox.height - 4);
-        }
-        //light fire button
-        if (contains(lightBox, true)) {
-            if (index < 0) {
-                g.setColor(bad);
-            } else if (actionTimer == 0 && eng.mainChar.inv.inven.get(index).qnty >= LIGHT_COST) {
-                if (eng.left && mouseDelay) {
-                    actionTimer += ADD;
-                    eng.mainChar.inv.itemRemove(0, LIGHT_COST);
-                    mouseDelay = false;
-                }
-                g.setColor(good);
-            } else {
-                g.setColor(bad);
-            }
-            g.fillRect(lightBox.x + 2 + eng.getXOff(), lightBox.y + 2 + eng.getYOff(), lightBox.width - 4, lightBox.height - 4);
-        }
-        //put out fire button
-        if (contains(putOut, true)) {
-            g.setColor(good);
-            g.fillRect(putOut.x + eng.getXOff() + 2, putOut.y + eng.getYOff() + 2, putOut.width - 4, putOut.height - 4);
-            if (eng.left && mouseDelay) {
-                actionTimer = 0;
-                mouseDelay = false;
-            }
-        }
-        //pick up button
-        if (contains(pickUp, true)) {
-            if (actionTimer == 0) {
-                if (eng.left && mouseDelay) {
-                    eng.mainChar.inv.itemAdd(0, 2);
-                    mouseDelay = false;
-                    eng.world.hubRoom.obbys.remove(this);
-                    eng.world.updatelist();
-                }
-                g.setColor(good);
-            } else {
-                g.setColor(bad);
-            }
-            g.fillRect(pickUp.x + 2 + eng.getXOff(), pickUp.y + 2 + eng.getYOff(), pickUp.width - 4, pickUp.height - 4);
-        }
 
-        g.setColor(Color.white);
-        //draw add log info
-        g.drawString("Add Log", addBox.x + 7 + eng.getXOff(), addBox.y + eng.getYOff() + text.getSize() + 5);
-        g.drawString("Cost: 1 Log", addBox.x + 10 + eng.getXOff() + addBox.width, addBox.y + eng.getYOff() + text.getSize() + 5);
-        //draw light fire info
-        g.drawString("Light Fire", lightBox.x + 3 + eng.getXOff(), lightBox.y + eng.getYOff() + text.getSize() + 5);
-        g.drawString("Cost: " + LIGHT_COST + " Logs", lightBox.x + 10 + eng.getXOff() + lightBox.width, lightBox.y + eng.getYOff() + text.getSize() + 5);
-        //draw put out info
-        g.drawString("Put Out", putOut.x + 13 + eng.getXOff(), putOut.y + eng.getYOff() + text.getSize() + 5);
-        //draw pick up info
-        g.drawString("Pick Up", pickUp.x + 13 + eng.getXOff(), pickUp.y + eng.getYOff() + text.getSize() + 5);
-        g.drawString("+ 2 Logs", pickUp.x + 10 + eng.getXOff() + pickUp.width, pickUp.y + eng.getYOff() + text.getSize() + 5);
-        //draw warnings
-        g.setColor(Color.red);
-        g.setFont(text3);
-        g.drawString("** WARNING: This will get rid of all remaining burn time **", putOut.x + eng.getXOff(), putOut.y + eng.getYOff() + text3.getSize() + 5 + putOut.height);
-
+            g.setColor(Color.white);
+            //draw add log info
+            g.drawString("Add Log", addBox.x + 7 + eng.getXOff(), addBox.y + eng.getYOff() + text.getSize() + 5);
+            g.drawString("Cost: 1 Log", addBox.x + 10 + eng.getXOff() + addBox.width, addBox.y + eng.getYOff() + text.getSize() + 5);
+            //draw light fire info
+            g.drawString("Light Fire", lightBox.x + 3 + eng.getXOff(), lightBox.y + eng.getYOff() + text.getSize() + 5);
+            g.drawString("Cost: " + LIGHT_COST + " Logs", lightBox.x + 10 + eng.getXOff() + lightBox.width, lightBox.y + eng.getYOff() + text.getSize() + 5);
+            //draw put out info
+            g.drawString("Put Out", putOut.x + 13 + eng.getXOff(), putOut.y + eng.getYOff() + text.getSize() + 5);
+            //draw warnings
+            g.setColor(Color.red);
+            g.setFont(text3);
+            g.drawString("** WARNING: This will get rid of all remaining burn time **", putOut.x + eng.getXOff(), putOut.y + eng.getYOff() + text3.getSize() + 5 + putOut.height);
+        }
+        if (page == 2) {//crafting
+            craftSetup(g, 1);
+            eng.mainChar.inv.crafter.Campfire(g);
+            g.setClip(0, 0, eng.sizew, eng.sizeh);
+        }
     }
     //</editor-fold>
 
@@ -349,4 +339,44 @@ public class CampFire extends WorldObjects {
     }
     //</editor-fold>
 
+    //<editor-fold defaultstate="collapsed" desc="pickUp">
+    @Override
+    public void pickUp() {
+        if (actionTimer <= 0) {
+            eng.world.active.obbys.remove(this);
+            eng.mainChar.inv.itemAdd(0, 2);
+            eng.world.updatelist();
+        } else {
+            eng.pop("Put out first", y);
+        }
+    }
+    //</editor-fold>
+
+    //<editor-fold defaultstate="collapsed" desc="craftSetup Graphics g int num">
+    void craftSetup(Graphics g, int num) {
+        Graphics2D g2d = (Graphics2D) g;
+        BasicStroke bs = new BasicStroke(3);
+        g2d.setStroke(bs);
+        g2d.setColor(Color.red);
+        g2d.setClip(new Rectangle(menuBox.x + eng.getXOff(), menuBox.y + 30 + eng.getYOff(), menuBox.width, menuBox.height - 30)); // stops from rendering outside of box
+
+        Crafts.clear();
+        for (int i = 0; i < num; i++) {
+            Crafts.add(new Rectangle(menuBox.x + 70 + eng.getXOff(), (menuBox.y + eng.notches + 35 + (120 * i)) + eng.getYOff(), 310, 110));
+        }
+
+        if (Crafts.get(Crafts.size() - 1).y + Crafts.get(Crafts.size() - 1).height + eng.notches + 10 < menuBox.y + menuBox.height + eng.scrollSens + eng.getYOff()) {//stops from scrolling up past the last element
+            eng.downNotching = false;
+        } else {
+            eng.downNotching = true;
+        }
+
+        if (Crafts.get(0).y + eng.notches + 10 > menuBox.y + 30 + eng.scrollSens + eng.getYOff()) {
+            eng.upNotching = false;
+        } else {
+            eng.upNotching = true;
+        }
+
+    }
+//</editor-fold>
 }

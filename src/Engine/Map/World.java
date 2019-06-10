@@ -22,71 +22,71 @@ public class World {
 
     //Housekeeping
     Input input;
-    ESC engine;
+    ESC eng;
+    String prevLoc = "null";
 
     //no idea
     public int time = 10;
     //Rooms and displays
     public Hub hubRoom;
     public Menu menu;
+    public Mine mine;
     //objects and items currently active
     public List<Rectangle> Objects = new ArrayList<>();
     public List<Item> items = new ArrayList<>();
 
+    public Location active;
+
     public World(Input in, ESC engi) {
         input = in;
-        engine = engi;
+        eng = engi;
+        hubRoom = new Hub(eng);
+        menu = new Menu(eng);
+        mine = new Mine(eng);
+        worldSwitch();
+        start();
     }
 
     public void render(Graphics g) {
-        switch (engine.Loc) {
-            case "hub":
-                hubRoom.render(g);
-                break;
-            case "menu":
-                menu.render(g);
-                break;
-        }
+        active.render(g);
     }
 
     public void priorityRrender(Graphics g) {
-        switch (engine.Loc) {
-            case "hub":
-                hubRoom.priorityRender(g);
-                break;
-            case "menu":
-                break;
-        }
+        active.priorityRender(g);
     }
 
     public void update() {
-        switch (engine.Loc) {
-            case "hub":
-                hubRoom.update();
-                if (menu.update == true) {
-                    updatelist();
-                    menu.update = false;
-                }
-                break;
-            case "menu":
-                menu.update();
-        }
+        worldSwitch();
+        active.update();
     }
 
     public void start() {
         System.out.println("starting the world");
-        hubRoom = new Hub(engine);
-        menu = new Menu(engine);
+        worldSwitch();
         updatelist();
     }
 
-    public void updatelist() {
-        switch (engine.Loc) {
-            case "hub":
-                hubRoom.updateList();
-                Objects = hubRoom.objects;
-                items = hubRoom.items;
-                break;
+    public void worldSwitch() {
+        if (eng.Loc != prevLoc) {
+            switch (eng.Loc) {
+                case "menu":
+                    active = menu;
+                    break;
+                case "hub":
+                    active = hubRoom;
+                    break;
+                case "mine":
+                    active = mine;
+                    break;
+            }
+            updatelist();
+            prevLoc = eng.Loc;
         }
+    }
+
+    public void updatelist() {
+        active.updateList();
+        Objects = active.objects;
+        items = active.items;
     }
 }

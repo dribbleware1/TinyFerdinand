@@ -22,7 +22,7 @@ public class Fence extends WorldObjects {
     private int scale = 4;
     private int snapSize = 9;
     public boolean first = true;
-    
+
     private Rectangle pickUp = new Rectangle(0, 0, 0, 0);
     //</editor-fold>
 
@@ -47,7 +47,7 @@ public class Fence extends WorldObjects {
     public void update() {
         mouseUpdate();
         rotate();
-        
+
         if (!dropped) {
             drop();
             snap();
@@ -66,7 +66,7 @@ public class Fence extends WorldObjects {
                 } else if (eng.mainChar.inv.inven.get(i).id == 14 && changeable) {
                     Fence placeHolderFence = new Fence((int) eng.mainChar.x - eng.getXOff(), (int) eng.mainChar.y - eng.getYOff(), 0, eng, true);
                     placeHolderFence.costs = this.costs;
-                    eng.world.hubRoom.obbys.add(placeHolderFence);
+                    eng.world.active.obbys.add(placeHolderFence);
                     eng.mainChar.inv.itemRemove(14, 1);
                     break;
                 }
@@ -95,7 +95,7 @@ public class Fence extends WorldObjects {
 
     //<editor-fold defaultstate="collapsed" desc="render Graphics g">
     public void render(Graphics g) {
-        if (eng.mainChar.y >= y + eng.getYOff() && dropped) {
+        if (eng.mainChar.y >= collis.y + eng.getYOff() && dropped) {
             g.drawImage(eng.assetLdr.fenceParts.get(ID), x + eng.getXOff(), y + eng.getYOff(), eng.assetLdr.fenceParts.get(ID).getWidth() * scale, eng.assetLdr.fenceParts.get(ID).getHeight() * scale, null);
         }
     }
@@ -103,7 +103,7 @@ public class Fence extends WorldObjects {
 
     //<editor-fold defaultstate="collapsed" desc="priorityRender Graphics g">
     public void priorityRender(Graphics g) {
-        if (eng.mainChar.y < y + eng.getYOff() && dropped) {
+        if (eng.mainChar.y < collis.y + eng.getYOff() && dropped) {
             g.drawImage(eng.assetLdr.fenceParts.get(ID), x + eng.getXOff(), y + eng.getYOff(), eng.assetLdr.fenceParts.get(ID).getWidth() * scale, eng.assetLdr.fenceParts.get(ID).getHeight() * scale, null);
         }
     }
@@ -127,13 +127,13 @@ public class Fence extends WorldObjects {
     //<editor-fold defaultstate="collapsed" desc="menuRender Grphics g">    
     public void menuRender(Graphics g) {
         basicMenu(g);
-        
+
         g.setColor(Color.white);
         g.drawRect(pickUp.x + eng.getXOff(), pickUp.y + eng.getYOff(), pickUp.width, pickUp.height);
         if (contains(pickUp, true)) {
             if (eng.left && mouseDelay) {
                 mouseDelay = false;
-                eng.world.hubRoom.obbys.remove(this);
+                eng.world.active.obbys.remove(this);
                 eng.world.updatelist();
                 eng.mainChar.inv.itemAdd(14, 1);
             }
@@ -172,61 +172,62 @@ public class Fence extends WorldObjects {
             case 6:
                 ret = new Rectangle(x + (w / 2) - (w / 12) - 3, y + 65, (w / 6), h - 65);
                 if (dropped) {
-                    eng.world.hubRoom.objects.add(new Rectangle(x + (w / 2) - 13, y + (h / 8) * 3, (w / 2) + 13, h / 8));
+                    eng.world.active.objects.add(new Rectangle(x + (w / 2) - 13, y + (h / 8) * 3, (w / 2) + 13, h / 8));
                 }
                 break;
             case 7:
-                ret = new Rectangle(x, y + (h / 8) * 3, w, h / 8);
+                ret = new Rectangle(x + (w / 2) - (w / 12) - 3, y + 65, (w / 6), h - 65);
                 if (dropped) {
-                    eng.world.hubRoom.objects.add(new Rectangle(x + (w / 2) - (w / 12) - 3, y + 65, (w / 6), h - 65));
+                    eng.world.active.objects.add(new Rectangle(x, y + (h / 8) * 3, w, h / 8));
+
                 }
                 break;
             case 8:
-                ret = new Rectangle(x, y + (h / 8) * 3, (w / 2) + 8, (h / 8));
+                ret = new Rectangle(x + (w / 2) - (w / 12) - 3, y + 65, (w / 6), h - 65);
                 if (dropped) {
-                    eng.world.hubRoom.objects.add(new Rectangle(x + (w / 2) - (w / 12) - 3, y + 65, (w / 6), h - 65));
+                    eng.world.active.objects.add(new Rectangle(x, y + (h / 8) * 3, (w / 2) + 8, (h / 8)));
                 }
                 break;
             case 9:
-                ret = new Rectangle(x + (w / 2) - (w / 12) - 3, y, (w / 6), h);
+                ret = new Rectangle(x + (w / 2) - 13, y + (h / 8) * 3, (w / 2) + 13, h / 8);
                 if (dropped) {
-                    eng.world.hubRoom.objects.add(new Rectangle(x + (w / 2) - 13, y + (h / 8) * 3, (w / 2) + 13, h / 8));
+                    eng.world.active.objects.add(new Rectangle(x + (w / 2) - (w / 12) - 3, y, (w / 6), h));
                 }
                 break;
             case 10:
                 ret = new Rectangle(x, y + (h / 8) * 3, w, h / 8);
                 if (dropped) {
-                    eng.world.hubRoom.objects.add(new Rectangle(x + (w / 2) - (w / 12) - 3, y, (w / 6), h));
+                    eng.world.active.objects.add(new Rectangle(x + (w / 2) - (w / 12) - 3, y, (w / 6), h));
                 }
                 break;
             case 11:
-                ret = new Rectangle(x + (w / 2) - (w / 12) - 3, y, (w / 6), h);
+                ret = new Rectangle(x, y + (h / 8) * 3, (w / 2) + 8, (h / 8));
                 if (dropped) {
-                    eng.world.hubRoom.objects.add(new Rectangle(x, y + (h / 8) * 3, (w / 2) + 8, (h / 8)));
+                    eng.world.active.objects.add(new Rectangle(x + (w / 2) - (w / 12) - 3, y, (w / 6), h));
                 }
                 break;
             case 12:
-                ret = new Rectangle(x + (w / 2) - (w / 12) - 3, y, (w / 6), h - 80);
+                ret = new Rectangle(x + (w / 2) - 13, y + (h / 8) * 3, (w / 2) + 13, h / 8);
                 if (dropped) {
-                    eng.world.hubRoom.objects.add(new Rectangle(x + (w / 2) - 13, y + (h / 8) * 3, (w / 2) + 13, h / 8));
+                    eng.world.active.objects.add(new Rectangle(x + (w / 2) - (w / 12) - 3, y, (w / 6), h - 80));
                 }
                 break;
             case 13:
-                ret = new Rectangle(x + (w / 2) - (w / 12) - 3, y, (w / 6), h - 80);
+                ret = new Rectangle(x, y + (h / 8) * 3, w, h / 8);
                 if (dropped) {
-                    eng.world.hubRoom.objects.add(new Rectangle(x, y + (h / 8) * 3, w, h / 8));
+                    eng.world.active.objects.add(new Rectangle(x + (w / 2) - (w / 12) - 3, y, (w / 6), h - 80));
                 }
                 break;
             case 14:
-                ret = new Rectangle(x + (w / 2) - (w / 12) - 3, y, (w / 6), h - 80);
+                ret = new Rectangle(x, y + (h / 8) * 3, (w / 2) + 8, h / 8);
                 if (dropped) {
-                    eng.world.hubRoom.objects.add(new Rectangle(x, y + (h / 8) * 3, (w / 2) + 8, h / 8));
+                    eng.world.active.objects.add(new Rectangle(x + (w / 2) - (w / 12) - 3, y, (w / 6), h - 80));
                 }
                 break;
             case 15:
                 ret = new Rectangle(x + (w / 2) - (w / 12) - 3, y + ((h / 8) * 3), (w / 6), h / 8);
                 break;
-            
+
         }
         return ret;
     }
@@ -235,7 +236,7 @@ public class Fence extends WorldObjects {
     //<editor-fold defaultstate="collapsed" desc="snap">
     public void snap() {
         snapBox = new Rectangle(x - snapSize, y - snapSize, w + (snapSize * 2), h + (snapSize * 2));
-        List<WorldObjects> obbys = eng.world.hubRoom.obbys;
+        List<WorldObjects> obbys = eng.world.active.obbys;
         for (int i = 0; i < obbys.size(); i++) {
             if (obbys.get(i) instanceof Fence && obbys.get(i) != this) {
                 if (new Rectangle(obbys.get(i).snapBox.x + eng.getXOff(), obbys.get(i).snapBox.y + eng.getYOff(), obbys.get(i).snapBox.width, obbys.get(i).snapBox.height).intersects(
@@ -278,9 +279,9 @@ public class Fence extends WorldObjects {
         right = false;
         up = false;
         down = false;
-        
+
         snapBox = new Rectangle(x - snapSize, y - snapSize, w + (snapSize * 2), h + (snapSize * 2));
-        List<WorldObjects> obbys = eng.world.hubRoom.obbys;
+        List<WorldObjects> obbys = eng.world.active.obbys;
         for (int i = 0; i < obbys.size(); i++) {
             if (obbys.get(i) instanceof Fence && obbys.get(i) != this) {
                 if (new Rectangle(obbys.get(i).snapBox.x + eng.getXOff(), obbys.get(i).snapBox.y + eng.getYOff(), obbys.get(i).snapBox.width, obbys.get(i).snapBox.height).intersects(

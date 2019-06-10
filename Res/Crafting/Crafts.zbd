@@ -1,3 +1,4 @@
 Campfire -1 -1 Campfire 0 7//Bench -1 -1 Bench 0 15 ID0
 Tree -1 -1 Tree 5 1 ID5
 Fence -1 -1 Fence 14 1//Fence0 -1 -1 Static-Fence 14 1//Fence2 -1 -1 Static-Fence 14 1//Fence3 -1 -1 Static-Fence 14 1//Fence5 -1 -1 Static-Fence 14 1 ID14
+Torch -1 -1 Torch 15 1 ID15

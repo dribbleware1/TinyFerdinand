@@ -10,10 +10,10 @@ import Engine.FileIO.FileUtils;
 import Engine.Items.CampFire;
 import Engine.Items.Fence;
 import Engine.Items.Item;
+import Engine.Items.Torch;
 import Engine.Items.Tree;
 import Engine.Items.WorkBench;
 import java.awt.Color;
-import java.awt.Font;
 import java.awt.Graphics;
 import java.awt.MouseInfo;
 import java.awt.Point;
@@ -28,8 +28,6 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Random;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 /**
  *
@@ -73,9 +71,13 @@ public class Crafting {
         if (eng.inventory) {
             Crafts = inv.Crafts;
         }
-        for (int i = 0; i < eng.world.hubRoom.obbys.size(); i++) {
-            if (eng.world.hubRoom.obbys.get(i) instanceof WorkBench && eng.world.hubRoom.obbys.get(i).pop) {
-                Crafts = eng.world.hubRoom.obbys.get(i).Crafts;
+        for (int i = 0; i < eng.world.active.obbys.size(); i++) {
+            if (eng.world.active.obbys.get(i) instanceof WorkBench && eng.world.active.obbys.get(i).pop) {
+                Crafts = eng.world.active.obbys.get(i).Crafts;
+                break;
+            }
+            if (eng.world.active.obbys.get(i) instanceof CampFire && eng.world.active.obbys.get(i).pop) {
+                Crafts = eng.world.active.obbys.get(i).Crafts;
                 break;
             }
         }
@@ -83,9 +85,14 @@ public class Crafting {
     }
     //</editor-fold>
 
+    //<editor-fold defaultstate="collapsed" desc="Campfire Graphics g">
+    public void Campfire(Graphics g) {
+        craftBox(0, new CraftObject(eng.assetLdr.crafting.get("Torch"), 15, new Item(6, 1), new Item(9, 3)), g);
+    }
+    //</editor-fold>
+
     //<editor-fold defaultstate="collapsed" desc="Workbench Graphics g int page">
     public void workbench(Graphics g, int page) {
-
         if (BenchRecipies.get(page) != null) {
             for (int i = 0; i < BenchRecipies.get(page).length; i++) {
                 craftBox(i, BenchRecipies.get(page)[i], g);
@@ -144,7 +151,15 @@ public class Crafting {
                             case "Campfire":
                                 CampFire placeHolderFire = new CampFire((int) eng.mainChar.x - eng.getXOff(), (int) eng.mainChar.y - eng.getYOff(), 5, eng);
                                 placeHolderFire.costs = item.cost;
-                                eng.world.hubRoom.obbys.add(placeHolderFire);
+                                eng.world.active.obbys.add(placeHolderFire);
+                                inv.r.mouseMove((int) (eng.mainChar.x) + eng.getFrameX(), (int) (eng.mainChar.y) + eng.getFrameY());
+                                eng.left = false;
+                                eng.inventory = false;
+                                break;
+                            case "Torch":
+                                Torch placeHolderTorch = new Torch((int) eng.mainChar.x - eng.getXOff(), (int) eng.mainChar.y - eng.getYOff(), 120, eng);
+                                placeHolderTorch.costs = item.cost;
+                                eng.world.active.obbys.add(placeHolderTorch);
                                 inv.r.mouseMove((int) (eng.mainChar.x) + eng.getFrameX(), (int) (eng.mainChar.y) + eng.getFrameY());
                                 eng.left = false;
                                 eng.inventory = false;
@@ -152,7 +167,7 @@ public class Crafting {
                             case "Bench":
                                 WorkBench placeHolderBench = new WorkBench((int) eng.mainChar.x - eng.getXOff(), (int) eng.mainChar.y - eng.getYOff(), eng);
                                 placeHolderBench.costs = item.cost;
-                                eng.world.hubRoom.obbys.add(placeHolderBench);
+                                eng.world.active.obbys.add(placeHolderBench);
                                 inv.r.mouseMove((int) (eng.mainChar.x) + eng.getFrameX(), (int) (eng.mainChar.y) + eng.getFrameY());
                                 eng.left = false;
                                 eng.inventory = false;
@@ -165,7 +180,7 @@ public class Crafting {
                                     placeHolderTree = new Tree(eng, (int) eng.mainChar.x - eng.getXOff(), (int) eng.mainChar.y - eng.getYOff(), 0);
                                 }
                                 placeHolderTree.costs = item.cost;
-                                eng.world.hubRoom.obbys.add(placeHolderTree);
+                                eng.world.active.obbys.add(placeHolderTree);
                                 inv.r.mouseMove((int) (eng.mainChar.x) + eng.getFrameX(), (int) (eng.mainChar.y) + eng.getFrameY());
                                 eng.left = false;
                                 eng.inventory = false;
@@ -173,7 +188,7 @@ public class Crafting {
                             case "Fence":
                                 Fence placeHolderFence = new Fence((int) eng.mainChar.x - eng.getXOff(), (int) eng.mainChar.y - eng.getYOff(), number, eng, true);
                                 placeHolderFence.costs = item.cost;
-                                eng.world.hubRoom.obbys.add(placeHolderFence);
+                                eng.world.active.obbys.add(placeHolderFence);
                                 inv.r.mouseMove((int) (eng.mainChar.x) + eng.getFrameX(), (int) (eng.mainChar.y) + eng.getFrameY());
                                 eng.left = false;
                                 eng.inventory = false;
@@ -193,7 +208,7 @@ public class Crafting {
                                 }
                                 Fence placeHolderStaticFence = new Fence((int) eng.mainChar.x - eng.getXOff(), (int) eng.mainChar.y - eng.getYOff(), fence, eng, false);
                                 placeHolderStaticFence.costs = item.cost;
-                                eng.world.hubRoom.obbys.add(placeHolderStaticFence);
+                                eng.world.active.obbys.add(placeHolderStaticFence);
                                 inv.r.mouseMove((int) (eng.mainChar.x) + eng.getFrameX(), (int) (eng.mainChar.y) + eng.getFrameY());
                                 eng.left = false;
                                 eng.inventory = false;

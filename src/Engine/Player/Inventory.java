@@ -60,11 +60,13 @@ public class Inventory {
 
     public String signLine = "A little sign you could leave a message on";
     public String fenceLine = "Small wooden fence, used to keep animals\n and people out";
+    
+    public String torchLine = "Basically just a little campfire.\nWill be helpFul to provide light";
 
     public String helpLine = "Hello and welcome to the inventory help page\nyou can use the navigation buttons on the top\n"
             + "right of this window to switch between pages on this\nitem and close the window. You can close the \ninventory anytime by pressing E";
 
-    public String[] Lines = {logLine, rockLine, bucketLine, waterLine, appleLine, saplingLine, stickLine, paperLine, plankLine, leafLine, axe1Line, shovel1Line, pick1Line, signLine, fenceLine};
+    public String[] Lines = {logLine, rockLine, bucketLine, waterLine, appleLine, saplingLine, stickLine, paperLine, plankLine, leafLine, axe1Line, shovel1Line, pick1Line, signLine, fenceLine, torchLine};
 
     //Key location points for inventory slot text
     public int textY = 180;
@@ -438,7 +440,7 @@ public class Inventory {
     public void dropItem(int q, int id) {
         Item ref = new Item(0, 0);
         if (!dropStart) {
-            eng.world.hubRoom.items.add(new Item((int) eng.mainChar.x - Integer.parseInt(eng.xoff), (int) eng.mainChar.y - Integer.parseInt(eng.yoff) + 30, 50, 50, inven.get(id).id, q));
+            eng.world.active.items.add(new Item((int) eng.mainChar.x - Integer.parseInt(eng.xoff), (int) eng.mainChar.y - Integer.parseInt(eng.yoff) + 30, 50, 50, inven.get(id).id, q));
             dropStart = true;
             drop = 0;
             inven.get(pops).qnty -= q;

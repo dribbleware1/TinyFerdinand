@@ -113,6 +113,7 @@ public class WorkBench extends WorldObjects {
     //<editor-fold defaultstate="collapsed" desc="menuRender Grpahics g">
     public void menuRender(Graphics g) {
         basicMenu(g, 0);
+        pickMenu(g, false);
 
         //page 1
         if (page == 1 || contains(page1, false)) {
@@ -206,6 +207,14 @@ public class WorkBench extends WorldObjects {
         return new Rectangle(x, y + 30, w, h - 55);
     }
 //</editor-fold>
+
+    //<editor-fold defaultstate="collapsed" desc="pickUp">
+    public void pickUp() {
+        eng.world.active.obbys.remove(this);
+        eng.world.updatelist();
+        eng.mainChar.inv.itemAdd(0, 10);
+    }
+    //</editor-fold>
 
     //<editor-fold defaultstate="collapsed" desc="craftSetup Graphics g int num">
     void craftSetup(Graphics g, int num) {

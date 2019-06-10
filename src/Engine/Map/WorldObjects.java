@@ -29,6 +29,8 @@ public class WorldObjects {
     public final int DEFAULT_BUTTON_WIDTH = 120;
     public final int DEFAULT_BUTTON_HEIGHT = 40;
 
+    public boolean hasLight = false;
+
     public Rectangle size, collis;
     public Rectangle menuBox;
     public Rectangle snapBox;
@@ -40,6 +42,7 @@ public class WorldObjects {
     public List<Rectangle> Crafts = new ArrayList<>();
 
     public int h, w;
+    public int page = 0;
 
     public int mouse = 0;
     public int maxMouse = 15;
@@ -120,18 +123,107 @@ public class WorldObjects {
         g.setColor(Color.white);
         g.drawString(name, menuBox.x + eng.getXOff() + 5, menuBox.y + text.getSize() - 2 + eng.getYOff());
         g.setFont(text2);
-        Rectangle temps = new Rectangle(menuBox.x + eng.getXOff() + menuBox.width - text.getSize() - 4, menuBox.y + eng.getYOff() + 2, 26, 26);
-        if (!contains(temps, false)) {
+        Rectangle close = new Rectangle(menuBox.x + eng.getXOff() + menuBox.width - text.getSize() - 4, menuBox.y + eng.getYOff() + 2, 26, 26);
+        if (!contains(close, false)) {
             g.setColor(Color.red);
             g.drawString("x", menuBox.x + eng.getXOff() + menuBox.width - text.getSize(), menuBox.y + 24 + eng.getYOff());
 
         } else {
             g.setColor(Color.red);
-            g.fillRect(temps.x, temps.y, temps.width, temps.height);
+            g.fillRect(close.x, close.y, close.width, close.height);
             g.setColor(Color.white);
             g.drawString("x", menuBox.x + eng.getXOff() + menuBox.width - text.getSize(), menuBox.y + 24 + eng.getYOff());
             if (eng.left) {
                 pop = false;
+            }
+        }
+    }
+    //</editor-fold>
+
+    //<editor-fold defaultstate="collapsed" desc="menuBarButtons Graphics g">
+    public void menuBarButtons(Graphics g) {
+        g.setColor(new Color(255, 255, 255, 200));
+        Graphics2D g2d = (Graphics2D) g;
+        BasicStroke bs = new BasicStroke(3);
+        g2d.setStroke(bs);
+        //seperating lines
+        g2d.drawLine(eng.getXOff() + menuBox.x + menuBox.width - text.getSize() - 8 - 30, eng.getYOff() + menuBox.y + 8,
+                eng.getXOff() + menuBox.x + menuBox.width - text.getSize() - 8 - 30, eng.getYOff() + menuBox.y + 22);
+
+        g2d.drawLine(eng.getXOff() + menuBox.x + menuBox.width - text.getSize() - 8 - 60, eng.getYOff() + menuBox.y + 8,
+                eng.getXOff() + menuBox.x + menuBox.width - text.getSize() - 8 - 60, eng.getYOff() + menuBox.y + 22);
+
+        g2d.drawLine(eng.getXOff() + menuBox.x + menuBox.width - text.getSize() - 8 - 90, eng.getYOff() + menuBox.y + 8,
+                eng.getXOff() + menuBox.x + menuBox.width - text.getSize() - 8 - 90, eng.getYOff() + menuBox.y + 22);
+
+        //interactive buttons
+        Rectangle home = new Rectangle(menuBox.x + menuBox.width - text.getSize() - 4 - 90, menuBox.y + 2, 26, 26);
+        if (contains(home, true) || page == 1) {
+            g.drawImage(eng.assetLdr.home, eng.getXOff() + menuBox.x + menuBox.width - text.getSize() - 4 - 90, eng.getYOff() + menuBox.y + 4, (eng.assetLdr.home.getWidth() / 8) - 2, eng.assetLdr.home.getHeight() / 8, null);
+            if (eng.left) {
+                page = 1;
+            }
+        } else {
+            g.drawImage(eng.assetLdr.home2, eng.getXOff() + menuBox.x + menuBox.width - text.getSize() - 4 - 90, eng.getYOff() + menuBox.y + 4, (eng.assetLdr.home.getWidth() / 8) - 2, eng.assetLdr.home.getHeight() / 8, null);
+        }
+
+        Rectangle craft = new Rectangle(menuBox.x + menuBox.width - text.getSize() - 4 - 60, menuBox.y + 2, 26, 26);
+        if (contains(craft, true) || page == 2) {
+            g.drawImage(eng.assetLdr.craft, eng.getXOff() + menuBox.x + menuBox.width - text.getSize() - 4 - 60, eng.getYOff() + menuBox.y + 4, (eng.assetLdr.craft.getWidth() / 7) + 2, eng.assetLdr.craft.getHeight() / 6, null);
+            if (eng.left && page != 2) {
+                page = 2;
+                eng.notches = 0;
+            }
+        } else {
+            g.drawImage(eng.assetLdr.craft2, eng.getXOff() + menuBox.x + menuBox.width - text.getSize() - 4 - 60, eng.getYOff() + menuBox.y + 4, (eng.assetLdr.craft.getWidth() / 7) + 2, eng.assetLdr.craft.getHeight() / 6, null);
+        }
+        pickMenu(g, true);
+    }
+    //</editor-fold>
+
+    //<editor-fold defaultstate="collapsed" desc="pickMenu Grpahics g">
+    public void pickMenu(Graphics g, boolean offset) {
+        g.setColor(new Color(255, 255, 255, 200));
+        Graphics2D g2d = (Graphics2D) g;
+        BasicStroke bs = new BasicStroke(3);
+        g2d.setStroke(bs);
+        if (offset) {
+            g2d.drawLine(eng.getXOff() + menuBox.x + menuBox.width - text.getSize() - 8, eng.getYOff() + menuBox.y + 8,
+                    eng.getXOff() + menuBox.x + menuBox.width - text.getSize() - 8, eng.getYOff() + menuBox.y + 22);
+
+            Rectangle pick = new Rectangle(menuBox.x + menuBox.width - text.getSize() - 4 - 30, menuBox.y + 2, 26, 26);
+            if (contains(pick, true)) {
+                if (actionTimer <= 0) {
+                    g.drawImage(eng.assetLdr.pickUp, eng.getXOff() + menuBox.x + menuBox.width - text.getSize() - 4 - 30, eng.getYOff() + menuBox.y + 2, (eng.assetLdr.craft.getWidth() / 7) + 2, (eng.assetLdr.craft.getHeight() / 5) + 3, null);
+                } else {
+                    g.drawImage(eng.assetLdr.pickUp3, eng.getXOff() + menuBox.x + menuBox.width - text.getSize() - 4 - 30, eng.getYOff() + menuBox.y + 2, (eng.assetLdr.craft.getWidth() / 7) + 2, (eng.assetLdr.craft.getHeight() / 5) + 3, null);
+                }
+                if (eng.left && mouseDelay) {
+                    pickUp();
+                    mouseDelay = false;
+                }
+
+            } else {
+                g.drawImage(eng.assetLdr.pickUp2, eng.getXOff() + menuBox.x + menuBox.width - text.getSize() - 4 - 30, eng.getYOff() + menuBox.y + 2, (eng.assetLdr.craft.getWidth() / 7) + 2, (eng.assetLdr.craft.getHeight() / 5) + 3, null);
+            }
+        } else {
+            g2d.drawLine(menuBox.x + menuBox.width - text.getSize() - 8, menuBox.y + 8,
+                    menuBox.x + menuBox.width - text.getSize() - 8, menuBox.y + 22);
+
+            Rectangle pick = new Rectangle(menuBox.x + menuBox.width - text.getSize() - 4 - 30, menuBox.y + 2, 26, 26);
+            if (contains(pick, false)) {
+                if (actionTimer <= 0) {
+                    g.drawImage(eng.assetLdr.pickUp, menuBox.x + menuBox.width - text.getSize() - 4 - 30, menuBox.y + 2, (eng.assetLdr.craft.getWidth() / 7) + 2, (eng.assetLdr.craft.getHeight() / 5) + 3, null);
+                } else {
+                    g.drawImage(eng.assetLdr.pickUp3, menuBox.x + menuBox.width - text.getSize() - 4 - 30, menuBox.y + 2, (eng.assetLdr.craft.getWidth() / 7) + 2, (eng.assetLdr.craft.getHeight() / 5) + 3, null);
+                }
+                if (eng.left && mouseDelay) {
+                    pickUp();
+                    mouseDelay = false;
+                }
+
+            } else {
+                g.drawImage(eng.assetLdr.pickUp2, menuBox.x + menuBox.width - text.getSize() - 4 - 30, menuBox.y + 2, (eng.assetLdr.craft.getWidth() / 7) + 2, (eng.assetLdr.craft.getHeight() / 5) + 3, null);
             }
         }
     }
@@ -149,10 +241,10 @@ public class WorldObjects {
         //still needs some fine tuning
         g.setColor(new Color(255, 255, 255, 200));
         Graphics2D g2d = (Graphics2D) g;
-        BasicStroke bs = new BasicStroke(2);
+        BasicStroke bs = new BasicStroke(3);
         g2d.setStroke(bs);
         int set = 8;
-        g2d.drawLine(menuBox.x + menuBox.width - text.getSize() - set, menuBox.y + 8,
+        g2d.drawLine(menuBox.x + menuBox.width - text.getSize() - set, menuBox.y + set,
                 menuBox.x + menuBox.width - text.getSize() - set, menuBox.y + 22);
         g.setColor(Color.white);
         g.drawString(name, menuBox.x + 5, menuBox.y + text.getSize() - 2);
@@ -260,11 +352,12 @@ public class WorldObjects {
             size = new Rectangle(x, y, w, h);
             collis = collisBox();
             eng.world.updatelist();
+            System.out.println("droppeds");
 
         }
 
         if (eng.right) {
-            eng.world.hubRoom.obbys.remove(this);
+            eng.world.active.obbys.remove(this);
             for (int i = 0; i < costs.size(); i++) {
                 eng.mainChar.inv.itemAdd(costs.get(i).id, costs.get(i).qnty);
             }
@@ -293,11 +386,11 @@ public class WorldObjects {
     //<editor-fold defaultstate="collapsed" desc="closeAll">
     public void closeAll(WorldObjects holder) {
 
-        for (int i = 0; i < eng.world.hubRoom.obbys.size(); i++) {
-            if (eng.world.hubRoom.obbys.get(i) == holder) {
+        for (int i = 0; i < eng.world.active.obbys.size(); i++) {
+            if (eng.world.active.obbys.get(i) == holder) {
 
             } else {
-                eng.world.hubRoom.obbys.get(i).pop = false;
+                eng.world.active.obbys.get(i).pop = false;
             }
         }
         if (eng.inventory) {
@@ -306,8 +399,15 @@ public class WorldObjects {
     }
 //</editor-fold>
 
+    //<editor-fold defaultstate="collapsed" desc="pickUp">
+    public void pickUp() {
+    }
+    //</editor-fold>
+
+    //<editor-fold defaultstate="collapsed" desc="part">
     public void part() {
 
     }
+    //</editor-fold>
 
 }

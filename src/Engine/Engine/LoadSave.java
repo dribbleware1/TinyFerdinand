@@ -228,11 +228,12 @@ public class LoadSave {
 
         //<editor-fold defaultstate="collapsed" desc="Objects load">
         if (id == 3) { //objects load
-            int treeCount = 0, fireCount = 0, benchCount = 0, fenceCount = 0;
+            int treeCount = 0, fireCount = 0, benchCount = 0, fenceCount = 0, torchCount = 0;
             int tX = 0, tY = 0, tID = 0, tC = 0, tic = 0; // trees
             int fX = 0, fY = 0, fT = 0; //fires
             int bX = 0, bY = 0; //workbenches
             int feX = 0, feY = 0, feId; //fences
+            int toX = 0, toY = 0;
             boolean feC = true;
             String section = "BLANK", hold;
             Scanner scanner = new Scanner(new File(path + "/hubTree.zbd"));
@@ -254,6 +255,10 @@ public class LoadSave {
                     }
                     if (hold.equalsIgnoreCase("FENCES")) {
                         section = "FENCES";
+                        hold = scanner.nextLine();
+                    }
+                    if (hold.equalsIgnoreCase("TORCHES")) {
+                        section = "TORCHES";
                         hold = scanner.nextLine();
                     }
 
@@ -316,6 +321,17 @@ public class LoadSave {
                     }
 //</editor-fold>
 
+//<editor-fold defaultstate="collapsed" desc="TORCHES">
+                    if (section.equalsIgnoreCase("TORCHES")) {
+                        toX = Integer.parseInt(temp[0]);
+                        toY = Integer.parseInt(temp[1]);
+                        Torch placeHolder = new Torch(toX, toY, 100, engine);
+                        engine.world.hubRoom.obbys.add(placeHolder);
+                        placeHolder.dropped = true;
+                        torchCount++;
+                    }
+//</editor-fold>
+
                 } else {
                     scanner.nextLine();
                 }
@@ -324,8 +340,10 @@ public class LoadSave {
             System.out.println("Loaded " + fireCount + " fires");
             System.out.println("Loaded " + benchCount + " benches");
             System.out.println("Loaded " + fenceCount + " fences");
+            System.out.println("Loaded " + torchCount + " torches");
 
-            engine.world.hubRoom.stuff();
+            engine.world.hubRoom.order();
+            engine.world.updatelist();
 
             scanner.close();
 
@@ -358,7 +376,7 @@ public class LoadSave {
 
         List<WorldObjects> obbys = engine.world.hubRoom.obbys;
 
-        boolean trees = false, fires = false, benches = false, fences = false;
+        boolean trees = false, fires = false, benches = false, fences = false, torches = false;
         for (int i = 0; i < obbys.size(); i++) {
             if (obbys.get(i) instanceof Tree) {
                 trees = true;
@@ -372,9 +390,12 @@ public class LoadSave {
             if (obbys.get(i) instanceof Fence) {
                 fences = true;
             }
+            if (obbys.get(i) instanceof Torch) {
+                torches = true;
+            }
         }
 
-        for (int j = 0; j < 4; j++) {
+        for (int j = 0; j < 5; j++) {
             boolean first = true;
             for (int i = 0; i < engine.world.hubRoom.obbys.size(); i++) {
                 switch (j) {
@@ -414,7 +435,15 @@ public class LoadSave {
                             writer.println(obbys.get(i).x + " " + obbys.get(i).y + " " + obbys.get(i).ID + " " + obbys.get(i).changeable);
                         }
                         break;
-
+                    case 4:
+                        if (first && torches) {
+                            writer.println("Torches");
+                            first = false;
+                        }
+                        if (obbys.get(i) instanceof Torch) {
+                            writer.println(obbys.get(i).x + " " + obbys.get(i).y);
+                        }
+                        break;
                 }
             }
         }

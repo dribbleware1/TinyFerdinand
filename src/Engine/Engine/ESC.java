@@ -33,7 +33,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import javax.imageio.ImageIO;
 import javax.swing.JFrame;
 //</editor-fold>
 
@@ -53,7 +52,7 @@ public class ESC implements Runnable {
     int poptime = 0;
     int popcounter = 0;
     //Input input;
-    public String Loc = "menu";
+    public String Loc = "hub";
 
     //Input input;
     public Input input = new Input(this);
@@ -179,6 +178,8 @@ public class ESC implements Runnable {
     public void update() {
         //Movement checks
         move();
+
+//        System.out.println(getXOff() + "      " + getYOff());
         //World
         for (int i = 0; i < popups.size(); i++) {
             if (popups.get(i).tick == 240) {
@@ -367,10 +368,10 @@ public class ESC implements Runnable {
         g2d.setColor(filter);
         Area outer = new Area(new Rectangle(0, 0, sizew, sizeh));
 
-        List<WorldObjects> obbys = world.hubRoom.obbys;
-        if (dark) {
+        List<WorldObjects> obbys = world.active.obbys;
+        if (dark || world.active.dark) {
             for (int i = 0; i < obbys.size(); i++) {
-                if ((obbys.get(i) instanceof CampFire)) {
+                if ((obbys.get(i).hasLight)) {
                     if (obbys.get(i).actionTimer > 0 && obbys.get(i).dropped) {
                         outer.subtract(new Area(((WorldObjects) obbys.get(i)).getLight()));
                     }
@@ -456,7 +457,7 @@ public class ESC implements Runnable {
     }
     //</editor-fold>
 
-    //<editor-fold defaultstate="collapsed" desc="Start">
+    //<editor-fold defaultstate="collapsed" desc="init">
     public void init() {
         try {
             assetLdr.init();
@@ -464,7 +465,7 @@ public class ESC implements Runnable {
             System.out.println("oops cant start loader");
         }
         world = new World(input, this);
-        world.start();
+//        world.start();
         mainChar = new Player(10, 10, input, this, world);
         saver.init();
         xoff = loadVars[2];
@@ -519,11 +520,11 @@ public class ESC implements Runnable {
     }
 
     public void setXOff(int in) {
-        xoff += Integer.toString(in);
+        xoff = Integer.toString(in);
     }
 
     public void setYOff(int in) {
-        yoff += Integer.toString(in);
+        yoff = Integer.toString(in);
     }
 
     public int getFrameX() {

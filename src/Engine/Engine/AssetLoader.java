@@ -54,7 +54,7 @@ public class AssetLoader {
     //</editor-fold>
 
     //<editor-fold defaultstate="collapsed" desc="Inventory">
-    public BufferedImage craft, craft2, home, home2;
+    public BufferedImage craft, craft2, home, home2, pickUp, pickUp2, pickUp3;
     //</editor-fold>
 
     //<editor-fold defaultstate="collapsed" desc="Player">
@@ -64,17 +64,18 @@ public class AssetLoader {
     public List<BufferedImage> walkLeft = new ArrayList<>();
     public List<BufferedImage> walkDown = new ArrayList<>();
     public List<BufferedImage> walkRight = new ArrayList<>();
-    public List<BufferedImage> campFire = new ArrayList<>();
-    //</editor-fold>
+//</editor-fold>
 
     //<editor-fold defaultstate="collapsed" desc="Items">
     public BufferedImage decoSheet, logs, emptyBucket, fullBucket;//decoration sprite sheet
     public BufferedImage terrainSheet, rocks;
     public BufferedImage apple, workBench;
+    public List<BufferedImage> campFire = new ArrayList<>();
     //newest stuff
     public BufferedImage stick, leaf, plank, paper;
     public BufferedImage axe1, shovel1, pick1;
     public BufferedImage sign, fence;
+    public List<BufferedImage> torches = new ArrayList<>();
     //</editor-fold>
 
     //<editor-fold defaultstate="collapsed" desc="Fonts">
@@ -97,7 +98,7 @@ public class AssetLoader {
 
         //<editor-fold defaultstate="collapsed" desc="World">
         overlay = toCompatibleImage(ImageIO.read(FileUtils.getFilePathFromRoot("Res", "Gameplay", "Hub", "hub 2.png").toFile()));
-        Hub1 = toCompatibleImage(ImageIO.read(FileUtils.getFilePathFromRoot("Res", "Gameplay", "Hub", "hub - 2.png").toFile()));
+        Hub1 = toCompatibleImage(ImageIO.read(FileUtils.getFilePathFromRoot("Res", "Gameplay", "Hub", "Hub.png").toFile()));
 
         for (int i = 0; i < 5; i++) {
             for (int j = 0; j < 3; j++) {
@@ -164,6 +165,9 @@ public class AssetLoader {
         craft2 = toCompatibleImage(ImageIO.read(FileUtils.getFilePathFromRoot("Res", "carftGrey.png").toFile()));
         home = toCompatibleImage(ImageIO.read(FileUtils.getFilePathFromRoot("Res", "home.png").toFile()));
         home2 = toCompatibleImage(ImageIO.read(FileUtils.getFilePathFromRoot("Res", "homeGrey.png").toFile()));
+        pickUp = toCompatibleImage(ImageIO.read(FileUtils.getFilePathFromRoot("Res", "pickUp.png").toFile()));
+        pickUp2 = toCompatibleImage(ImageIO.read(FileUtils.getFilePathFromRoot("Res", "pickUpGrey.png").toFile()));
+        pickUp3 = toCompatibleImage(ImageIO.read(FileUtils.getFilePathFromRoot("Res", "pickUpRed.png").toFile()));
         //</editor-fold>
 
         //<editor-fold defaultstate="collapsed" desc="Player and movement">
@@ -212,6 +216,10 @@ public class AssetLoader {
             campFire.add(toCompatibleImage(crop(decoSheet, (8 + i) * 32, 47 * 32, 32, 64)));
         }
         campFire.add(toCompatibleImage(crop(decoSheet, 320, 49 * 32, 32, 32)));
+
+        for (int i = 0; i < 4; i++) {
+            torches.add(toCompatibleImage(crop(ImageIO.read(FileUtils.getFilePathFromRoot("Res", "Gameplay", "Items", "Torches.png").toFile()), (32 * i), 0, 32, 32)));
+        }
         //</editor-fold>
 
         //<editor-fold defaultstate="collapsed" desc="Crafting map builder">
@@ -231,6 +239,7 @@ public class AssetLoader {
         crafting.put("Fence3", fenceParts.get(3));
         crafting.put("Fence5", fenceParts.get(5));
         crafting.put("Sign", sign);
+        crafting.put("Torch", torches.get(0));
         //</editor-fold>
 
         //<editor-fold defaultstate="collapsed" desc="Fonts (to come)">

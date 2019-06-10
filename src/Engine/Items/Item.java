@@ -19,9 +19,9 @@ import java.awt.image.BufferedImage;
  * @author DribbleWare
  */
 public class Item {
-//                                                0      1       2           3         4      5          6         7       8         9     10      11         12        13      14
+//                                                0      1       2           3         4      5          6         7       8         9     10      11         12        13      14      15
 
-    public final String[] NAMES = new String[]{"Logs", "Rocks", "Bucket", "Water", "Apple", "Sapling", "Stick", "Paper", "Plank", "Leaf", "Axe", "Shovel", "Pickaxe", "Sign", "Fence"}; //leaf -> leaves ?
+    public final String[] NAMES = new String[]{"Logs", "Rocks", "Bucket", "Water", "Apple", "Sapling", "Stick", "Paper", "Plank", "Leaf", "Axe", "Shovel", "Pickaxe", "Sign", "Fence", "Torch"}; //leaf -> leaves ?
     public BufferedImage[] art = new BufferedImage[]{};
 
     public int x, y, width, height, id, qnty;
@@ -67,6 +67,6 @@ public class Item {
 
     public void artBuild() {
         art = new BufferedImage[]{eng.assetLdr.logs, eng.assetLdr.rocks, eng.assetLdr.emptyBucket, eng.assetLdr.fullBucket, eng.assetLdr.apple, eng.assetLdr.sapling, eng.assetLdr.stick,
-            eng.assetLdr.paper, eng.assetLdr.plank, eng.assetLdr.leaf, eng.assetLdr.axe1, eng.assetLdr.shovel1, eng.assetLdr.pick1, eng.assetLdr.sign, eng.assetLdr.fence};
+            eng.assetLdr.paper, eng.assetLdr.plank, eng.assetLdr.leaf, eng.assetLdr.axe1, eng.assetLdr.shovel1, eng.assetLdr.pick1, eng.assetLdr.sign, eng.assetLdr.fence, eng.assetLdr.torches.get(0)};
     }
 }

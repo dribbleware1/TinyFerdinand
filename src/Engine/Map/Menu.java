@@ -16,7 +16,7 @@ import java.awt.Rectangle;
  *
  * @author DribbleWare
  */
-public class Menu {
+public class Menu extends Location {
 
     ESC eng;
     Rectangle Title;
@@ -140,7 +140,7 @@ public class Menu {
         //continue button
         if (contains(cont) && eng.left && !opty) {
             eng.Loc = "hub";
-            update = true;
+            eng.world.updatelist();
             eng.left = false;
         }
         //options button
