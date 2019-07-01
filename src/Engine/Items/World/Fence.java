@@ -3,13 +3,14 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package Engine.Items;
+package Engine.Items.World;
 
 import Engine.Engine.ESC;
-import Engine.Map.WorldObjects;
+import Engine.Items.Support.WorldObjects;
 import java.awt.Color;
 import java.awt.Graphics;
 import java.awt.Rectangle;
+import java.awt.geom.Area;
 import java.util.List;
 
 /**
@@ -172,56 +173,56 @@ public class Fence extends WorldObjects {
             case 6:
                 ret = new Rectangle(x + (w / 2) - (w / 12) - 3, y + 65, (w / 6), h - 65);
                 if (dropped) {
-                    eng.world.active.objects.add(new Rectangle(x + (w / 2) - 13, y + (h / 8) * 3, (w / 2) + 13, h / 8));
+                    eng.world.active.objects.add(new Area(new Rectangle(x + (w / 2) - 13, y + (h / 8) * 3, (w / 2) + 13, h / 8)));
                 }
                 break;
             case 7:
                 ret = new Rectangle(x + (w / 2) - (w / 12) - 3, y + 65, (w / 6), h - 65);
                 if (dropped) {
-                    eng.world.active.objects.add(new Rectangle(x, y + (h / 8) * 3, w, h / 8));
+                    eng.world.active.objects.add(new Area(new Rectangle(x, y + (h / 8) * 3, w, h / 8)));
 
                 }
                 break;
             case 8:
                 ret = new Rectangle(x + (w / 2) - (w / 12) - 3, y + 65, (w / 6), h - 65);
                 if (dropped) {
-                    eng.world.active.objects.add(new Rectangle(x, y + (h / 8) * 3, (w / 2) + 8, (h / 8)));
+                    eng.world.active.objects.add(new Area(new Rectangle(x, y + (h / 8) * 3, (w / 2) + 8, (h / 8))));
                 }
                 break;
             case 9:
                 ret = new Rectangle(x + (w / 2) - 13, y + (h / 8) * 3, (w / 2) + 13, h / 8);
                 if (dropped) {
-                    eng.world.active.objects.add(new Rectangle(x + (w / 2) - (w / 12) - 3, y, (w / 6), h));
+                    eng.world.active.objects.add(new Area(new Rectangle(x + (w / 2) - (w / 12) - 3, y, (w / 6), h)));
                 }
                 break;
             case 10:
                 ret = new Rectangle(x, y + (h / 8) * 3, w, h / 8);
                 if (dropped) {
-                    eng.world.active.objects.add(new Rectangle(x + (w / 2) - (w / 12) - 3, y, (w / 6), h));
+                    eng.world.active.objects.add(new Area(new Rectangle(x + (w / 2) - (w / 12) - 3, y, (w / 6), h)));
                 }
                 break;
             case 11:
                 ret = new Rectangle(x, y + (h / 8) * 3, (w / 2) + 8, (h / 8));
                 if (dropped) {
-                    eng.world.active.objects.add(new Rectangle(x + (w / 2) - (w / 12) - 3, y, (w / 6), h));
+                    eng.world.active.objects.add(new Area(new Rectangle(x + (w / 2) - (w / 12) - 3, y, (w / 6), h)));
                 }
                 break;
             case 12:
                 ret = new Rectangle(x + (w / 2) - 13, y + (h / 8) * 3, (w / 2) + 13, h / 8);
                 if (dropped) {
-                    eng.world.active.objects.add(new Rectangle(x + (w / 2) - (w / 12) - 3, y, (w / 6), h - 80));
+                    eng.world.active.objects.add(new Area(new Rectangle(x + (w / 2) - (w / 12) - 3, y, (w / 6), h - 80)));
                 }
                 break;
             case 13:
                 ret = new Rectangle(x, y + (h / 8) * 3, w, h / 8);
                 if (dropped) {
-                    eng.world.active.objects.add(new Rectangle(x + (w / 2) - (w / 12) - 3, y, (w / 6), h - 80));
+                    eng.world.active.objects.add(new Area(new Rectangle(x + (w / 2) - (w / 12) - 3, y, (w / 6), h - 80)));
                 }
                 break;
             case 14:
                 ret = new Rectangle(x, y + (h / 8) * 3, (w / 2) + 8, h / 8);
                 if (dropped) {
-                    eng.world.active.objects.add(new Rectangle(x + (w / 2) - (w / 12) - 3, y, (w / 6), h - 80));
+                    eng.world.active.objects.add(new Area(new Rectangle(x + (w / 2) - (w / 12) - 3, y, (w / 6), h - 80)));
                 }
                 break;
             case 15:

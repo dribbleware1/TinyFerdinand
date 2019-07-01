@@ -5,15 +5,21 @@
  */
 package Engine.Player;
 
-import Engine.Items.Item;
-import Engine.Map.World;
 import Engine.Engine.ESC;
 import Engine.Engine.Input;
+import Engine.Items.Support.Item;
+import Engine.Map.World;
 import java.awt.Color;
 import java.awt.Graphics;
+import java.awt.Graphics2D;
 import java.awt.MouseInfo;
 import java.awt.Point;
+import java.awt.RadialGradientPaint;
 import java.awt.Rectangle;
+import java.awt.geom.AffineTransform;
+import java.awt.geom.Area;
+import java.awt.geom.Ellipse2D;
+import java.awt.geom.Point2D;
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 import java.util.List;
@@ -31,10 +37,10 @@ public class Player {
     public int w = 55, h = 96;
     public int health = 500;
     Input input;
-    ESC engine;
+    ESC eng;
     public Inventory inv;
-    World World;
-    public final Rectangle box, box2;
+    public final Rectangle box;
+    public final Ellipse2D box2;
     private final Rectangle top;
     private final Rectangle lside;
     private final Rectangle rside;
@@ -52,23 +58,30 @@ public class Player {
     private List<BufferedImage> walkUp;
     private List<BufferedImage> walkDown;
 
-    public Rectangle map, collbox;
+    public Rectangle collbox;
 
     public boolean pass = false;
+    public boolean dropped = true;
+    public boolean blocked = false;
 
     int ticks = 0;
+
+    float[] dist = {0.7f, 1f};
+    Color[] colors = {new Color(0, 0, 0, 0), new Color(0, 255, 0, 100)};
+    Color[] colors2 = {new Color(0, 0, 0, 0), new Color(255, 0, 0, 100)};
 //</editor-fold>  
 
     //<editor-fold defaultstate="collapsed" desc="Initializer">
-    public Player(float xi, float yi, Input in, ESC eng, World world) {
+    public Player(float xi, float yi, Input in, ESC eng) {
         this.x = eng.sizew / 2 - 50;
         this.y = eng.sizeh / 2 - 50;
         input = in;
-        engine = eng;
-        health = Integer.parseInt(engine.loadVars[0]);
-        inv = new Inventory(engine);
+        this.eng = eng;
+        health = Integer.parseInt(this.eng.loadVars[0]);
+        inv = new Inventory(this.eng);
         box = new Rectangle((int) (x - 82.5 + 25), (int) y - h / 2, w * 3, h * 2);
-        box2 = new Rectangle(box.x - 75, box.y - 75, box.width + 140, box.height + 140);
+
+        box2 = new Ellipse2D.Float(x - 218, y - 186, 250 * 2, 250 * 2);
 
         //collision boxes for all 4 sides
         top = new Rectangle((int) x + 10, (int) y - speed / 2, w - 20, speed / 2);
@@ -78,12 +91,10 @@ public class Player {
 
         collbox = new Rectangle((int) x, (int) y, w, h);
 
-        World = world;
-
-        walkRight = engine.assetLdr.walkRight;
-        walkLeft = engine.assetLdr.walkLeft;
-        walkUp = engine.assetLdr.walkUp;
-        walkDown = engine.assetLdr.walkDown;
+        walkRight = this.eng.assetLdr.walkRight;
+        walkLeft = this.eng.assetLdr.walkLeft;
+        walkUp = this.eng.assetLdr.walkUp;
+        walkDown = this.eng.assetLdr.walkDown;
         Animation = walkRight;
 
         collision();
@@ -96,7 +107,9 @@ public class Player {
         input.update();
         inv.update();
         collect();
-        collision();
+        if (!eng.Loc.equalsIgnoreCase("menu")) {
+            collision();
+        }
 
         if (ani == (aSpeed * 8) - 1) {
             ani = 0;
@@ -109,16 +122,25 @@ public class Player {
     //<editor-fold defaultstate="collapsed" desc="render Graphics g">
     public void render(Graphics g) {
         g.setColor(Color.red);
-        g.drawImage(engine.assetLdr.dropShadow, (int) x - 5, (int) y + 65, engine.assetLdr.dropShadow.getWidth() * 2, engine.assetLdr.dropShadow.getHeight() * 2, null);
-        if (engine.move) {
+        g.drawImage(eng.assetLdr.dropShadow, (int) x - 5, (int) y + 65, eng.assetLdr.dropShadow.getWidth() * 2, eng.assetLdr.dropShadow.getHeight() * 2, null);
+        if (eng.move) {
             animate(g);
         } else {
             g.drawImage(walkUp.get(0), (int) x - 36, (int) y - 30, 128, 128, null);
         }
-//        g.drawRect(box2.x, box2.y, box2.width, box2.height);
+        if (!dropped) {
+            Graphics2D g2d = (Graphics2D) g.create();
+            RadialGradientPaint p = new RadialGradientPaint(new Point2D.Float(x + 32, y + 64), 250, dist, colors);
+            if (blocked) {
+                p = new RadialGradientPaint(new Point2D.Float(x + 32, y + 64), 250, dist, colors2);
+            }
+            g2d.setPaint(p);
+            g2d.fillOval((int) x - 218, (int) y - 186, (int) 250 * 2, (int) 250 * 2);
+            g2d.dispose();
+        }
 
         //Collision boxes for debug mode
-        if (engine.debug) {
+        if (eng.debug) {
             g.setColor(Color.ORANGE);
             g.drawRect(top.x, top.y, top.width, top.height);
             g.drawRect(bottom.x, bottom.y, bottom.width, bottom.height);
@@ -126,6 +148,7 @@ public class Player {
             g.drawRect(rside.x, rside.y, rside.width, rside.height);
             g.setColor(Color.PINK);
             g.drawRect(box.x, box.y, box.width, box.height);
+            g.setColor(Color.CYAN);
             g.drawRect(collbox.x, collbox.y, collbox.width, collbox.height);
         }
     }
@@ -134,36 +157,17 @@ public class Player {
     //<editor-fold defaultstate="collapsed" desc="collect">
     public void collect() {
         overIt = false;
-        for (int i = 0; i < World.items.size(); i++) {
-            if (box.intersects(RecBuilder(World.items.get(i))) && contains(RecBuilder(World.items.get(i)))) {
+        for (int i = 0; i < eng.world.items.size(); i++) {
+            if (box.intersects(RecBuilder(eng.world.items.get(i))) && contains(RecBuilder(eng.world.items.get(i)))) {
                 overIt = true;
-                World.items.get(i).tool = true;
-                if (engine.left) {
+                eng.world.items.get(i).tool = true;
+                if (eng.left) {
 
-                    inv.itemAdd(World.items.get(i).id, World.items.get(i).qnty);
-                    World.items.remove(i);
-//                    for (int j = 0; j < inv.inven.size(); j++) {
-//                        if (World.items.get(i).id == inv.inven.get(j).id) {
-//                            inv.inven.get(j).qnty += World.items.get(i).qnty;
-//                            if (World.items.get(i).qnty == 1) {
-//                                engine.pop("+" + World.items.get(i).qnty + " " + World.items.get(i).NAMES[World.items.get(i).id]);
-//                            } else {
-//                                engine.pop("+" + World.items.get(i).qnty + " " + World.items.get(i).NAMES[World.items.get(i).id] + "s");
-//                            }
-//                            World.items.remove(i);
-//                            return;
-//                        }
-//                    }
-//                    inv.inven.add(new Item(World.items.get(i).id, World.items.get(i).qnty));
-//                    if (World.items.get(i).qnty == 1) {
-//                        engine.pop("+" + World.items.get(i).qnty + " " + World.items.get(i).NAMES[World.items.get(i).id]);
-//                    } else {
-//                        engine.pop("+" + World.items.get(i).qnty + " " + World.items.get(i).NAMES[World.items.get(i).id] + "s");
-//                    }
-//                    World.items.remove(i);
+                    inv.itemAdd(eng.world.items.get(i).id, eng.world.items.get(i).qnty);
+                    eng.world.items.remove(i);
                 }
             } else {
-                World.items.get(i).tool = false;
+                eng.world.items.get(i).tool = false;
             }
         }
 
@@ -177,22 +181,28 @@ public class Player {
         down = false;
         left = false;
         right = false;
+        World World = eng.world;
+
+        AffineTransform temp = new AffineTransform();
+        temp.translate(eng.getXOff(), eng.getYOff());
         for (int i = 0; i < World.Objects.size(); i++) { // check for collision with world objects
-            if (new Rectangle((World.Objects.get(i).x + engine.getXOff()), (World.Objects.get(i).y + engine.getYOff()), World.Objects.get(i).width, World.Objects.get(i).height).intersects(top) || !map.contains(top)) {
-                up = true;
-            }
-            if (new Rectangle((World.Objects.get(i).x + engine.getXOff()), (World.Objects.get(i).y + engine.getYOff()), World.Objects.get(i).width, World.Objects.get(i).height).intersects(lside) || !map.contains(lside)) {
-                left = true;
-            }
-            if (new Rectangle((World.Objects.get(i).x + engine.getXOff()), (World.Objects.get(i).y + engine.getYOff()), World.Objects.get(i).width, World.Objects.get(i).height).intersects(rside) || !map.contains(rside)) {
-                right = true;
-            }
-            if (new Rectangle((World.Objects.get(i).x + engine.getXOff()), (World.Objects.get(i).y + engine.getYOff()), World.Objects.get(i).width, World.Objects.get(i).height).intersects(bottom) || !map.contains(bottom)) {
-                down = true;
+            if (World.active.map != null) {
+                if (new Area(World.Objects.get(i)).createTransformedArea(temp).intersects(top) || !World.active.map.contains(top)) {
+                    up = true;
+                }
+                if (new Area(World.Objects.get(i)).createTransformedArea(temp).intersects(bottom) || !World.active.map.contains(bottom)) {
+                    down = true;
+                }
+                if (new Area(World.Objects.get(i)).createTransformedArea(temp).intersects(lside) || !World.active.map.contains(lside)) {
+                    left = true;
+                }
+                if (new Area(World.Objects.get(i)).createTransformedArea(temp).intersects(rside) || !World.active.map.contains(rside)) {
+                    right = true;
+                }
             }
         }
         if (left && right && up && down) {
-            engine.xoff = Integer.toString(Integer.parseInt(engine.xoff) + 10);
+            eng.xoff = Integer.toString(Integer.parseInt(eng.xoff) + 10);
         }
     }
     //</editor-fold>
@@ -200,7 +210,7 @@ public class Player {
     //<editor-fold defaultstate="collapsed" desc="animate Graphics g">
     public void animate(Graphics g) {
         //<editor-fold defaultstate="collapsed" desc="animation for player movements">\
-        if (!engine.pause) {
+        if (!eng.pause) {
             if (input.up) {
                 direction = 3;
                 Animation = walkUp;
@@ -246,13 +256,13 @@ public class Player {
                 }
             }
         }
-        if (direction == 1 && !input.left || engine.pause) {
+        if (direction == 1 && !input.left || eng.pause) {
             g.drawImage(Animation.get(0), (int) x - 36, (int) y - 30, 128, 128, null);
-        } else if (direction == 2 && !input.right || engine.pause) {
+        } else if (direction == 2 && !input.right || eng.pause) {
             g.drawImage(Animation.get(0), (int) x - 36, (int) y - 30, 128, 128, null);
-        } else if (direction == 3 && !input.up || engine.pause) {
+        } else if (direction == 3 && !input.up || eng.pause) {
             g.drawImage(Animation.get(0), (int) x - 36, (int) y - 30, 128, 128, null);
-        } else if (direction == 4 && !input.down || engine.pause) {
+        } else if (direction == 4 && !input.down || eng.pause) {
             g.drawImage(Animation.get(0), (int) x - 36, (int) y - 30, 128, 128, null);
         }
         //</editor-fold>
@@ -261,8 +271,8 @@ public class Player {
 
     //<editor-fold defaultstate="collapsed" desc="loc">
     public Point loc() {
-        return new Point(MouseInfo.getPointerInfo().getLocation().x - engine.frame.getX(),
-                MouseInfo.getPointerInfo().getLocation().y - engine.frame.getY() - Math.abs(engine.frame.getLocationOnScreen().y - engine.canvas.getLocationOnScreen().y));
+        return new Point(MouseInfo.getPointerInfo().getLocation().x - eng.frame.getX(),
+                MouseInfo.getPointerInfo().getLocation().y - eng.frame.getY() - Math.abs(eng.frame.getLocationOnScreen().y - eng.canvas.getLocationOnScreen().y));
 
     }
     //</editor-fold>
@@ -270,8 +280,8 @@ public class Player {
     //<editor-fold defaultstate="collapsed" desc="contains Rectangle click">
     public boolean contains(Rectangle click) {
         boolean ret = false;
-        if (click.contains(new Point(MouseInfo.getPointerInfo().getLocation().x - engine.frame.getX(),
-                MouseInfo.getPointerInfo().getLocation().y - engine.frame.getY() - Math.abs(engine.frame.getLocationOnScreen().y - engine.canvas.getLocationOnScreen().y)))) {
+        if (click.contains(new Point(MouseInfo.getPointerInfo().getLocation().x - eng.frame.getX(),
+                MouseInfo.getPointerInfo().getLocation().y - eng.frame.getY() - Math.abs(eng.frame.getLocationOnScreen().y - eng.canvas.getLocationOnScreen().y)))) {
             ret = true;
         }
         return ret;
@@ -280,14 +290,12 @@ public class Player {
 
     //<editor-fold defaultstate="collapsed" desc="RecBuilder Item item">
     public Rectangle RecBuilder(Item item) {
-
-        return new Rectangle(item.x + engine.getXOff(), item.y + engine.getYOff(), item.width, item.height);
+        return new Rectangle(item.x + eng.getXOff(), item.y + eng.getYOff(), item.width, item.height);
     }
     //</editor-fold>
 
     //<editor-fold defaultstate="collapsed" desc="Unstick">
-    public void unstick() {
-
+    public void unstick() { //not sure
     }
     //</editor-fold>
 

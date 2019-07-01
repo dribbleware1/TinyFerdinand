@@ -3,10 +3,11 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package Engine.Items;
+package Engine.Items.World;
 
 import Engine.Engine.ESC;
-import Engine.Map.WorldObjects;
+import Engine.Items.Support.Item;
+import Engine.Items.Support.WorldObjects;
 import java.awt.BasicStroke;
 import java.awt.Color;
 import java.awt.Font;
@@ -59,6 +60,8 @@ public class Tree extends WorldObjects {
         ID = idi;
         image = getImage();
         collis = collisBox();
+        w = collis.width;
+        h = collis.height;
         maxScaleX = image.getWidth() * SCALE_FACTOR;
         maxScaleY = image.getHeight() * SCALE_FACTOR;
     }
@@ -276,14 +279,19 @@ public class Tree extends WorldObjects {
 
     //<editor-fold defaultstate="collapsed" desc="Pickup">
     private void pickup() {
-        eng.mainChar.inv.itemReplace(0, -1, 1);
+        if (eng.mainChar.inv.hasAxe()) {
+            eng.mainChar.inv.itemAdd(0, 2);
+        } else {
+            eng.mainChar.inv.itemAdd(0, 1);
+        }
+        eng.mainChar.inv.damageTool("axe", 5);
         randomApple();
         timer = 0;
         count--;
         if (count == 0) {
             eng.mainChar.inv.itemAdd(5, new Random().nextInt(2) + 1);
             eng.mainChar.inv.itemAdd(9, new Random().nextInt(6) + 1);
-            eng.world.hubRoom.obbys.remove(this);
+            eng.world.active.obbys.remove(this);
             eng.world.updatelist();
 
         }
@@ -292,11 +300,16 @@ public class Tree extends WorldObjects {
 
     //<editor-fold defaultstate="collapsed" desc="chopDown">
     private void chopDown(int qnt) {
-        eng.mainChar.inv.itemAdd(0, qnt);
+        if (eng.mainChar.inv.hasAxe()) {
+            eng.mainChar.inv.itemAdd(0, qnt * 2);
+        } else {
+            eng.mainChar.inv.itemAdd(0, qnt);
+        }
+        eng.mainChar.inv.damageTool("axe", 5 * qnt);
         randomApple();
         eng.mainChar.inv.itemReplace(5, -1, new Random().nextInt(2) + 1);
         eng.mainChar.inv.itemAdd(9, new Random().nextInt(6) + 1);
-        eng.world.hubRoom.obbys.remove(this);
+        eng.world.active.obbys.remove(this);
         eng.world.updatelist();
     }
 //</editor-fold>

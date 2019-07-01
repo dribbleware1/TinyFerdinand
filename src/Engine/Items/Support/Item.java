@@ -3,7 +3,7 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package Engine.Items;
+package Engine.Items.Support;
 
 import Engine.Engine.ESC;
 import java.awt.Color;
@@ -27,7 +27,7 @@ public class Item {
     public int x, y, width, height, id, qnty;
     public boolean tool = false;
     public Font text = new Font("TimesRoman", Font.PLAIN, 25);
-
+    public int health = -1;
     public Rectangle conBox;
 
     ESC eng;
@@ -46,6 +46,14 @@ public class Item {
     public Item(int idi, int q) {
         id = idi;
         qnty = q;
+        artBuild();
+    }
+
+    public Item(int idi, int q, int health) {
+        id = idi;
+        qnty = q;
+        this.health = health;
+        System.out.println("yas");
         artBuild();
     }
 

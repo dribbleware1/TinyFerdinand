@@ -3,15 +3,14 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package Engine.Items;
+package Engine.Items.World;
 
 import Engine.Engine.ESC;
-import Engine.Map.WorldObjects;
+import Engine.Items.Support.Light;
+import Engine.Items.Support.WorldObjects;
 import java.awt.Color;
 import java.awt.Graphics;
 import java.awt.Rectangle;
-import java.awt.geom.Ellipse2D;
-import java.util.Random;
 
 /**
  *
@@ -24,22 +23,16 @@ public class Torch extends WorldObjects {
     final int FRAMES = 3;
     final int MAX_ANI = 30;
     final int ADD_TIME = 120;
-    private final int MAX_TORCH = 15;
-    private final int MAX_LIGHT = 300;
-    private final int LIGHT_SIZE_MODIFIER = 1;
-    private final int LIGHT_SPEED = 1;
 
-    int lightSizex = new Random().nextInt(5);
-    int lightSizey = new Random().nextInt(5) + 10;
-    boolean lightx = true, lighty = true;
+    public boolean first = true;
 
     int burnTicks = 0;
-
     int animation = 0;
 
     public Rectangle light;
     public Rectangle add;
     public Rectangle putOut;
+    Light newLight;
 //</editor-fold>
 
     //<editor-fold defaultstate="collapsed" desc="constructor">
@@ -47,8 +40,6 @@ public class Torch extends WorldObjects {
         eng = engine;
         x = xi;
         y = yi;
-
-        System.out.println(lightSizex + "      " + lightSizey);
         w = eng.assetLdr.torches.get(0).getWidth() * SCALE;
         h = eng.assetLdr.torches.get(0).getHeight() * SCALE;
 
@@ -66,37 +57,62 @@ public class Torch extends WorldObjects {
     //<editor-fold defaultstate="collapsed" desc="update">
     @Override
     public void update() {
-        mouseUpdate();
+        if (new Rectangle(0, 0, eng.sizew, eng.sizeh).intersects(x + eng.getXOff(), y + eng.getYOff(), w, h)) {
+            mouseUpdate();
+            if (animated) {
+                if (animation == MAX_ANI - 1) {
+                    animation = 0;
+                }
+                animation++;
+            }
+        }
+
         if (!dropped) {
             drop();
         }
+        if (dropped && first) {
+            for (int i = 0; i < eng.mainChar.inv.inven.size(); i++) {
+                if (eng.mainChar.inv.inven.get(i).id == 15 && eng.mainChar.inv.inven.get(i).qnty > 0) {
+                    Torch placeHolder = new Torch((int) eng.mainChar.x - eng.getXOff(), (int) eng.mainChar.y - eng.getYOff(), 120, eng);
+                    placeHolder.costs = this.costs;
+                    eng.world.active.obbys.add(placeHolder);
+                    eng.mainChar.inv.itemRemove(15, 1);
+                    break;
+                }
+            }
+            first = false;
+        }
+        if (dropped && !selfTick) {
+            newLight = new Light((x / 4) - 70 + (w / 8), (y / 4) - 70 + (h / 8), 70, 1f);
+            eng.world.active.lights.add(newLight);
+            selfTick = true;
+        }
+
         if (dropped && actionTimer > 0) {
             burnTicks++;
         }
         if (actionTimer == 0) {
             animated = false;
+            eng.world.active.lights.remove(newLight);
+        }
+        if (actionTimer > 0 && !animated) {
+            animated = true;
         }
         if (burnTicks == 60) {
             burnTicks = 0;
             actionTimer--;
         }
 
-        if (animated) {
-            if (animation == MAX_ANI - 1) {
-                animation = 0;
+        if (recBuilder(size).intersects(eng.mainChar.box)) {
+            if (contains(size, true) && eng.left && mouseDelay) {
+                closeAll(this);
+                pop = true;
+                mouseDelay = false;
+                menuBox = new Rectangle(x + w, y, 420, 175);
+                add = addButton(5, 70);
+                light = addButton(5, 120);
+                putOut = addButton(295, 70);
             }
-            animation++;
-        }
-        lightSizing();
-
-        if (contains(size, true) && eng.left && mouseDelay && recBuilder(size).intersects(eng.mainChar.box)) {
-            closeAll(this);
-            pop = true;
-            mouseDelay = false;
-            menuBox = new Rectangle(x + w, y, 420, 175);
-            add = addButton(5, 70);
-            light = addButton(5, 120);
-            putOut = addButton(295, 70);
         }
     }
     //</editor-fold>
@@ -131,6 +147,9 @@ public class Torch extends WorldObjects {
                 g.fillRect(x + eng.getXOff(), y + eng.getYOff(), w, h);
             }
         }
+//        g.fillRect(x,y,w,h);
+//        Graphics2D g2d = (Graphics2D) g;
+//        g2d.draw(new Area(new Ellipse2D.Float((x + (w / 2) - 125) + eng.getXOff(), (y + (h / 2) - 125) + eng.getYOff(), 250, 250
     }
     //</editor-fold>
 
@@ -176,6 +195,7 @@ public class Torch extends WorldObjects {
                 if (eng.left && mouseDelay) {
                     eng.mainChar.inv.itemRemove(6, 1);
                     actionTimer += ADD_TIME;
+                    mouseDelay = false;
                 }
             } else {
                 g.setColor(bad);
@@ -191,6 +211,7 @@ public class Torch extends WorldObjects {
                 if (eng.left && mouseDelay) {
                     eng.mainChar.inv.itemRemove(6, 1);
                     eng.mainChar.inv.itemRemove(9, 2);
+                    eng.world.active.lights.add(newLight);
                     actionTimer += ADD_TIME;
                     mouseDelay = false;
                 }
@@ -207,6 +228,8 @@ public class Torch extends WorldObjects {
                 g.setColor(good);
                 if (eng.left && mouseDelay) {
                     actionTimer = 0;
+                    eng.world.active.lights.remove(newLight);
+                    mouseDelay = false;
                 }
             } else {
                 g.setColor(bad);
@@ -240,48 +263,4 @@ public class Torch extends WorldObjects {
         }
     }
     //</editor-fold>
-
-    //<editor-fold defaultstate="collapsed" desc="fireSizing">
-    void lightSizing() {
-        if (animated) {
-            if (lightx) {
-                lightSizex += LIGHT_SPEED;
-            } else {
-                lightSizex -= LIGHT_SPEED;
-            }
-
-            if (lighty) {
-                lightSizey += LIGHT_SPEED;
-            } else {
-                lightSizey -= LIGHT_SPEED;
-            }
-
-            if (lightSizex <= 0) {
-                lightx = true;
-            }
-            if (lightSizex >= MAX_TORCH) {
-                lightx = false;
-            }
-            if (lightSizey <= 0) {
-                lighty = true;
-            }
-            if (lightSizey >= MAX_TORCH) {
-                lighty = false;
-            }
-
-        }
-    }
-    //</editor-fold>
-
-    //<editor-fold defaultstate="collapsed" desc="getLight">
-    @Override
-    public Ellipse2D getLight() {
-        return new Ellipse2D.Double(x + eng.getXOff() - ((lightSizex / LIGHT_SIZE_MODIFIER) / 2) - (MAX_LIGHT / 2) + (w / 2),
-                y + eng.getYOff() - (MAX_LIGHT / 2) + ((h / 3) * 2) - ((lightSizey / LIGHT_SIZE_MODIFIER) / 2),
-                MAX_LIGHT + (lightSizex / LIGHT_SIZE_MODIFIER),
-                MAX_LIGHT + (lightSizey / LIGHT_SIZE_MODIFIER));
-
-    }
-    //</editor-fold>
-
 }

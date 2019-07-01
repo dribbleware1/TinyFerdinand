@@ -3,22 +3,20 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package Engine.Items;
+package Engine.Items.World;
 
 import Engine.Engine.ESC;
-import Engine.Map.WorldObjects;
+import Engine.Items.Support.Light;
+import Engine.Items.Support.WorldObjects;
 import Engine.Player.Crafting;
 import java.awt.BasicStroke;
 import java.awt.Color;
-import java.awt.Font;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.Rectangle;
-import java.awt.geom.Ellipse2D;
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Random;
 
 /**
  * @author DribbleWare
@@ -26,9 +24,6 @@ import java.util.Random;
 public class CampFire extends WorldObjects {
 
     //<editor-fold defaultstate="collapsed" desc="Declarations">
-    private final int MAX_FIRE = 15;
-    private final int FIRE_SIZE_MODIFIER = 1;
-    private final int MAX_LIGHT = 750;
     private final int MAX_TIME = 60 * 99; //60 seconds in a minute * 99 minuts to keep it as a 2 digit minute second display
     private final int ADD = 120; //seconds to add per log (seems too short at 2 mins but we'll see
     private final int LIGHT_COST = 3; //cost to relight a fire thats burnt out
@@ -39,11 +34,8 @@ public class CampFire extends WorldObjects {
     public int sX = 0;
     public int sY = 0;
 
-    int fireSizex = new Random().nextInt(MAX_FIRE / 2);
-    int fireSizey = new Random().nextInt(MAX_FIRE - (MAX_FIRE / 2));
-    boolean firex = true, firey = true;
-
     int placeDis = 150;
+    boolean first = true;
 
     int aSpeed = 8;
     int aFrames;
@@ -56,13 +48,11 @@ public class CampFire extends WorldObjects {
     private Rectangle addBox;
     private Rectangle lightBox;
     private Rectangle putOut;
+    Light newLight;
     //</editor-fold>
 
     //<editor-fold defaultstate="collapsed" desc="Constructor int x, int y, ESC engine">
     public CampFire(int xi, int yi, int time, ESC engi) {
-
-        System.out.println(fireSizex + "          " + fireSizey);
-
         eng = engi;
         campFire = eng.assetLdr.campFire;
         x = xi;
@@ -85,12 +75,7 @@ public class CampFire extends WorldObjects {
     //<editor-fold defaultstate="collapsed" desc="Update">
     @Override
     public void update() {
-//        System.out.println(Crafts.size());
         mouseUpdate();
-        if (!animated) {
-            firex = false;
-            firey = false;
-        }
         if (dropped && actionTimer > 0) {
             burnTicks++;
         }
@@ -98,10 +83,22 @@ public class CampFire extends WorldObjects {
             burnTicks = 0;
             actionTimer--;
         }
-        fireSizing();
+        if (actionTimer == 0) {
+            animated = false;
+            eng.world.active.lights.remove(newLight);
+        }
+        if (actionTimer > 0 && !animated) {
+            animated = true;
+        }
 
         if (!dropped) {
             drop();
+        }
+
+        if (dropped && first) {
+            newLight = new Light((x / 4) - 150 + (w / 8), (y / 4) - 150 + (h / 8), 150, 1f);
+            eng.world.active.lights.add(newLight);
+            first = false;
         }
 
         if (ani == (aSpeed * aFrames) - 1) {
@@ -127,7 +124,7 @@ public class CampFire extends WorldObjects {
     @Override
     public void render(Graphics g) {
         if (eng.mainChar.y >= y + eng.getYOff() && dropped) {
-            if (animated && actionTimer > 0) {
+            if (animated) {
                 switch (Math.round(ani / aSpeed)) {
                     case 0:
                         g.drawImage(campFire.get(0), x + eng.getXOff(), y + eng.getYOff(), w, h, null);
@@ -250,6 +247,7 @@ public class CampFire extends WorldObjects {
                         actionTimer += ADD;
                         eng.mainChar.inv.itemRemove(0, LIGHT_COST);
                         mouseDelay = false;
+                        eng.world.active.lights.add(newLight);
                     }
                     g.setColor(good);
                 } else {
@@ -264,6 +262,7 @@ public class CampFire extends WorldObjects {
                 if (eng.left && mouseDelay) {
                     actionTimer = 0;
                     mouseDelay = false;
+                    eng.world.active.lights.remove(newLight);
                 }
             }
 
@@ -291,53 +290,9 @@ public class CampFire extends WorldObjects {
 
     //<editor-fold defaultstate="collapsed" desc="Collision builder">
     public Rectangle collisBox() {
-        return new Rectangle(x, y + 95, 60, 10);
+        return new Rectangle(x + 10, y + 130, 75, 15);
     }
 //</editor-fold>
-
-    //<editor-fold defaultstate="collapsed" desc="fireSizing">
-    void fireSizing() {
-        if (animated) {
-            if (firex) {
-                fireSizex++;
-            } else {
-                fireSizex--;
-            }
-
-            if (firey) {
-                fireSizey++;
-            } else {
-                fireSizey--;
-            }
-
-            if (fireSizex <= 0) {
-                firex = true;
-            }
-            if (fireSizex >= MAX_FIRE) {
-                firex = false;
-            }
-            if (fireSizey <= 0) {
-                firey = true;
-            }
-            if (fireSizey >= MAX_FIRE) {
-                firey = false;
-            }
-
-        }
-    }
-    //</editor-fold>
-
-    //<editor-fold defaultstate="collapsed" desc="getLight">
-    @Override
-    public Ellipse2D getLight() {
-
-        return new Ellipse2D.Double(x + eng.getXOff() - ((fireSizex / FIRE_SIZE_MODIFIER) / 2) - (MAX_LIGHT / 2) + (w / 2),
-                y + eng.getYOff() - (MAX_LIGHT / 2) + ((h / 3) * 2) - ((fireSizey / FIRE_SIZE_MODIFIER) / 2),
-                MAX_LIGHT + (fireSizex / FIRE_SIZE_MODIFIER),
-                MAX_LIGHT + (fireSizey / FIRE_SIZE_MODIFIER));
-
-    }
-    //</editor-fold>
 
     //<editor-fold defaultstate="collapsed" desc="pickUp">
     @Override

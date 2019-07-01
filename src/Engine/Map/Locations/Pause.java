@@ -3,7 +3,7 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package Engine.Map;
+package Engine.Map.Locations;
 
 import Engine.Engine.ESC;
 import java.awt.Color;
@@ -39,6 +39,7 @@ public class Pause {
             } catch (FileNotFoundException | UnsupportedEncodingException ex) {
                 System.out.println("Saving failed");
             }
+            eng.world.menu.starting = false;
             eng.Loc = "menu";
             eng.pause = false;
             eng.pdelay = 0;
@@ -56,10 +57,9 @@ public class Pause {
         } else {
             g.drawImage(eng.assetLdr.exitToTitle, exit.x, exit.y, exit.width, exit.height, null);
         }
-        
-        
+
         g.setColor(Color.red);
-        if(eng.debug){
+        if (eng.debug) {
             g.drawRect(exit.x, exit.y, exit.width, exit.height);
         }
     }

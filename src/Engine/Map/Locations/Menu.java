@@ -3,9 +3,10 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package Engine.Map;
+package Engine.Map.Locations;
 
 import Engine.Engine.ESC;
+import Engine.Map.Support.Location;
 import java.awt.Color;
 import java.awt.Graphics;
 import java.awt.MouseInfo;
@@ -31,6 +32,7 @@ public class Menu extends Location {
 
     public boolean update = false;
     public boolean opty = false;
+    public boolean starting = false;
     public int scale = 2;
 
     public Menu(ESC engine) {
@@ -138,10 +140,15 @@ public class Menu extends Location {
 
     public void update() {
         //continue button
-        if (contains(cont) && eng.left && !opty) {
-            eng.Loc = "hub";
-            eng.world.updatelist();
+        if ((contains(cont) && eng.left && !opty) || starting) {
+            if (eng.place.equals("hub")) {
+                eng.world.hubRoom.toHub();
+            }
+            if (eng.place.equalsIgnoreCase("mine")) {
+                eng.world.mine.toMine();
+            }
             eng.left = false;
+            starting = true;
         }
         //options button
         if (contains(options) && eng.left && !opty) {

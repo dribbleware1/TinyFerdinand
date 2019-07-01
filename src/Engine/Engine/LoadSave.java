@@ -6,9 +6,13 @@
 package Engine.Engine;
 
 import Engine.FileIO.FileUtils;
-import Engine.Items.*;
-import Engine.Map.WorldObjects;
-
+import Engine.Items.Support.Item;
+import Engine.Items.Support.WorldObjects;
+import Engine.Items.World.CampFire;
+import Engine.Items.World.Fence;
+import Engine.Items.World.Torch;
+import Engine.Items.World.Tree;
+import Engine.Items.World.WorkBench;
 import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -43,13 +47,9 @@ public class LoadSave {
         File customDir = playerSavePath.toFile();
         File itemDir = playerItemsSavePath.toFile();
 
-//        File mainDir = playerSavePath.resolve(Path.of("Save.zbd")).toFile();
-//        File hubDir = playerItemsSavePath.resolve(Path.of("Hub.zbd")).toFile();
-//        File hubTree = playerItemsSavePath.resolve(Path.of("hubTree.zbd")).toFile();
-//        File invenDir = playerSavePath.resolve(Path.of("Inventory.zbd")).toFile();
         File mainDir = FileUtils.getFilePath(playerSavePath.toString(), "Save.zbd").toFile();
-        File hubDir = FileUtils.getFilePath(playerItemsSavePath.toString(), "Hub.zbd").toFile();
-        File hubTree = FileUtils.getFilePath(playerItemsSavePath.toString(), "hubTree.zbd").toFile();
+        File hubDir = FileUtils.getFilePath(playerItemsSavePath.toString(), "hub_Items.zbd").toFile();
+        File hub_Objects = FileUtils.getFilePath(playerItemsSavePath.toString(), "hub_Objects.zbd").toFile();
         File invenDir = FileUtils.getFilePath(playerSavePath.toString(), "Inventory.zbd").toFile();
 
 //stats saving init
@@ -97,18 +97,18 @@ public class LoadSave {
         }
 
         //tree savings
-        if (itemDir.exists() && hubTree.isFile()) {
-            System.out.println(hubTree + " already exists");
+        if (itemDir.exists() && hub_Objects.isFile()) {
+            System.out.println(hub_Objects + " already exists");
             try {
                 load(playerItemsSavePath.toAbsolutePath().toString(), 3);
             } catch (IOException ex) {
                 System.out.println("Failed to load");
             }
         } else if (itemDir.mkdirs()) {
-            System.out.println(hubTree + " was created");
+            System.out.println(hub_Objects + " was created");
             engine.world.hubRoom.addItems();
         } else {
-            System.out.println(hubTree + " save file added");
+            System.out.println(hub_Objects + " save file added");
         }
         Loc = playerSavePath.toAbsolutePath().toString();
         Loc2 = playerItemsSavePath.toAbsolutePath().toString();
@@ -139,6 +139,7 @@ public class LoadSave {
             }
 
             engine.loadVars[0] = inputs.get(0);
+            engine.place = inputs.get(1);
             engine.loadVars[1] = inputs.get(1);
             engine.loadVars[2] = inputs.get(2);
             engine.loadVars[3] = inputs.get(3);
@@ -150,10 +151,10 @@ public class LoadSave {
         }
         //</editor-fold>
 
-        //<editor-fold defaultstate="collapsed" desc="Hub load">
+        //<editor-fold defaultstate="collapsed" desc="hub_Items load">
         if (id == 1) { //hub load
             int x = 0, y = 0, idd = 0, qnt = 0;
-            Scanner scanner = new Scanner(new File(path + "/Hub.zbd"));
+            Scanner scanner = new Scanner(new File(path + "/hub_Items.zbd"));
             while (scanner.hasNext()) {
                 if (scanner.hasNextLine()) {
                     if (ItemClear == false) {
@@ -178,7 +179,6 @@ public class LoadSave {
                             its = 0;
                             engine.world.hubRoom.items.add(new Item(x, y, 50, 50, idd, qnt));
                             check = false;
-                            engine.world.items = engine.world.hubRoom.items;
                             break;
                     }
                 } else {
@@ -199,7 +199,7 @@ public class LoadSave {
 
         //<editor-fold defaultstate="collapsed" desc="INV load">
         if (id == 2) { //inventory load
-            int i = 0, qty = 0;
+            int i = 0, qty = 0, health = -1;
             Scanner scanner = new Scanner(new File(path + "/Inventory.zbd"));
             while (scanner.hasNext()) {
                 if (scanner.hasNextLine()) {
@@ -207,16 +207,17 @@ public class LoadSave {
                         engine.mainChar.inv.inven.clear();
                         invenClear = true;
                     }
-                    switch (ivn) {
-                        case 0:
-                            i = scanner.nextInt();
-                            ivn++;
-                            break;
-                        case 1:
-                            qty = scanner.nextInt();
-                            engine.mainChar.inv.inven.add(new Item(0, 0, 0, 0, i, qty));
-                            ivn = 0;
-                            break;
+
+                    String hold = scanner.nextLine();
+                    String temp[] = hold.split("\\s+");
+
+                    i = Integer.parseInt(temp[0]);
+                    qty = Integer.parseInt(temp[1]);
+                    if (temp.length > 2) {
+                        health = Integer.parseInt(temp[2]);
+                        engine.mainChar.inv.inven.add(new Item(i, qty, health));
+                    } else {
+                        engine.mainChar.inv.inven.add(new Item(i, qty));
                     }
                 } else {
                     scanner.nextLine();
@@ -236,7 +237,7 @@ public class LoadSave {
             int toX = 0, toY = 0;
             boolean feC = true;
             String section = "BLANK", hold;
-            Scanner scanner = new Scanner(new File(path + "/hubTree.zbd"));
+            Scanner scanner = new Scanner(new File(path + "/hub_Objects.zbd"));
             while (scanner.hasNext()) {
                 if (scanner.hasNextLine()) {
 
@@ -326,8 +327,9 @@ public class LoadSave {
                         toX = Integer.parseInt(temp[0]);
                         toY = Integer.parseInt(temp[1]);
                         Torch placeHolder = new Torch(toX, toY, 100, engine);
-                        engine.world.hubRoom.obbys.add(placeHolder);
                         placeHolder.dropped = true;
+                        placeHolder.first = false;
+                        engine.world.hubRoom.obbys.add(placeHolder);
                         torchCount++;
                     }
 //</editor-fold>
@@ -353,9 +355,9 @@ public class LoadSave {
     }
 
     public void itemSave() throws FileNotFoundException, UnsupportedEncodingException {
-        PrintWriter writer = new PrintWriter(Loc2 + "/Hub.zbd", "UTF-8");
-        for (int i = 0; i < engine.world.items.size(); i++) {
-            writer.println(engine.world.items.get(i).x + " " + engine.world.items.get(i).y + " " + engine.world.items.get(i).id + " " + engine.world.items.get(i).qnty);
+        PrintWriter writer = new PrintWriter(Loc2 + "/hub_Items.zbd", "UTF-8");
+        for (int i = 0; i < engine.world.hubRoom.items.size(); i++) {
+            writer.println(engine.world.hubRoom.items.get(i).x + " " + engine.world.hubRoom.items.get(i).y + " " + engine.world.hubRoom.items.get(i).id + " " + engine.world.hubRoom.items.get(i).qnty);
         }
         writer.close();
     }
@@ -363,7 +365,11 @@ public class LoadSave {
     private void playerSave() throws FileNotFoundException, UnsupportedEncodingException {
         PrintWriter writer = new PrintWriter(Loc + "/Save.zbd", "UTF-8");
         writer.println(engine.health);
-        writer.println(engine.name);
+        if (!engine.Loc.equalsIgnoreCase("menu")) {
+            writer.println(engine.Loc);
+        } else {
+            writer.println(engine.loadVars[1]);
+        }
         writer.println(engine.xoff);
         writer.println(engine.yoff);
         writer.println(engine.getTime());
@@ -372,7 +378,7 @@ public class LoadSave {
     }
 
     private void objectSave() throws FileNotFoundException, UnsupportedEncodingException {
-        PrintWriter writer = new PrintWriter(Loc2 + "/hubTree.zbd", "UTF-8");
+        PrintWriter writer = new PrintWriter(Loc2 + "/hub_Objects.zbd", "UTF-8");
 
         List<WorldObjects> obbys = engine.world.hubRoom.obbys;
 
@@ -454,7 +460,7 @@ public class LoadSave {
     private void inventorySave() throws FileNotFoundException, UnsupportedEncodingException {
         PrintWriter writer = new PrintWriter(Loc + "/Inventory.zbd", "UTF-8");
         for (int i = 0; i < engine.mainChar.inv.inven.size(); i++) {
-            writer.println(engine.mainChar.inv.inven.get(i).id + " " + engine.mainChar.inv.inven.get(i).qnty);
+            writer.println(engine.mainChar.inv.inven.get(i).id + " " + engine.mainChar.inv.inven.get(i).qnty + " " + engine.mainChar.inv.inven.get(i).health);
         }
         writer.close();
 
@@ -465,8 +471,8 @@ public class LoadSave {
         String path2 = System.getProperty("user.home") + File.separator + "Documents" + File.separator + "Game" + File.separator + "Save" + File.separator + "Items";
 
         File customDir = new File(path + File.separator + "/Save.zbd");
-        File itemDir = new File(path2 + File.separator + "/Hub.zbd");
-        File hubTree = new File(path2 + File.separator + "/hubTree.zbd");
+        File itemDir = new File(path2 + File.separator + "/hub_Items.zbd");
+        File hub_Objects = new File(path2 + File.separator + "/hub_Objects.zbd");
         File invenDir = new File(path + File.separator + "/Inventory.zbd");
         System.out.println("resetting");
         try {
@@ -478,7 +484,7 @@ public class LoadSave {
             System.out.println("3");
             Files.delete(invenDir.toPath());
             System.out.println("4");
-            Files.delete(hubTree.toPath());
+            Files.delete(hub_Objects.toPath());
 
             engine.restart();
             System.exit(0);
