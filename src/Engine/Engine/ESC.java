@@ -6,26 +6,23 @@
 package Engine.Engine;
 
 //<editor-fold defaultstate="collapsed" desc="Imports">
-import Engine.Items.CampFire;
-import Engine.Map.Overlay;
-import Engine.Map.Pause;
-import Engine.Player.Player;
+import Engine.FileIO.FileUtils;
+import Engine.Items.Support.ItemManager;
+import Engine.Map.Locations.Pause;
 import Engine.Map.World;
-import Engine.Map.WorldObjects;
+import Engine.Player.Player;
 import java.awt.Canvas;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.Graphics;
-import java.awt.Graphics2D;
-import java.awt.Rectangle;
 import java.awt.Toolkit;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.event.MouseWheelEvent;
 import java.awt.event.MouseWheelListener;
-import java.awt.geom.Area;
 import java.awt.image.BufferStrategy;
+import java.awt.image.BufferedImage;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
@@ -33,6 +30,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import javax.imageio.ImageIO;
 import javax.swing.JFrame;
 //</editor-fold>
 
@@ -45,16 +43,12 @@ public class ESC implements Runnable {
     //debug
     public boolean debug = false;
     //stats
-    int fps, ticks, fireSize = 1;
+    int fps, ticks;
     public boolean running = false;
-    boolean fire;
     int tp = 0;
     int poptime = 0;
     int popcounter = 0;
-    //Input input;
-    public String Loc = "hub";
-
-    //Input input;
+    public String Loc = "menu";
     public Input input = new Input(this);
 
     //menu
@@ -71,11 +65,9 @@ public class ESC implements Runnable {
 
     //mouse
     public boolean left = false, right = false;
-
     public int notches = 0;
     public int scrollSens = 10;
     public boolean upNotching = true, downNotching = true;
-
     public int delay = 0;
     public boolean delaystart = false;
     int mouseDelay = 1;
@@ -86,12 +78,11 @@ public class ESC implements Runnable {
     private Graphics g;
     private BufferStrategy bs;
     public int sizeh = 800, sizew = 1500;
-    public Rectangle screenbox = new Rectangle(0, 0, sizew, sizeh);
-
-    public String health = "500", xoff = "100", yoff = "100", name = "Paul";
-    public String[] loadVars = {health, name, xoff, yoff};
+    public String health = "500", xoff = "100", yoff = "100", place = "hub", name = "Paul";
+    public String[] loadVars = {health, place, xoff, yoff};
+    private String windowName = "";
     //fps control
-    public boolean sixty = true;
+    public boolean sixty = false;
 
     //player
     public Player mainChar;
@@ -102,43 +93,43 @@ public class ESC implements Runnable {
     public LoadSave saver = new LoadSave(this);
     public static AssetLoader assetLdr;
     public int size = 4;
-    public Overlay overlay;
-    public Rectangle TL = new Rectangle(20, 20, 50, 50);
-
-    public boolean dark = false;
-    public Color filter = new Color(0, 0, 0, 0);
-
+    public boolean fadeout = false, fadein = false, faded = false;
+    Color fadeFilter = new Color(0, 0, 0, 0);
+    int fadeTimer = 0;
+    int fadeAmount = 3;
+    Thread lightManager;
+    Thread itemManager;
     public Font text = new Font("TimesRoman", Font.PLAIN, 60);
     public Font text2 = new Font("TimesRoman", Font.PLAIN, 30);
+    public BufferedImage FILTER = new BufferedImage(1120, 1120, 3);
+    float alpha = 0;
+    public boolean doLight = false;
 
     //time
-    private int dayTick = 0;
+    private int TimeTick = 0;
     private int time;
     private int timeOffset = 1;
     private int days = 0;
 
+    //Scrolling text
     List<scrollingText> popups = new ArrayList<>();
     //</editor-fold>
 
     //<editor-fold defaultstate="collapsed" desc="Main">
-    public ESC(int w, int h) {
+    public ESC(int w, int h, String winName) {
+        windowName = winName;
         sizew = w;
         sizeh = h;
         assetLdr = new AssetLoader(this);
         Window();
         init();
     }
-
-    public static void main(String[] args) {
-        System.setProperty("sun.java2d.opengl", "true");
-        ESC MainEngine = new ESC(1500, 800);
-    }
     //</editor-fold>
 
     //<editor-fold defaultstate="collapsed" desc="CreateDisplay">
     public void Window() {
         //Name the game window       
-        frame = new JFrame("Tiny Ferdinand");
+        frame = new JFrame(windowName);
         //Frame setup
         frame.setSize(sizew, sizeh);
         frame.setLocation(Toolkit.getDefaultToolkit().getScreenSize().width / 2 - sizew / 2, Toolkit.getDefaultToolkit().getScreenSize().height / 2 - sizeh / 2);
@@ -165,12 +156,12 @@ public class ESC implements Runnable {
     //<editor-fold defaultstate="collapsed" desc="Restart">
     public void restart() {
         this.frame.dispose();
-        ESC MainEngine = new ESC(sizew, sizeh);
+//        ESC MainEngine = new ESC(sizew, sizeh);
     }
 
     public void restart(int w, int h) {
         this.frame.dispose();
-        ESC MainEngine = new ESC(w, h);
+//        ESC MainEngine = new ESC(w, h);
     }
     //</editor-fold>
 
@@ -178,9 +169,8 @@ public class ESC implements Runnable {
     public void update() {
         //Movement checks
         move();
-
-//        System.out.println(getXOff() + "      " + getYOff());
         //World
+        fade();
         for (int i = 0; i < popups.size(); i++) {
             if (popups.get(i).tick == 240) {
                 popups.remove(i);
@@ -198,17 +188,7 @@ public class ESC implements Runnable {
         world.update();
         //Character update
         mainChar.update();
-        if (fire) {
-            fireSize++;
-        } else {
-            fireSize--;
-        }
-        if (fireSize == 0) {
-            fire = true;
-        }
-        if (fireSize == 25) {
-            fire = false;
-        }
+
         //pause 
         if (input.close && !pause && pdelay == 0 && !Loc.equalsIgnoreCase("menu")) {
             pause = true;
@@ -280,7 +260,7 @@ public class ESC implements Runnable {
     public void render() {
         bs = canvas.getBufferStrategy();
         if (bs == null) {
-            canvas.createBufferStrategy(3);
+            canvas.createBufferStrategy(2);
             return;
         }
         g = bs.getDrawGraphics();
@@ -290,7 +270,7 @@ public class ESC implements Runnable {
 
         g.clearRect(0, 0, sizew, sizeh);
 
-        g.setColor(new Color(50, 180, 255));
+        g.setColor(world.active.backGround);
         g.fillRect(0, 0, sizew, sizeh);
 
         world.render(g);
@@ -298,14 +278,15 @@ public class ESC implements Runnable {
         if (!Loc.equalsIgnoreCase("menu")) {
             mainChar.render(g);
 
-            overlay.render(g);
+            world.overlayRender(g);
 
-            world.priorityRrender(g);
+            world.priorityRender(g);
 
-            overlay.priorityRender(g);
+            world.overlayPriorityRender(g);
 
-            makeDark(g);
-
+            if (world.active.dark || world.active.permDark) {
+                g.drawImage(FILTER, 0 + getXOff(), 0 + getYOff(), FILTER.getWidth() * size, FILTER.getHeight() * size, null);
+            }
             g.setFont(text2);
             g.getFontMetrics(text2);
             g.setColor(Color.white);
@@ -327,8 +308,14 @@ public class ESC implements Runnable {
             pauseMenu.render(g);
         }
 
+        if (fadeout || fadein) {
+            g.setColor(fadeFilter);
+            g.fillRect(0, 0, sizew, sizeh);
+        }
+
         g.setFont(text);
         g.getFontMetrics(text);
+
         if (debug == true) {
             g.setColor(Color.blue);
             g.drawString(Integer.toString(fps), 100, 100);
@@ -362,24 +349,12 @@ public class ESC implements Runnable {
     }
 //</editor-fold>
 
-    //<editor-fold defaultstate="collapsed" desc="makeDark Graphics g">
-    void makeDark(Graphics g) {
-        Graphics2D g2d = (Graphics2D) g.create();
-        g2d.setColor(filter);
-        Area outer = new Area(new Rectangle(0, 0, sizew, sizeh));
-
-        List<WorldObjects> obbys = world.active.obbys;
-        if (dark || world.active.dark) {
-            for (int i = 0; i < obbys.size(); i++) {
-                if ((obbys.get(i).hasLight)) {
-                    if (obbys.get(i).actionTimer > 0 && obbys.get(i).dropped) {
-                        outer.subtract(new Area(((WorldObjects) obbys.get(i)).getLight()));
-                    }
-                }
-            }
+    //<editor-fold defaultstate="collapsed" desc="save (just for testing)">
+    public static void save(BufferedImage img, String name) {
+        try {
+            ImageIO.write(img, "png", FileUtils.getFilePathFromRoot("Res", "Gameplay", "Mine", name + ".png").toFile());
+        } catch (IOException ex) {
         }
-        g2d.fill(outer);
-        g2d.dispose();
     }
     //</editor-fold>
 
@@ -413,7 +388,6 @@ public class ESC implements Runnable {
     //<editor-fold defaultstate="collapsed" desc="Run">
     //@Override
     public void run() {
-
         long timediff = 0, startTime = 0;
         long lastTime = System.nanoTime();
         double amountOfTicks = 60.0; // Number of ticks for update and render cycle(in one second)
@@ -447,7 +421,7 @@ public class ESC implements Runnable {
             }
             if (System.currentTimeMillis() - timer > 1000) {
                 timer += 1000;
-                //System.out.println("FPS: " + frames + " TICKS: " + updates);
+                System.out.println("FPS: " + frames + " TICKS: " + updates);
                 fps = frames;
                 ticks = updates;
                 frames = 0;
@@ -462,15 +436,17 @@ public class ESC implements Runnable {
         try {
             assetLdr.init();
         } catch (IOException ex) {
-            System.out.println("oops cant start loader");
+            System.out.println(ex);
         }
         world = new World(input, this);
-//        world.start();
-        mainChar = new Player(10, 10, input, this, world);
+        lightManager = new Thread(new LightManager(this));
+        lightManager.start();
+        itemManager = new Thread(new ItemManager(this));
+        itemManager.start();
+        mainChar = new Player(10, 10, input, this);
         saver.init();
         xoff = loadVars[2];
         yoff = loadVars[3];
-        overlay = new Overlay(this);
         running = true;
         pauseMenu = new Pause(this);
         try {
@@ -478,35 +454,88 @@ public class ESC implements Runnable {
         } catch (FileNotFoundException | UnsupportedEncodingException ex) {
             System.out.println("inital save failed");
         }
-
         run();
     }
     //</editor-fold>
 
     //<editor-fold defaultstate="collapsed" desc="dayCycle">
-    public void dayCycle() {
-        int hour, minute;
+    public void dayCycle() { //needs to be redone
+        int hour = 0, minute = 0;
         if (!Loc.equalsIgnoreCase("menu")) {
-            dayTick++;
-            if (time >= 12 * 60) {
-                dark = true;
-                filter = new Color(0, 0, 0, 150);
-            }
-            if (dayTick == 60) {
+            TimeTick++;
+            if (TimeTick == 60) {
                 time += 1 * timeOffset;
-                if (time >= 24 * 60) {
-                    dark = false;
-                    time = 0;
-                    filter = new Color(0, 0, 0, 0);
-                    days++;
-                    System.out.println(days);
-                }
-                dayTick = 0;
+                TimeTick = 0;
                 hour = time / 60;
                 minute = time - (hour * 60);
-                //System.out.println(String.format("%02d", hour) + ":" + String.format("%02d", minute));
+                //daycycle math
+                if (time > (7 * 60) && time < ((12 + 8.5) * 60)) {
+                    //7am
+                    world.active.dark = false;
+                }
+                if (time > ((12 + 8) * 60) || time < (7 * 60)) {
+                    //8:30pm
+                    world.active.dark = true;
+                }
+                //
+            }
+            if (time > (6.5 * 60) && time < (7 * 60) && !world.active.permDark) { //getting brigther
+                float amountB = (float) world.active.FILTER.getAlpha() / (30 * 60);
+                alpha = world.active.FILTER.getAlpha() - amountB * (time - (float) (6.5 * 60) * TimeTick);
+                if (alpha < 0) {
+                    alpha = 0;
+                }
+                System.out.println(alpha);
+                world.active.filter = new Color(world.active.filter.getRed(), world.active.filter.getGreen(), world.active.filter.getBlue(), (int) alpha);
+                doLight = true;
+            }
+            if ((time > ((12 + 8) * 60)) && time < ((12.5 + 8) * 60) && !world.active.permDark) {//getting darker
+                float amountD = (float) world.active.FILTER.getAlpha() / (30 * 60);
+                alpha = amountD * (time - (float) ((12 + 8) * 60) * TimeTick);
+                if (alpha > world.active.FILTER.getAlpha()) {
+                    alpha = world.active.FILTER.getAlpha();
+                }
+                world.active.filter = new Color(world.active.filter.getRed(), world.active.filter.getGreen(), world.active.filter.getBlue(), (int) alpha);
+                doLight = true;
+            }
+            if (time >= 60 * 24) {
+                time = 0;
+                days++;
             }
         }
+    }
+//</editor-fold>
+
+    //<editor-fold defaultstate="collapsed" desc="all fade stuff">
+    public void fade() {
+        if (fadein || fadeout) {
+            if (fadeout && fadeFilter.getAlpha() + fadeAmount < 255) {
+                fadeFilter = new Color(fadeFilter.getRed(), fadeFilter.getGreen(), fadeFilter.getBlue(), fadeFilter.getAlpha() + fadeAmount);
+            }
+            if (fadein && fadeFilter.getAlpha() - fadeAmount > 0) {
+                fadeFilter = new Color(fadeFilter.getRed(), fadeFilter.getGreen(), fadeFilter.getBlue(), fadeFilter.getAlpha() - fadeAmount);
+            }
+            if (fadeFilter.getAlpha() >= 252 && fadeout) {
+                fadeout = false;
+                faded = true;
+            }
+            if (fadeFilter.getAlpha() <= 3 && fadein) {
+                fadein = false;
+                faded = true;
+                move = true;
+            }
+        }
+    }
+
+    public void fadeOut() {
+        fadeout = true;
+        faded = false;
+        move = false;
+    }
+
+    public void fadeIn() {
+        fadein = true;
+        faded = false;
     }
 //</editor-fold>
 

@@ -3,14 +3,14 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package Engine.Items;
+package Engine.Items.World;
 
 import Engine.Engine.ESC;
-import Engine.Map.WorldObjects;
+import Engine.Items.Support.WorldObjects;
 import Engine.Player.Crafting;
 import java.awt.BasicStroke;
-import java.awt.Graphics;
 import java.awt.Color;
+import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.MouseInfo;
 import java.awt.Point;

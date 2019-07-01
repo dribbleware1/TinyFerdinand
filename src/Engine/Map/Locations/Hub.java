@@ -3,19 +3,20 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package Engine.Map;
+package Engine.Map.Locations;
 
 import Engine.Engine.ESC;
-import Engine.Items.CampFire;
-import Engine.Items.Fence;
-import Engine.Items.Tree;
-import Engine.Items.Item;
-import Engine.Items.WorkBench;
+import Engine.Items.Support.Item;
+import Engine.Map.Support.Location;
 import java.awt.Color;
 import java.awt.Graphics;
+import java.awt.Graphics2D;
 import java.awt.MouseInfo;
 import java.awt.Point;
+import java.awt.Polygon;
 import java.awt.Rectangle;
+import java.awt.geom.AffineTransform;
+import java.awt.geom.Area;
 import java.io.FileNotFoundException;
 import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
@@ -29,19 +30,14 @@ public class Hub extends Location {
 
     //<editor-fold defaultstate="collapsed" desc="Declarations">
     public int temp = 12;
-    ESC eng;
     private int xOff, yOff;
     public boolean treesTemp = false;
-    public boolean water = false;
     public int conTimer = 0;
     public boolean firstTree = true;
+    //all objects and items
+    public Rectangle mineDoor = new Rectangle(268, 1960, 102, 116);
 
-    //Lists to store all objects and items
-    public List<Tree> trees = new ArrayList<>();
     public List<Rectangle> ponds = new ArrayList<>();
-    public List<Integer> treeNums = new ArrayList<>();
-    public List<CampFire> fires = new ArrayList<>();
-    public List<WorkBench> benches = new ArrayList<>();
     public Rectangle pond1;
     public Rectangle Haybales;
     public Rectangle House1, House2, House3, House4, House5;
@@ -50,13 +46,22 @@ public class Hub extends Location {
     public Rectangle Pond2_1, Pond2_2, Pond2_3, Pond2_4, Pond2_5;
     public Rectangle Pond2_6, Pond2_7, Pond2_8, Pond2_9, Pond2_10;
     public Rectangle Pond2_11, Pond2_12;
+    public Area mines, mines2;
 //</editor-fold>
 
     //gotta fix this wayyyyy too much work
     //<editor-fold defaultstate="collapsed" desc="Constructor">
     public Hub(ESC engine) {
+        filter = new Color(0, 0, 0, 200);
+        FILTER = new Color(0, 0, 0, 200);
+        backGround = new Color(50, 180, 255);
         eng = engine;
+        dark = false;
+        permDark = false;
 
+        mines = new Area(new Polygon(new int[]{0, 1065, 1070, 816, 1054, 1054, 0}, new int[]{1218, 1218, 1860, 1660, 1660, 1260, 1260}, 7));
+        mines2 = new Area(new Polygon(new int[]{1020, 370, 370, 268, 268, 0, 0, 802}, new int[]{2036, 2036, 1970, 1970, 2036, 2036, 1830, 1830}, 8));
+        //
         //Ponds
         pond1 = new Rectangle(273 * eng.size, 140 * eng.size, 62 * eng.size, 68 * eng.size);
         ponds.add(pond1);
@@ -105,6 +110,7 @@ public class Hub extends Location {
     //<editor-fold defaultstate="collapsed" desc="Render Graphics g">
     public void render(Graphics g) {
         //update for the x and y offset for drawing
+        int rendercount = 0;
         xOff = eng.getXOff();
         yOff = eng.getYOff();
 
@@ -114,12 +120,15 @@ public class Hub extends Location {
 
         //Outline for collision box es if debug mode is on
         if (eng.debug == true) {
+            Graphics2D g2d = (Graphics2D) g;
+            AffineTransform offset = new AffineTransform();
+            offset.translate(eng.getXOff(), eng.getYOff());
             for (int i = 0; i < objects.size(); i++) {
-                g.drawRect(objects.get(i).x + xOff, objects.get(i).y + yOff, objects.get(i).width, objects.get(i).height);
+                g2d.draw(objects.get(i).createTransformedArea(offset));
             }
             for (int i = 0; i < items.size(); i++) {
                 g.drawRect(items.get(i).x + xOff, items.get(i).y + yOff, items.get(i).width, items.get(i).height);
-                //g.drawRect(items.get(i).conBox.x + xOff, items.get(i).conBox.y + yOff, items.get(i).conBox.width, items.get(i).conBox.height);
+                g.drawRect(items.get(i).conBox.x + xOff, items.get(i).conBox.y + yOff, items.get(i).conBox.width, items.get(i).conBox.height);
             }
 
             for (int i = 0; i < obbys.size(); i++) {
@@ -127,73 +136,87 @@ public class Hub extends Location {
                     g.drawRect(obbys.get(i).size.x + eng.getXOff(), obbys.get(i).size.y + eng.getYOff(), obbys.get(i).size.width, obbys.get(i).size.height);
                 }
             }
-
         }
-
         //Drawing all of the items to their world location
         for (int i = 0; i < items.size(); i++) {
             g.drawImage(items.get(i).art[items.get(i).id], items.get(i).x + xOff, items.get(i).y + yOff, items.get(i).width, items.get(i).height, null);
         }
         for (int i = 0; i < obbys.size(); i++) {
-            obbys.get(i).render(g);
+            if (new Rectangle(0, 0, eng.sizew, eng.sizeh).intersects(new Rectangle(obbys.get(i).x + eng.getXOff(), obbys.get(i).y + eng.getYOff(), obbys.get(i).w, obbys.get(i).h))) {
+                obbys.get(i).render(g);
+            }
         }
     }
     //</editor-fold>
 
     //<editor-fold defaultstate="collapsed" desc="Priority Render - renders before the player">
+    @Override
     public void priorityRender(Graphics g) {
         for (int i = 0; i < obbys.size(); i++) {
-            obbys.get(i).priorityRender(g);
+            if (new Rectangle(0, 0, eng.sizew, eng.sizeh).intersects(new Rectangle(obbys.get(i).x + eng.getXOff(), obbys.get(i).y + eng.getYOff(), obbys.get(i).w, obbys.get(i).h))) {
+                obbys.get(i).priorityRender(g);
+            }
         }
 
         for (int i = 0; i < obbys.size(); i++) {
-            obbys.get(i).popUpRender(g);
+            if (new Rectangle(0, 0, eng.sizew, eng.sizeh).intersects(new Rectangle(obbys.get(i).x + eng.getXOff(), obbys.get(i).y + eng.getYOff(), obbys.get(i).w, obbys.get(i).h))) {
+                obbys.get(i).popUpRender(g);
+            }
+        }
+    }
+    //</editor-fold>
+
+    //<editor-fold defaultstate="collapsed" desc="overlayRender Graphics g">
+    @Override
+    public void overlayRender(Graphics g) {
+        g.drawImage(eng.assetLdr.overlay, Integer.parseInt(eng.xoff), Integer.parseInt(eng.yoff), eng.assetLdr.overlay.getWidth() * eng.size, eng.assetLdr.overlay.getHeight() * eng.size, null);
+    }
+    //</editor-fold>
+
+    //<editor-fold defaultstate="collapsed" desc="overlayPrioorityRender Graohics g">
+    @Override
+    public void overlayPriorityRender(Graphics g) {
+        if (eng.inventory) {
+            g.setColor(Color.green);
+            for (int i = 0; i < eng.world.items.size(); i++) {
+                g.drawRect(eng.world.items.get(i).x + Integer.parseInt(eng.xoff), eng.world.items.get(i).y + Integer.parseInt(eng.yoff), eng.world.items.get(i).width, eng.world.items.get(i).height);
+            }
+            g.setColor(Color.red);
+            Graphics2D g2d = (Graphics2D) g;
+            AffineTransform offset = new AffineTransform();
+            offset.translate(eng.getXOff(), eng.getYOff());
+            for (int i = 0; i < eng.world.Objects.size(); i++) {
+                g2d.draw(eng.world.Objects.get(i).createTransformedArea(offset));
+            }
         }
     }
     //</editor-fold>
 
     //<editor-fold defaultstate="collapsed" desc="Update">
     public void update() {
-        if (eng.getXOff() < -2485 && eng.getXOff() > -2570 && eng.getYOff() > -610) {
-            eng.Loc = "mine";
-            eng.world.worldSwitch();
-            eng.setXOff(100);
-            eng.setYOff(100);
+        if (new Rectangle(mineDoor.x + eng.getXOff(), mineDoor.y + eng.getYOff(), mineDoor.width, mineDoor.height).contains(eng.mainChar.collbox)) {
+            toMine();
         }
-
-        eng.mainChar.map = new Rectangle(Integer.parseInt(eng.xoff), Integer.parseInt(eng.yoff), eng.assetLdr.Hub1.getWidth() * eng.size, eng.assetLdr.Hub1.getHeight() * eng.size);
+        map = new Rectangle(eng.getXOff(), eng.getYOff(), eng.assetLdr.Hub1.getWidth() * eng.size, eng.assetLdr.Hub1.getHeight() * eng.size);
         conTimer++;
         if (conTimer >= 6) {
             condense();
             conTimer = 0;
         }
+    }
+    //</editor-fold>
 
+    //<editor-fold defaultstate="collapsed" desc="Item update">
+    public void itemUpdate() {
         for (int i = 0; i < obbys.size(); i++) {
             obbys.get(i).update();
         }
-
-        waterCheck();
     }
     //</editor-fold>
 
     //<editor-fold defaultstate="collapsed" desc="addItems">
     public void addItems() {
         items.add(new Item(100, 100, 50, 50, 5, 2));
-
-    }
-    //</editor-fold>
-
-    //<editor-fold defaultstate="collapsed" desc="Water Check">
-    public void waterCheck() {
-        for (int i = 0; i < ponds.size(); i++) {
-            if (contains(ponds.get(i))) {
-                water = true;
-                return;
-            } else {
-                water = false;
-                return;
-            }
-        }
     }
     //</editor-fold>
 
@@ -257,47 +280,44 @@ public class Hub extends Location {
     //</editor-fold>
 
     //<editor-fold defaultstate="collapsed" desc="updateList">
+    @Override
     public void updateList() {
         objects.clear();
-
         order();
-
         for (int i = 0; i < obbys.size(); i++) {
             if (obbys.get(i).dropped == false) {
                 //do nothing
             } else {
-                objects.add(obbys.get(i).collisBox());
+                objects.add(new Area(obbys.get(i).collisBox()));
             }
-            objects.add(pond1);
-            objects.add(Haybales);
-            objects.add(House1);
-            objects.add(House2);
-            objects.add(House3);
-            objects.add(House4);
-            objects.add(House5);
-            objects.add(Wheelbarrow1);
-            objects.add(Wheelbarrow2);
-            objects.add(Wheelbarrow3);
-            objects.add(Pitchfork);
-            objects.add(Pond2_1);
-            objects.add(Pond2_2);
-            objects.add(Pond2_3);
-            objects.add(Pond2_4);
-            objects.add(Pond2_5);
-            objects.add(Pond2_6);
-            objects.add(Pond2_7);
-            objects.add(Pond2_8);
-            objects.add(Pond2_9);
-            objects.add(Pond2_10);
-            objects.add(Pond2_11);
-            objects.add(Pond2_12);
         }
-    }
-    //</editor-fold>
-
-    //<editor-fold defaultstate="collapsed" desc="getWater">
-    public boolean getWater() {
-        return water;
+        //44
+        //23
+        objects.add(new Area(pond1));
+        objects.add(new Area(Haybales));
+        objects.add(new Area(House1));
+        objects.add(new Area(House2));
+        objects.add(new Area(House3));
+        objects.add(new Area(House4));
+        objects.add(new Area(House5));
+        objects.add(new Area(Wheelbarrow1));
+        objects.add(new Area(Wheelbarrow2));
+        objects.add(new Area(Wheelbarrow3));
+        objects.add(new Area(Pitchfork));
+        objects.add(new Area(Pond2_1));
+        objects.add(new Area(Pond2_2));
+        objects.add(new Area(Pond2_3));
+        objects.add(new Area(Pond2_4));
+        objects.add(new Area(Pond2_5));
+        objects.add(new Area(Pond2_6));
+        objects.add(new Area(Pond2_7));
+        objects.add(new Area(Pond2_8));
+        objects.add(new Area(Pond2_9));
+        objects.add(new Area(Pond2_10));
+        objects.add(new Area(Pond2_11));
+        objects.add(new Area(Pond2_12));
+        objects.add(mines);
+        objects.add(mines2);
     }
     //</editor-fold>
 }

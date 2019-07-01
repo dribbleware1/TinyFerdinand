@@ -3,10 +3,10 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package Engine.Map;
+package Engine.Items.Support;
 
 import Engine.Engine.ESC;
-import Engine.Items.Item;
+import Engine.Items.Support.Item;
 import java.awt.BasicStroke;
 import java.awt.Color;
 import java.awt.Font;
@@ -15,6 +15,7 @@ import java.awt.Graphics2D;
 import java.awt.MouseInfo;
 import java.awt.Point;
 import java.awt.Rectangle;
+import java.awt.geom.Area;
 import java.awt.geom.Ellipse2D;
 import java.util.ArrayList;
 import java.util.List;
@@ -55,9 +56,9 @@ public class WorldObjects {
     public String name;
 
     public boolean dropped = false;
+    public boolean selfTick = false;
     public boolean mouseDelay = false;
     public boolean blocked = false;
-    public boolean mouseBox = false;
 
     public boolean left = false, right = false, up = false, down = false, changeable = true;
     public boolean cl = true, cr = true, cu = true, cd = true;
@@ -322,48 +323,54 @@ public class WorldObjects {
     //<editor-fold defaultstate="collapsed" desc="drop">
     public void drop() {
         animated = false;
+        blocked = false;
         int Mx = MouseInfo.getPointerInfo().getLocation().x - eng.getFrameX() - eng.getXOff();
         int My = MouseInfo.getPointerInfo().getLocation().y - eng.getFrameY() - eng.getYOff();
         if (eng.mainChar.box2.contains(Mx + eng.getXOff(), My + eng.getYOff())) {
             x = Mx - w / 2;
             y = (My - h / 2) - 32;
-            mouseBox = true;
         } else {
-            mouseBox = false;
+            blocked = true;
         }
-
-        for (int i = 0; i < eng.world.Objects.size(); i++) {
-            if (collisBox().intersects(eng.world.Objects.get(i)) || buffer.intersects(eng.world.Objects.get(i))) {
-                if (!snapped) {
+        if (!blocked) {
+            for (int i = 0; i < eng.world.Objects.size(); i++) {
+                if (eng.world.Objects.get(i).intersects(collisBox()) || eng.world.Objects.get(i).intersects(buffer)) {
+                    if (!snapped) {
+                        blocked = true;
+                        break;
+                    }
+                } else if (new Rectangle(collisBox().x + eng.getXOff(), collisBox().y + eng.getYOff(), collisBox().width, collisBox().height).intersects(eng.mainChar.collbox)) {
                     blocked = true;
                     break;
+                } else if (!new Rectangle(0, 0, eng.world.active.map.width * 4, eng.world.active.map.height * 4).contains(collisBox())) {
+                    blocked = true;
+                    return;
+                } else {
+                    blocked = false;
                 }
-            } else if (new Rectangle(collisBox().x + eng.getXOff(), collisBox().y + eng.getYOff(), collisBox().width, collisBox().height).intersects(eng.mainChar.collbox)) {
-                blocked = true;
-                break;
-            } else {
-                blocked = false;
+            }
+
+            if (eng.left && !blocked && mouseDelay) {
+                dropped = true;
+                animated = true;
+                mouseDelay = false;
+                size = new Rectangle(x, y, w, h);
+                collis = collisBox();
+                eng.world.updatelist();
             }
         }
-        if (eng.left && !blocked && mouseDelay) {
-            dropped = true;
-            animated = true;
-            mouseDelay = false;
-            size = new Rectangle(x, y, w, h);
-            collis = collisBox();
-            eng.world.updatelist();
-            System.out.println("droppeds");
-
-        }
+        eng.mainChar.dropped = dropped;
+        eng.mainChar.blocked = blocked;
 
         if (eng.right) {
             eng.world.active.obbys.remove(this);
+            eng.mainChar.dropped = true;
             for (int i = 0; i < costs.size(); i++) {
                 eng.mainChar.inv.itemAdd(costs.get(i).id, costs.get(i).qnty);
             }
         }
     }
-    //</editor-fold>
+//</editor-fold>
 
     //<editor-fold defaultstate="collapsed" desc="collisBox()">
     public Rectangle collisBox() {
@@ -378,7 +385,7 @@ public class WorldObjects {
 //</editor-fold>
 
     //<editor-fold defaultstate="collapsed" desc="getLight">
-    public Ellipse2D getLight() {
+    public Area getLight() {
         return null;
     }
     //</editor-fold>

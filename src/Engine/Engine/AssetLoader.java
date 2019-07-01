@@ -6,8 +6,6 @@
 package Engine.Engine;
 
 import Engine.FileIO.FileUtils;
-
-import javax.imageio.ImageIO;
 import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.io.FileInputStream;
@@ -18,6 +16,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import javax.imageio.ImageIO;
 
 /**
  *
@@ -31,7 +30,9 @@ public class AssetLoader {
 
     //<editor-fold defaultstate="collapsed" desc="World">
     public BufferedImage Hub1, overlay;
+    public BufferedImage caveDoor;
     public List<BufferedImage> fenceParts = new ArrayList<>();
+    public List<BufferedImage> caveParts = new ArrayList<>();
     //</editor-fold>
 
     //<editor-fold defaultstate="collapsed" desc="Main Menu">
@@ -97,15 +98,20 @@ public class AssetLoader {
     public void init() throws IOException {// add the things to be loaded in here will be called in beginnig
 
         //<editor-fold defaultstate="collapsed" desc="World">
-        overlay = toCompatibleImage(ImageIO.read(FileUtils.getFilePathFromRoot("Res", "Gameplay", "Hub", "hub 2.png").toFile()));
+        overlay = toCompatibleImage(ImageIO.read(FileUtils.getFilePathFromRoot("Res", "Gameplay", "Hub", "hubOverlay.png").toFile()));
         Hub1 = toCompatibleImage(ImageIO.read(FileUtils.getFilePathFromRoot("Res", "Gameplay", "Hub", "Hub.png").toFile()));
-
         for (int i = 0; i < 5; i++) {
             for (int j = 0; j < 3; j++) {
                 fenceParts.add(toCompatibleImage(crop(ImageIO.read(FileUtils.getFilePathFromRoot("Res", "fenceSheet.png").toFile()), 0 + (32 * j), 0 + (32 * i), 32, 32)));
             }
         }
         fenceParts.add(toCompatibleImage(ImageIO.read(FileUtils.getFilePathFromRoot("Res", "FencePost.png").toFile())));
+        caveDoor = toCompatibleImage(ImageIO.read(FileUtils.getFilePathFromRoot("Res", "Gameplay", "Mine", "doorSheet.png").toFile()));
+        for (int i = 0; i < 2; i++) {
+            for (int j = 0; j < 10; j++) {
+                caveParts.add(toCompatibleImage(crop(ImageIO.read(FileUtils.getFilePathFromRoot("Res", "Gameplay", "Mine", "caveSheet.png").toFile()), j * 32, i * 32, 32, 32)));
+            }
+        }
         //</editor-fold>
 
         //<editor-fold defaultstate="collapsed" desc="Main menu">
@@ -195,8 +201,7 @@ public class AssetLoader {
         apple = toCompatibleImage(ImageIO.read(FileUtils.getFilePathFromRoot("Res", "Gameplay", "Items", "apple.png").toFile()));
         workBench = toCompatibleImage(ImageIO.read(FileUtils.getFilePathFromRoot("Res", "Gameplay", "Items", "Workbench.png").toFile()));
         terrainSheet = ImageIO.read(FileUtils.getFilePathFromRoot("Res", "terrainSheet.png").toFile());
-        rocks = toCompatibleImage(crop(terrainSheet, (160), (1728), 32, 32));
-
+        rocks = toCompatibleImage(ImageIO.read(FileUtils.getFilePathFromRoot("Res", "Gameplay", "Items", "Rocks.png").toFile()));
         //new additions being worked on
         final BufferedImage itemsImage = ImageIO.read(FileUtils.getFilePathFromRoot("Res", "Gameplay", "Items", "items.png").toFile());
         stick = toCompatibleImage(crop(itemsImage, 0, 16, 16, 16));
@@ -264,7 +269,7 @@ public class AssetLoader {
 
     //to improve rendering speeds and perfromance
     //<editor-fold defaultstate="collapsed" desc="toCompatibleImage BufferedImage image">
-    private BufferedImage toCompatibleImage(BufferedImage image) {
+    public BufferedImage toCompatibleImage(BufferedImage image) {
         // obtain the current system graphical settings
         GraphicsConfiguration gfxConfig = GraphicsEnvironment.
                 getLocalGraphicsEnvironment().getDefaultScreenDevice().
@@ -277,7 +282,6 @@ public class AssetLoader {
         if (image.getColorModel().equals(gfxConfig.getColorModel())) {
             return image;
         }
-
         // image is not optimized, so create a new image that is
         BufferedImage newImage = gfxConfig.createCompatibleImage(
                 image.getWidth(), image.getHeight(), image.getTransparency());

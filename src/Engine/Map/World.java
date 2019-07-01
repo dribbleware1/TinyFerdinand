@@ -7,10 +7,14 @@ package Engine.Map;
 
 import Engine.Engine.ESC;
 import Engine.Engine.Input;
-import Engine.Items.Item;
+import Engine.Items.Support.Item;
+import Engine.Items.Support.Light;
+import Engine.Map.Locations.Hub;
+import Engine.Map.Locations.Menu;
+import Engine.Map.Locations.Mine;
+import Engine.Map.Support.Location;
 import java.awt.Graphics;
-import java.awt.Rectangle;
-import java.awt.Shape;
+import java.awt.geom.Area;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -24,16 +28,14 @@ public class World {
     Input input;
     ESC eng;
     String prevLoc = "null";
-
-    //no idea
-    public int time = 10;
     //Rooms and displays
     public Hub hubRoom;
     public Menu menu;
     public Mine mine;
     //objects and items currently active
-    public List<Rectangle> Objects = new ArrayList<>();
+    public List<Area> Objects = new ArrayList<>();
     public List<Item> items = new ArrayList<>();
+    public List<Light> lights = new ArrayList<>();
 
     public Location active;
 
@@ -51,8 +53,16 @@ public class World {
         active.render(g);
     }
 
-    public void priorityRrender(Graphics g) {
+    public void priorityRender(Graphics g) {
         active.priorityRender(g);
+    }
+
+    public void overlayRender(Graphics g) {
+        active.overlayRender(g);
+    }
+
+    public void overlayPriorityRender(Graphics g) {
+        active.overlayPriorityRender(g);
     }
 
     public void update() {
@@ -67,7 +77,7 @@ public class World {
     }
 
     public void worldSwitch() {
-        if (eng.Loc != prevLoc) {
+        if (!eng.Loc.equalsIgnoreCase(prevLoc)) {
             switch (eng.Loc) {
                 case "menu":
                     active = menu;
@@ -76,11 +86,16 @@ public class World {
                     active = hubRoom;
                     break;
                 case "mine":
+                    mine.getCave();
                     active = mine;
                     break;
             }
             updatelist();
+//            if (prevLoc.equals("menu")) {
+//                menu.starting = false;
+//            }
             prevLoc = eng.Loc;
+
         }
     }
 
@@ -88,5 +103,6 @@ public class World {
         active.updateList();
         Objects = active.objects;
         items = active.items;
+        lights = active.lights;
     }
 }

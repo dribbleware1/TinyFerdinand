@@ -7,12 +7,12 @@ package Engine.Player;
 
 import Engine.Engine.ESC;
 import Engine.FileIO.FileUtils;
-import Engine.Items.CampFire;
-import Engine.Items.Fence;
-import Engine.Items.Item;
-import Engine.Items.Torch;
-import Engine.Items.Tree;
-import Engine.Items.WorkBench;
+import Engine.Items.Support.Item;
+import Engine.Items.World.CampFire;
+import Engine.Items.World.Fence;
+import Engine.Items.World.Torch;
+import Engine.Items.World.Tree;
+import Engine.Items.World.WorkBench;
 import java.awt.Color;
 import java.awt.Graphics;
 import java.awt.MouseInfo;
@@ -121,19 +121,19 @@ public class Crafting {
         int lineOff = fontSize + 10;
         List<Integer> craftSlots = new ArrayList<>();
 
-//        g.setFont(eng.assetLdr.testing.deriveFont((float) fontSize));
         for (int i = 0; i < item.cost.size(); i++) {
             for (int j = 0; j < inv.inven.size(); j++) {
                 if (inv.inven.get(j).id == item.cost.get(i).id) {
                     craftSlots.add(j);
                 }
-                if (item.hasMax) {
-                    if (inv.inven.get(j).qnty >= item.maxCount) {
+                if (inv.inven.get(j).id == item.newId && item.hasMax) {
+                    if (inv.inven.get(i).qnty >= item.maxCount) {
                         maxxed = true;
                     }
                 }
             }
         }
+
         for (int i = 0; i < craftSlots.size(); i++) {
             if (inv.inven.get(craftSlots.get(i)).qnty < item.cost.get(i).qnty) {
                 qty = false;
@@ -149,7 +149,7 @@ public class Crafting {
                     if (item.hasSpecial) {
                         switch (item.specialMod) {
                             case "Campfire":
-                                CampFire placeHolderFire = new CampFire((int) eng.mainChar.x - eng.getXOff(), (int) eng.mainChar.y - eng.getYOff(), 5, eng);
+                                CampFire placeHolderFire = new CampFire((int) eng.mainChar.x - eng.getXOff(), (int) eng.mainChar.y - eng.getYOff(), 120, eng);
                                 placeHolderFire.costs = item.cost;
                                 eng.world.active.obbys.add(placeHolderFire);
                                 inv.r.mouseMove((int) (eng.mainChar.x) + eng.getFrameX(), (int) (eng.mainChar.y) + eng.getFrameY());
@@ -215,7 +215,11 @@ public class Crafting {
                                 break;
                         }
                     } else {
-                        inv.itemAdd(item.newId, 1);
+                        if (item.newId == 10 || item.newId == 11 || item.newId == 12) {
+                            inv.itemAdd(item.newId, 1);
+                        } else {
+                            inv.itemAdd(item.newId, 1);
+                        }
                     }
                     for (int i = 0; i < craftSlots.size(); i++) {
                         inv.itemRemove(item.cost.get(i).id, item.cost.get(i).qnty);
@@ -332,8 +336,8 @@ public class Crafting {
 }
 
 class CraftObject {
-//<editor-fold defaultstate="collapsed" desc="CraftObject class">
 
+    //<editor-fold defaultstate="collapsed" desc="CraftObject class">
     BufferedImage image;
     int newId;
     List<Item> cost;
@@ -395,4 +399,5 @@ class CraftObject {
         cost.add(item);
     }
     //</editor-fold>
+
 }

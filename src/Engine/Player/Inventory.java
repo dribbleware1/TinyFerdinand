@@ -6,7 +6,7 @@
 package Engine.Player;
 
 import Engine.Engine.ESC;
-import Engine.Items.Item;
+import Engine.Items.Support.Item;
 import java.awt.AWTException;
 import java.awt.BasicStroke;
 import java.awt.Color;
@@ -60,7 +60,7 @@ public class Inventory {
 
     public String signLine = "A little sign you could leave a message on";
     public String fenceLine = "Small wooden fence, used to keep animals\n and people out";
-    
+
     public String torchLine = "Basically just a little campfire.\nWill be helpFul to provide light";
 
     public String helpLine = "Hello and welcome to the inventory help page\nyou can use the navigation buttons on the top\n"
@@ -141,7 +141,7 @@ public class Inventory {
             fireTime++;
         }
     }
-    //</editor-fold>
+    //</editor-fold>    
 
     //<editor-fold defaultstate="collapsed" desc="Render Graphics g">
     public void render(Graphics g) {
@@ -180,17 +180,17 @@ public class Inventory {
 
         if (inven.size() > 0) {
             for (int i = 0; i < inven.size(); i++) {
-
                 drawItemBox(slots[i].x, slots[i].y, g);
-
                 if (contains(slots[i])) {
                     g.drawImage(itemRef.art[inven.get(i).id], slots[i].x, slots[i].y - 5, slots[i].width, slots[i].width, null);
                 } else {
                     g.drawImage(itemRef.art[inven.get(i).id], slots[i].x, slots[i].y, slots[i].width, slots[i].width, null);
                 }
-
+                if (inven.get(i).health >= 0) {
+                    g.setColor(Color.green);
+                    g.fillRect(slots[i].x + 5, slots[i].y + 5, (int) (inven.get(i).health * 0.9), 10);
+                }
                 numberAlingment(g, i);
-
                 if (contains(slots[i]) && eng.left) {
                     pop = true;
                     pops = i;
@@ -459,6 +459,43 @@ public class Inventory {
     }
 //</editor-fold>
 
+    //<editor-fold defaultstate="collapsed" desc="hasAxe">
+    public boolean hasAxe() {
+        boolean ret = false;
+        for (int i = 0; i < inven.size(); i++) {
+            if (inven.get(i).id == 10) {
+                ret = true;
+                break;
+            } else {
+                ret = false;
+            }
+        }
+        return ret;
+    }
+    //</editor-fold>
+
+    //<editor-fold defaultstate="collapsed" desc="damageTool String name">
+    public void damageTool(String name, int amount) {
+        int id = -1;
+
+        if (name.equalsIgnoreCase("axe")) {
+            id = 10;
+        } else if (name.equalsIgnoreCase("shovel")) {
+            id = 11;
+        } else if (name.equalsIgnoreCase("pick")) {
+            id = 12;
+        }
+        for (int i = 0; i < inven.size(); i++) {
+            if (inven.get(i).id == id) {
+                inven.get(i).health -= amount;
+                if (inven.get(i).health <= 0) {
+                    inven.remove(i);
+                }
+            }
+        }
+    }
+    //</editor-fold>
+
     //<editor-fold defaultstate="collapsed" desc="Contains Rectangle click">
     public boolean contains(Rectangle click) {
         boolean ret = false;
@@ -520,7 +557,6 @@ public class Inventory {
     public void itemAdd(int id, int qnty) {
         int index = -1;
         Item ref = new Item(0, 0);
-
         for (int i = 0; i < inven.size(); i++) {
             if (inven.get(i).id == id) {
                 index = i;
@@ -537,6 +573,26 @@ public class Inventory {
             eng.pop("+" + qnty + " " + ref.NAMES[id] + "s", 0);
         }
 
+    }
+
+    public void itemAdd(int id, int qnty, int health) {
+        int index = -1;
+        Item ref = new Item(0, 0);
+        for (int i = 0; i < inven.size(); i++) {
+            if (inven.get(i).id == id) {
+                index = i;
+            }
+        }
+        if (index != -1) {
+            inven.get(index).qnty += qnty;
+        } else {
+            inven.add(new Item(id, qnty, health));
+        }
+        if (ref.NAMES[id].endsWith("s") || qnty == 1) {
+            eng.pop("+" + qnty + " " + ref.NAMES[id], 0);
+        } else {
+            eng.pop("+" + qnty + " " + ref.NAMES[id] + "s", 0);
+        }
     }
     //</editor-fold>
 
