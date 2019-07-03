@@ -67,6 +67,7 @@ public class Crafting {
         if (del >= maxDel) {
             mouseDelay = true;
             del = 0;
+            System.out.println("ready to go again");
         }
         if (eng.inventory) {
             Crafts = inv.Crafts;
@@ -216,7 +217,7 @@ public class Crafting {
                         }
                     } else {
                         if (item.newId == 10 || item.newId == 11 || item.newId == 12) {
-                            inv.itemAdd(item.newId, 1);
+                            inv.itemAdd(item.newId, 1, 100);
                         } else {
                             inv.itemAdd(item.newId, 1);
                         }

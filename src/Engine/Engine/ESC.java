@@ -481,20 +481,13 @@ public class ESC implements Runnable {
             }
             if (time > (6.5 * 60) && time < (7 * 60) && !world.active.permDark) { //getting brigther
                 float amountB = (float) world.active.FILTER.getAlpha() / (30 * 60);
-                alpha = world.active.FILTER.getAlpha() - amountB * (time - (float) (6.5 * 60) * TimeTick);
-                if (alpha < 0) {
-                    alpha = 0;
-                }
-                System.out.println(alpha);
+                alpha = world.active.FILTER.getAlpha() - amountB * (((time - (float) (6.5 * 60)) * 60) + TimeTick);
                 world.active.filter = new Color(world.active.filter.getRed(), world.active.filter.getGreen(), world.active.filter.getBlue(), (int) alpha);
                 doLight = true;
             }
             if ((time > ((12 + 8) * 60)) && time < ((12.5 + 8) * 60) && !world.active.permDark) {//getting darker
                 float amountD = (float) world.active.FILTER.getAlpha() / (30 * 60);
-                alpha = amountD * (time - (float) ((12 + 8) * 60) * TimeTick);
-                if (alpha > world.active.FILTER.getAlpha()) {
-                    alpha = world.active.FILTER.getAlpha();
-                }
+                alpha = amountD * (((time - (float) ((12 + 8) * 60)) * 60) + TimeTick);
                 world.active.filter = new Color(world.active.filter.getRed(), world.active.filter.getGreen(), world.active.filter.getBlue(), (int) alpha);
                 doLight = true;
             }

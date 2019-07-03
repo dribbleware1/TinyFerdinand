@@ -120,6 +120,7 @@ public class WorkBench extends WorldObjects {
             g.setColor(new Color(120, 120, 120, 150));
             if (eng.left && mouseDelay) {
                 page = 1;
+                mouseDelay = false;
             }
         } else {
             g.setColor(new Color(10, 10, 10, 150));
@@ -134,6 +135,7 @@ public class WorkBench extends WorldObjects {
             g.setColor(new Color(120, 120, 120, 150));
             if (eng.left && mouseDelay) {
                 page = 2;
+                mouseDelay = false;
             }
         } else {
             g.setColor(new Color(10, 10, 10, 150));
@@ -148,6 +150,7 @@ public class WorkBench extends WorldObjects {
             g.setColor(new Color(120, 120, 120, 150));
             if (eng.left && mouseDelay) {
                 page = 3;
+                mouseDelay = false;
             }
         } else {
             g.setColor(new Color(10, 10, 10, 150));

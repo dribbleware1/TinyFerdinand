@@ -190,7 +190,7 @@ public class Torch extends WorldObjects {
         g.setColor(Color.white);
         g.drawRect(add.x + eng.getXOff(), add.y + eng.getYOff(), add.width, add.height);
         if (contains(add, true)) {
-            if (addCost) {
+            if (addCost && actionTimer > 0) {
                 g.setColor(good);
                 if (eng.left && mouseDelay) {
                     eng.mainChar.inv.itemRemove(6, 1);

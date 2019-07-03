@@ -54,7 +54,7 @@ public class Inventory {
     public String plankLine = "Its like a log but its flat... thats all \nthere is to say i think";
     public String leafLine = "Fell off a tree no idea what you could do with it";
 
-    public String axe1Line = "First tier axe. Useful for cutting wood\nCan only carry one at a time";
+    public String axe1Line = "First tier axe. Useful for cutting wood\nCan only carry one at a time\nIt will give 2x wood until its broken";
     public String shovel1Line = "First tier shovel. Useful for digging \nponds and making path\nCan only carry one at a time";
     public String pick1Line = "First tier pickaxe. Useful for digging and removing \nstone based items\nCan only carry one at a time";
 
