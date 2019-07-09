@@ -64,6 +64,10 @@ public class Player {
     public boolean dropped = true;
     public boolean blocked = false;
 
+    boolean mouseDelay = false;
+    int mouseTime = 0;
+    final int MOUSE_MAX = 15;
+
     int ticks = 0;
 
     float[] dist = {0.7f, 1f};
@@ -107,8 +111,15 @@ public class Player {
         input.update();
         inv.update();
         collect();
+        if (mouseDelay) {
+            mouseTime++;
+            if (mouseTime == MOUSE_MAX) {
+                mouseDelay = false;
+                mouseTime = 0;
+            }
+        }
         if (!eng.Loc.equalsIgnoreCase("menu")) {
-            collision();
+//            collision();
         }
 
         if (ani == (aSpeed * 8) - 1) {
@@ -161,10 +172,19 @@ public class Player {
             if (box.intersects(RecBuilder(eng.world.items.get(i))) && contains(RecBuilder(eng.world.items.get(i)))) {
                 overIt = true;
                 eng.world.items.get(i).tool = true;
-                if (eng.left) {
-
-                    inv.itemAdd(eng.world.items.get(i).id, eng.world.items.get(i).qnty);
-                    eng.world.items.remove(i);
+                if (eng.left && !mouseDelay) {
+                    if (eng.world.items.get(i).id == 10 || eng.world.items.get(i).id == 11 || eng.world.items.get(i).id == 12) {
+                        if (!inv.hasTool(eng.world.items.get(i).id)) {
+                            inv.itemAdd(eng.world.items.get(i).id, eng.world.items.get(i).qnty, eng.world.items.get(i).health);
+                            eng.world.items.remove(i);
+                        } else {
+                            eng.pop("Already have one", 0);
+                        }
+                    } else {
+                        inv.itemAdd(eng.world.items.get(i).id, eng.world.items.get(i).qnty);
+                        eng.world.items.remove(i);
+                    }
+                    mouseDelay = true;
                 }
             } else {
                 eng.world.items.get(i).tool = false;
@@ -175,28 +195,31 @@ public class Player {
 //</editor-fold>
 
     //<editor-fold defaultstate="collapsed" desc="Collision">
-    private void collision() {
+    public void collision() { //still need to finish fixing the crahsing in here
+
         //booleans to define if there is a collision on that side
         up = false;
         down = false;
         left = false;
         right = false;
         World World = eng.world;
+        List<Area> Objects = World.Objects;
 
         AffineTransform temp = new AffineTransform();
         temp.translate(eng.getXOff(), eng.getYOff());
-        for (int i = 0; i < World.Objects.size(); i++) { // check for collision with world objects
+
+        for (int i = 0; i < Objects.size(); i++) { // check for collision with world objects
             if (World.active.map != null) {
-                if (new Area(World.Objects.get(i)).createTransformedArea(temp).intersects(top) || !World.active.map.contains(top)) {
+                if (new Area(Objects.get(i)).createTransformedArea(temp).intersects(top) || !World.active.map.contains(top)) {
                     up = true;
                 }
-                if (new Area(World.Objects.get(i)).createTransformedArea(temp).intersects(bottom) || !World.active.map.contains(bottom)) {
+                if (new Area(Objects.get(i)).createTransformedArea(temp).intersects(bottom) || !World.active.map.contains(bottom)) {
                     down = true;
                 }
-                if (new Area(World.Objects.get(i)).createTransformedArea(temp).intersects(lside) || !World.active.map.contains(lside)) {
+                if (new Area(Objects.get(i)).createTransformedArea(temp).intersects(lside) || !World.active.map.contains(lside)) {
                     left = true;
                 }
-                if (new Area(World.Objects.get(i)).createTransformedArea(temp).intersects(rside) || !World.active.map.contains(rside)) {
+                if (new Area(Objects.get(i)).createTransformedArea(temp).intersects(rside) || !World.active.map.contains(rside)) {
                     right = true;
                 }
             }

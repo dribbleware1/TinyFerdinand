@@ -153,7 +153,7 @@ public class LoadSave {
 
         //<editor-fold defaultstate="collapsed" desc="hub_Items load">
         if (id == 1) { //hub load
-            int x = 0, y = 0, idd = 0, qnt = 0;
+            int x = 0, y = 0, idd = 0, qnt = 0, health = 0;
             Scanner scanner = new Scanner(new File(path + "/hub_Items.zbd"));
             while (scanner.hasNext()) {
                 if (scanner.hasNextLine()) {
@@ -161,26 +161,42 @@ public class LoadSave {
                         engine.world.hubRoom.items.clear();
                         ItemClear = true;
                     }
-                    switch (its) {
-                        case 0:
-                            x = scanner.nextInt();
-                            its++;
-                            break;
-                        case 1:
-                            y = scanner.nextInt();
-                            its++;
-                            break;
-                        case 2:
-                            idd = scanner.nextInt();
-                            its++;
-                            break;
-                        case 3:
-                            qnt = scanner.nextInt();
-                            its = 0;
-                            engine.world.hubRoom.items.add(new Item(x, y, 50, 50, idd, qnt));
-                            check = false;
-                            break;
+
+                    String hold = scanner.nextLine();
+                    String temp[] = hold.split("\\s+");
+                    x = Integer.parseInt(temp[0]);
+                    y = Integer.parseInt(temp[1]);
+                    idd = Integer.parseInt(temp[2]);
+                    qnt = Integer.parseInt(temp[3]);
+
+                    if (temp.length > 4) {
+                        health = Integer.parseInt(temp[4]);
+                        engine.world.hubRoom.items.add(new Item(x, y, 50, 50, idd, qnt, health));
+                    } else {
+                        engine.world.hubRoom.items.add(new Item(x, y, 50, 50, idd, qnt));
                     }
+                    //<editor-fold defaultstate="collapsed" desc="old">
+//                    switch (its) {
+//                        case 0:
+//                            x = scanner.nextInt();
+//                            its++;
+//                            break;
+//                        case 1:
+//                            y = scanner.nextInt();
+//                            its++;
+//                            break;
+//                        case 2:
+//                            idd = scanner.nextInt();
+//                            its++;
+//                            break;
+//                        case 3:
+//                            qnt = scanner.nextInt();
+//                            its = 0;
+//                            engine.world.hubRoom.items.add(new Item(x, y, 50, 50, idd, qnt));
+//                            check = false;
+//                            break;
+//                    }
+                    //</editor-fold>
                 } else {
                     scanner.nextLine();
                 }
@@ -357,7 +373,8 @@ public class LoadSave {
     public void itemSave() throws FileNotFoundException, UnsupportedEncodingException {
         PrintWriter writer = new PrintWriter(Loc2 + "/hub_Items.zbd", "UTF-8");
         for (int i = 0; i < engine.world.hubRoom.items.size(); i++) {
-            writer.println(engine.world.hubRoom.items.get(i).x + " " + engine.world.hubRoom.items.get(i).y + " " + engine.world.hubRoom.items.get(i).id + " " + engine.world.hubRoom.items.get(i).qnty);
+            writer.println(engine.world.hubRoom.items.get(i).x + " " + engine.world.hubRoom.items.get(i).y + " " + engine.world.hubRoom.items.get(i).id + " " + engine.world.hubRoom.items.get(i).qnty + " "
+                    + engine.world.hubRoom.items.get(i).health);
         }
         writer.close();
     }

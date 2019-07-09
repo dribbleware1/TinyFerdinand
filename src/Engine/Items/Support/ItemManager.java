@@ -24,6 +24,9 @@ public class ItemManager implements Runnable {
 
     public void update() {
         eng.world.active.itemUpdate();
+        if (!eng.Loc.equalsIgnoreCase("menu")) {
+            eng.mainChar.collision();
+        }
     }
 
     @Override

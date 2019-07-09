@@ -321,8 +321,7 @@ public class Inventory {
     //</editor-fold>
 
     //<editor-fold defaultstate="collapsed" desc="basicHome Graphics g">
-    void basicHome(Graphics g
-    ) {
+    void basicHome(Graphics g) {
         g.setFont(new Font("Courier", Font.BOLD, 25));
         g.setColor(Color.white);
         g.drawString("Amount: " + Integer.toString(inven.get(pops).qnty), slotmenu.x + 130, slotmenu.y + 70);
@@ -440,7 +439,7 @@ public class Inventory {
     public void dropItem(int q, int id) {
         Item ref = new Item(0, 0);
         if (!dropStart) {
-            eng.world.active.items.add(new Item((int) eng.mainChar.x - Integer.parseInt(eng.xoff), (int) eng.mainChar.y - Integer.parseInt(eng.yoff) + 30, 50, 50, inven.get(id).id, q));
+            eng.world.active.items.add(new Item((int) eng.mainChar.x - Integer.parseInt(eng.xoff), (int) eng.mainChar.y - Integer.parseInt(eng.yoff) + 30, 50, 50, inven.get(id).id, q, inven.get(pops).health));
             dropStart = true;
             drop = 0;
             inven.get(pops).qnty -= q;
@@ -460,10 +459,10 @@ public class Inventory {
 //</editor-fold>
 
     //<editor-fold defaultstate="collapsed" desc="hasAxe">
-    public boolean hasAxe() {
+    public boolean hasTool(int id) {
         boolean ret = false;
         for (int i = 0; i < inven.size(); i++) {
-            if (inven.get(i).id == 10) {
+            if (inven.get(i).id == id) {
                 ret = true;
                 break;
             } else {

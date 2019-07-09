@@ -108,6 +108,7 @@ public class Hub extends Location {
     //</editor-fold>
 
     //<editor-fold defaultstate="collapsed" desc="Render Graphics g">
+    @Override
     public void render(Graphics g) {
         //update for the x and y offset for drawing
         int rendercount = 0;
@@ -115,7 +116,7 @@ public class Hub extends Location {
         yOff = eng.getYOff();
 
         //Draw hub
-        g.drawImage(eng.assetLdr.Hub1, xOff, yOff, eng.assetLdr.Hub1.getWidth() * eng.size, eng.assetLdr.Hub1.getHeight() * eng.size, null);
+        g.drawImage(ESC.assetLdr.Hub1, xOff, yOff, ESC.assetLdr.Hub1.getWidth() * eng.size, ESC.assetLdr.Hub1.getHeight() * eng.size, null);
         g.setColor(Color.red);
 
         //Outline for collision box es if debug mode is on
@@ -173,20 +174,13 @@ public class Hub extends Location {
     }
     //</editor-fold>
 
-    //<editor-fold defaultstate="collapsed" desc="overlayPrioorityRender Graohics g">
+    //<editor-fold defaultstate="collapsed" desc="overlayPriorityRender Graohics g">
     @Override
     public void overlayPriorityRender(Graphics g) {
         if (eng.inventory) {
             g.setColor(Color.green);
             for (int i = 0; i < eng.world.items.size(); i++) {
                 g.drawRect(eng.world.items.get(i).x + Integer.parseInt(eng.xoff), eng.world.items.get(i).y + Integer.parseInt(eng.yoff), eng.world.items.get(i).width, eng.world.items.get(i).height);
-            }
-            g.setColor(Color.red);
-            Graphics2D g2d = (Graphics2D) g;
-            AffineTransform offset = new AffineTransform();
-            offset.translate(eng.getXOff(), eng.getYOff());
-            for (int i = 0; i < eng.world.Objects.size(); i++) {
-                g2d.draw(eng.world.Objects.get(i).createTransformedArea(offset));
             }
         }
     }
@@ -207,6 +201,7 @@ public class Hub extends Location {
     //</editor-fold>
 
     //<editor-fold defaultstate="collapsed" desc="Item update">
+    @Override
     public void itemUpdate() {
         for (int i = 0; i < obbys.size(); i++) {
             obbys.get(i).update();

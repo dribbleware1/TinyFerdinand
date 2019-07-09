@@ -91,9 +91,6 @@ public class World {
                     break;
             }
             updatelist();
-//            if (prevLoc.equals("menu")) {
-//                menu.starting = false;
-//            }
             prevLoc = eng.Loc;
 
         }

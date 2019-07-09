@@ -97,8 +97,12 @@ public class ESC implements Runnable {
     Color fadeFilter = new Color(0, 0, 0, 0);
     int fadeTimer = 0;
     int fadeAmount = 3;
-    Thread lightManager;
-    Thread itemManager;
+
+    public Thread lightManager;
+    public Thread itemManager;
+
+    public ItemManager im;
+
     public Font text = new Font("TimesRoman", Font.PLAIN, 60);
     public Font text2 = new Font("TimesRoman", Font.PLAIN, 30);
     public BufferedImage FILTER = new BufferedImage(1120, 1120, 3);

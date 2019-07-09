@@ -279,7 +279,7 @@ public class Tree extends WorldObjects {
 
     //<editor-fold defaultstate="collapsed" desc="Pickup">
     private void pickup() {
-        if (eng.mainChar.inv.hasAxe()) {
+        if (eng.mainChar.inv.hasTool(10)) {
             eng.mainChar.inv.itemAdd(0, 2);
         } else {
             eng.mainChar.inv.itemAdd(0, 1);
@@ -300,7 +300,7 @@ public class Tree extends WorldObjects {
 
     //<editor-fold defaultstate="collapsed" desc="chopDown">
     private void chopDown(int qnt) {
-        if (eng.mainChar.inv.hasAxe()) {
+        if (eng.mainChar.inv.hasTool(10)) {
             eng.mainChar.inv.itemAdd(0, qnt * 2);
         } else {
             eng.mainChar.inv.itemAdd(0, qnt);
